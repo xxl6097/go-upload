@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload with Progress</title>
+    <style>
+        #uploadModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        #progressBar {
+            width: 100%;
+            height: 20px;
+            background-color: #eee;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        #progressBar div {
+            height: 100%;
+            background-color: #4caf50;
+        }
+    </style>
+</head>
+<body onload="getFiles()">
+<h1>File Upload with Progress</h1>
+
+<button onclick="openUploadModal()">Upload File</button>
+<button onclick="refresh()">Refresh</button>
+
+<div id="uploadModal">
+    <h2>Upload File</h2>
+    <input type="file" id="fileInput" />
+    <div id="progressBar">
+        <div id="progress" style="text-align: right"></div>
+    </div>
+    <button onclick="uploadFile()">Upload</button>
+    <button onclick="closeUploadModal()">Cancel</button>
+</div>
+
+<div>
+    <ul id="file_list">
+        <!-- Existing list items will be displayed here -->
+    </ul>
+</div>
+
+<script>
+    function addItem(newItem) {
+        // Check if the user entered something
+        var listContainer = document.getElementById("file_list");
+        if (newItem !== null) {
+            // Create list item
+            var listItem = document.createElement("li");
+
+            // Create download link
+            var downloadLink = document.createElement("a");
+            var result = newItem.size / (1000 * 1000);
+            var roundedResult = result.toFixed(2);
+            downloadLink.textContent = newItem.name + "(" + roundedResult + "M)";
+            downloadLink.href = newItem.path;
+            downloadLink.download = newItem.name;
+
+            // Append download link to list item
+            listItem.appendChild(downloadLink);
+
+            // Append list item to list container
+            listContainer.appendChild(listItem);
+        } else {
+            alert("Please enter a valid item.");
+        }
+    }
+
+    function openUploadModal() {
+        document.getElementById('uploadModal').style.display = 'block';
+        document.getElementById('progress').style.width = '0%';
+    }
+
+    function closeUploadModal() {
+        document.getElementById('uploadModal').style.display = 'none';
+    }
+    
+    function getFiles() {
+        var xhr = new XMLHttpRequest();
+        var url = '/upload';
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                // 请求成功
+                var responseData = JSON.parse(xhr.responseText);
+                console.log(responseData);
+
+                // 文件上传成功
+                console.log(xhr)
+                filejson = JSON.parse(xhr.response)
+                if (filejson.code === 0){
+                    console.log('成功了哦')
+                    if (filejson.data){
+                        // 使用 for...of 循环倒序遍历数组
+                        for (var element of filejson.data.reverse()) {
+                            console.log(element);
+                            addItem(element)
+                        }
+                    }
+                }else{
+                    console.log('失败了',filejson.msg)
+                }
+
+            } else {
+                // 请求失败或还未完成
+                console.error('get files err ',xhr);
+            }
+        };
+
+        xhr.send();
+    }
+
+    function refresh() {
+        var myElement = document.getElementById("file_list");
+        while (myElement.firstChild) {
+            myElement.removeChild(myElement.firstChild);
+        }
+        getFiles()
+    }
+
+    function uploadFile() {
+        var fileInput = document.getElementById('fileInput');
+        var file = fileInput.files[0];
+
+        if (file) {
+            var formData = new FormData();
+            formData.append('file', file);
+
+            var xhr = new XMLHttpRequest();
+
+            // 监听进度事件
+            xhr.upload.addEventListener('progress', function (event) {
+                if (event.lengthComputable) {
+                    var percentComplete = (event.loaded / event.total) * 100;
+                    document.getElementById('progress').style.width = percentComplete + '%';
+                    var roundedResult = percentComplete.toFixed(1);
+                    document.getElementById('progress').textContent = roundedResult + '%';
+                }
+            });
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        // 文件上传成功
+                        console.log('File uploaded successfully!');
+                        console.log(xhr)
+                        filejson = JSON.parse(xhr.response)
+                        if (filejson.code === 0){
+                            console.log('成功了哦')
+                            if (filejson.data){
+                                for (var item of  filejson.data){
+                                    addItem(item)
+                                }
+                                //document.getElementById('response').innerHTML = "sucess";
+                            }
+                        }else{
+                            console.log('失败了',filejson.msg)
+                        }
+                    } else {
+                        // 文件上传失败
+                        console.error('File upload failed. Please try again.');
+                    }
+
+                    // 关闭模态框
+                    closeUploadModal();
+                }
+            };
+
+            // 将 '/upload' 替换为服务器端处理文件上传的路径
+            xhr.open('POST', '/upload', true);
+            xhr.send(formData);
+        } else {
+            alert('Please select a file before uploading.');
+        }
+    }
+</script>
+
+</body>
+</html>
