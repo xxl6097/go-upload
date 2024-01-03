@@ -4,6 +4,9 @@ appname=go-upload
 #版本号，latest
 appversion=0.0.0
 
+function build_windows_amd64() {
+    set CGO_ENABLED=0 && set GOOS=windows && set GOARCH=amd64 && go build -o ${appname}
+}
 function build_linux_amd64() {
     CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${appname}
 }
@@ -33,6 +36,7 @@ function build_images_to_conding() {
 
 
 function menu() {
+  echo "0. 编译 Windows amd64"
   echo "1. 编译 Linux amd64"
   echo "2. 编译 Linux arm64"
   echo "3. 编译 MacOS"
@@ -42,6 +46,7 @@ function menu() {
   read index
 
   case "$index" in
+  [0]) (build_windows_amd64) ;;
   [1]) (build_linux_amd64) ;;
   [2]) (build_linux_arm64) ;;
   [3]) (build_darwin_arm64) ;;

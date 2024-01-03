@@ -26,11 +26,11 @@ var content embed.FS
 
 func init() {
 	subFs, err := fs.Sub(content, ".")
-	fmt.Printf("FS:%v err:%v\n", subFs, err)
+	fmt.Sprintf("FS:%v err:%v\n", subFs, err)
 }
 
 func Load() http.FileSystem {
 	fsys := http.FS(content)
-	fmt.Printf("fs:%v\n", fsys)
+	fmt.Sprintf("fs:%v\n", fsys)
 	return fsys
 }

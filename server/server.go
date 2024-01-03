@@ -100,10 +100,10 @@ func initRouter(router *mux.Router) {
 	router.PathPrefix("/").Handler(utils.MakeHTTPGzipHandler(http.StripPrefix("/", http.FileServer(fsys)))).Methods("GET")
 }
 
-func TestFileServer() {
+func FileUploadWebServer(port int, token string) {
 	router := mux.NewRouter()
 	initRouter(router)
-	address := fmt.Sprintf(":%d", 8080)
+	address := fmt.Sprintf(":%d", port)
 	server := &http.Server{
 		Addr:    address,
 		Handler: router,
