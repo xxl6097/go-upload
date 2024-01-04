@@ -26,5 +26,22 @@ curl -F "file=@/Users/uuxia/Desktop/work/code/go/go-upload/main.go" -F "token=55
 curl -F "file=@$1" -F "token=$2" https://uuxia.cn/v1/api/file/upfile
 ```
 
-ENV_PORT
-ENV_TOKEN
+
+docker-compose.yaml
+
+```yaml
+version: "3.3"
+services:
+  homepage:
+    image: xxl6097/go-upload:0.0.2
+    restart: no
+    container_name: go-upload
+    ports:
+      - 3008:8087
+    volumes:
+      - ./conf/files:/app/files
+    environment:
+      ENV_PORT: 8087
+      ENV_TOKEN: het002402
+
+```
