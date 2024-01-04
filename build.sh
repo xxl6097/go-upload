@@ -69,7 +69,7 @@ function build_images_to_hubdocker() {
 
   docker tag ${appname}:${appversion} xxl6097/${appname}:latest
   docker buildx build --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
-  #echo docker pull xxl6097/${appname}:${appversion}
+  echo docker pull xxl6097/${appname}:${appversion}
   #docker run -d -p 9911:8080 --name go-raspberry xxl6097/${appname}:${appversion}
 }
 
