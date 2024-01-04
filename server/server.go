@@ -148,7 +148,7 @@ func preArgs() {
 		fmt.Println("当前运行在 macOS 操作系统上")
 		os.Setenv("ENV_PORT", "4444")
 		os.Setenv("ENV_TOKEN", "44")
-		os.Setenv("ENV_FILES", "/Users/uuxia/Desktop/work/doc")
+		//os.Setenv("ENV_FILES", "/Users/uuxia/Desktop/work/doc")
 	case "windows":
 		fmt.Println("当前运行在 Windows 操作系统上")
 	default:

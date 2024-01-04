@@ -90,6 +90,7 @@ function gomodtidy() {
 }
 
 function menu() {
+  echo "0. 编译 Windows amd64"
   echo "1. 编译 Linux amd64"
   echo "2. 编译 Linux arm64"
   echo "3. 编译 MacOS"
@@ -103,6 +104,7 @@ function menu() {
   appversion=$(getversion)
   echo "start===>$appversion"
   case "$index" in
+  [0]) (build_windows_amd64) ;;
   [1]) (build_linux_amd64) ;;
   [2]) (build_linux_arm64) ;;
   [3]) (build_darwin_arm64) ;;
