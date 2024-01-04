@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>动态添加目录树</title>
+  <style>
+    ul {
+      list-style-type: none;
+      margin-left: 20px;
+    }
+    .folder {
+      cursor: pointer;
+    }
+    .file {
+      margin-left: 20px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div id="directoryTree"></div>
+
+<script>
+  // 示例数据
+  const directoryData = [
+    {
+      name: "Folder 1",
+      type: "folder",
+      children: [
+        { name: "File 1-1", type: "file" },
+        { name: "File 1-2", type: "file" }
+      ]
+    },
+    {
+      name: "Folder 2",
+      type: "folder",
+      children: [
+        { name: "File 2-1", type: "file" },
+        { name: "File 2-2", type: "file" }
+      ]
+    },
+    { name: "File 3", type: "file" }
+  ];
+
+  // 创建目录树
+  function createDirectoryTree(container, data) {
+    const ul = document.createElement("ul");
+
+    data.forEach(item => {
+      const li = document.createElement("li");
+      const span = document.createElement("span");
+      span.textContent = item.name;
+
+      if (item.type === "folder" && item.children) {
+        span.classList.add("folder");
+        span.addEventListener("click", () => {
+          toggleFolder(li);
+        });
+
+        const subTree = createDirectoryTree(li, item.children);
+        li.appendChild(subTree);
+      } else {
+        span.classList.add("file");
+        span.addEventListener("click", () => {
+          addFile(li);
+        });
+      }
+
+      li.appendChild(span);
+      ul.appendChild(li);
+    });
+
+    container.appendChild(ul);
+  }
+
+  // 切换文件夹的展开和折叠状态
+  function toggleFolder(folderItem) {
+    const ul = folderItem.querySelector("ul");
+    if (ul) {
+      ul.style.display = ul.style.display === "none" ? "block" : "none";
+    }
+  }
+
+  // 添加新文件
+  function addFile(parentItem) {
+    const newFile = { name: "New File", type: "file" };
+    const li = document.createElement("li");
+    const span = document.createElement("span");
+    span.textContent = newFile.name;
+    span.classList.add("file");
+    span.addEventListener("click", () => {
+      addFile(li);
+    });
+    li.appendChild(span);
+    parentItem.querySelector("ul").appendChild(li);
+  }
+
+  // 初始化目录树
+  createDirectoryTree(document.getElementById("directoryTree"), directoryData);
+</script>
+
+</body>
+</html>

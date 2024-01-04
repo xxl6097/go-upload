@@ -45,3 +45,6 @@ services:
       ENV_TOKEN: het002402
 
 ```
+
+
+curl -F "file=@./teamide" -F "token=het002402" http://uuxia.cn:8087/upload

@@ -5,7 +5,7 @@ appname=go-upload
 #appversion=0.0.0-$(date +"%Y%m%d%H%M%S")
 appversion=0.0.0
 
-function getversion() {
+function getversion1() {
   version=$(cat version)
   if [ "$version" = "" ]; then
     version="0.0.0"
@@ -14,11 +14,11 @@ function getversion() {
   echo $version
 }
 
-function versionup() {
+function getversion() {
   version=$(cat version)
   if [ "$version" = "" ]; then
     version="0.0.0"
-    echo $version >version
+    echo $version
   else
     v3=$(echo $version | awk -F'.' '{print($3);}')
     v2=$(echo $version | awk -F'.' '{print($2);}')
@@ -35,9 +35,13 @@ function versionup() {
       v3=$(expr $v3 + 1)
     fi
     ver="$v1.$v2.$v3"
-    echo $ver >version
+    echo $ver
   fi
-  echo $ver
+
+}
+
+function build_windows_amd64() {
+  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ${appname}.exe
 }
 
 function build_linux_amd64() {
@@ -108,8 +112,7 @@ function menu() {
   [7]) (build_images_to_tencent) ;;
   *) echo "exit" ;;
   esac
-  vv=$(versionup)
-  echo "end===>$vv"
+  echo $appversion >version
 }
 
 menu

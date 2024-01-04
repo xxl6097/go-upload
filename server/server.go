@@ -11,12 +11,15 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 )
 
 var (
-	fsys  http.FileSystem
-	token string
+	fsys          http.FileSystem
+	token         string
+	files_dir     string = "./files"
+	static_prefix string = "/files/"
 )
 
 func init() {
@@ -41,7 +44,7 @@ func Respond(w http.ResponseWriter, data map[string]interface{}) {
 func upload(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		filearr := utils.VisitDir("./files")
+		filearr := utils.VisitDir(files_dir, static_prefix)
 		Respond(w, Ok(filearr))
 	case "POST":
 		//ParseMultipartForm将请求的主体作为multipart/form-data解析。请求的整个主体都会被解析，得到的文件记录最多 maxMemery字节保存在内存，其余部分保存在硬盘的temp文件里。如果必要，ParseMultipartForm会自行调用 ParseForm。重复调用本方法是无意义的
@@ -75,7 +78,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			dir := "./files/" + utils.GetTimeDir()
+			dir := files_dir + "/" + utils.GetTimeDir()
 			if !utils.IsDirExists(dir) {
 				err := utils.CreateMutiDir(dir)
 				if err != nil {
@@ -110,7 +113,8 @@ func upload(w http.ResponseWriter, r *http.Request) {
 
 func initRouter(router *mux.Router) {
 	//http server
-	router.PathPrefix("/files/").Handler(http.StripPrefix("/files/", http.FileServer(http.Dir("./files"))))
+	router.PathPrefix(static_prefix).Handler(http.StripPrefix(static_prefix, http.FileServer(http.Dir(files_dir))))
+	//router.PathPrefix("/a/").Handler(http.StripPrefix("/a/", http.FileServer(http.Dir(dir))))
 
 	router.Use(mux.CORSMethodMiddleware(router))
 	router.HandleFunc("/upload", upload).Methods(http.MethodPost, http.MethodOptions) // view
@@ -136,9 +140,31 @@ func FileUploadWebServer(port, _token string) {
 	_ = server.Serve(ln)
 }
 
+func preArgs() {
+	_os := runtime.GOOS
+	// 根据操作系统执行不同的逻辑
+	switch _os {
+	case "darwin":
+		fmt.Println("当前运行在 macOS 操作系统上")
+		os.Setenv("ENV_PORT", "4444")
+		os.Setenv("ENV_TOKEN", "44")
+		os.Setenv("ENV_FILES", "/Users/uuxia/Desktop/work/doc")
+	case "windows":
+		fmt.Println("当前运行在 Windows 操作系统上")
+	default:
+		fmt.Println("无法识别的操作系统")
+	}
+}
+
+// /Users/uuxia/Desktop/work
 func Bootstrap() {
+	preArgs()
 	var port = os.Getenv("ENV_PORT")
 	var token = os.Getenv("ENV_TOKEN")
+	_dir := os.Getenv("ENV_FILES")
+	if _dir != "" {
+		files_dir = _dir
+	}
 	if port == "" && token == "" {
 		switch len(os.Args) {
 		case 3:
@@ -178,6 +204,8 @@ func Bootstrap() {
 
 func welcom(port, token string) {
 	fmt.Println("欢迎使用文件上传助手")
+	fmt.Printf("文件路径：%s\n", files_dir)
 	fmt.Printf("网页上传：http://localhost:%s\n", port)
+	fmt.Printf("网页上传：http://localhost:%s%s\n", port, files_dir)
 	fmt.Printf("指令上传示例：curl -F \"file=@/root/xxx.log\" -F \"token=%s\" http://localhost:%s/upload\n", token, port)
 }

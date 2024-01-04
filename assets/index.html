@@ -128,7 +128,7 @@
     function getFiles() {
         var token = document.getElementById("token").value;
         if (token.length === 0){
-            document.getElementById("token").value = localStorage.getItem("token");;
+            document.getElementById("token").value = localStorage.getItem("token");
         }
 
         var xhr = new XMLHttpRequest();
@@ -302,7 +302,8 @@
         downloadLink.download = newItem.name;
 
         cell1.innerHTML = newItem.name;
-        cell2.innerHTML = "<a href="+newItem.path+">下载</a>";
+        var encodedPath = encodeURIComponent(newItem.path);
+        cell2.innerHTML = "<a href="+encodedPath+">下载</a>";
 
         var result = newItem.size / (1000 * 1000);
         var roundedResult = result.toFixed(2);

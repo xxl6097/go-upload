@@ -63,7 +63,7 @@ func visit(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
-func VisitDir(rootDir string) []FileStruct {
+func VisitDir(rootDir, prefix string) []FileStruct {
 	var filearr []FileStruct
 	err := filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
@@ -74,10 +74,10 @@ func VisitDir(rootDir string) []FileStruct {
 			// 处理目录
 			//fmt.Println("Directory:", path)
 		} else {
-			// 处理文件
-			//fmt.Println("File:", path, info.Name(), info.ModTime().String())
+			// 对路径进行编码
+			fmt.Println("File:", path, info.ModTime().String())
 			if path != "" {
-				item := FileStruct{Name: info.Name(), Size: info.Size(), Path: path, ModTime: info.ModTime().String()}
+				item := FileStruct{Name: info.Name(), Size: info.Size(), Path: prefix + path[len(rootDir)+1:], ModTime: info.ModTime().String()}
 				//fmt.Println("File:", item)
 				filearr = append(filearr, item)
 			}

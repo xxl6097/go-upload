@@ -16,7 +16,7 @@ RUN go build -ldflags="-w -s" *.go
 
 
 FROM alpine AS runner
-
+CMD ["/bin/sh"]
 #ENV HOST_API CLINK_API
 WORKDIR /app
 COPY --from=builder /app/main .
@@ -40,10 +40,17 @@ RUN echo 'Asia/Shanghai' >/etc/timezone
 RUN apk add --no-cache tzdata
 ENV TZ=Asia/Shanghai
 
-
 VOLUME ["/app/files/"]
 VOLUME ["/app/logs/"]
+
+COPY entrypoint.sh /entrypoint.sh
+
+RUN apk add --no-cache bash ca-certificates su-exec tzdata; \
+    chmod +x /entrypoint.sh
+ENV PUID=0 PGID=0 UMASK=022
 # 需暴露的端口
 #EXPOSE 9090
 #EXPOSE map[8080/tcp:{} ]
-ENTRYPOINT ["./main"]
+#ENTRYPOINT ["./main"]
+CMD ["/entrypoint.sh"]
+
