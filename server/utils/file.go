@@ -8,9 +8,10 @@ import (
 )
 
 type FileStruct struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
-	Size int64  `json:"size"`
+	Name    string `json:"name"`
+	Path    string `json:"path"`
+	Size    int64  `json:"size"`
+	ModTime string `json:"modTime"`
 }
 
 func IsDirExists(path string) bool {
@@ -74,9 +75,9 @@ func VisitDir(rootDir string) []FileStruct {
 			//fmt.Println("Directory:", path)
 		} else {
 			// 处理文件
-			//fmt.Println("File:", path, info.Name())
+			//fmt.Println("File:", path, info.Name(), info.ModTime().String())
 			if path != "" {
-				item := FileStruct{Name: info.Name(), Size: info.Size(), Path: path}
+				item := FileStruct{Name: info.Name(), Size: info.Size(), Path: path, ModTime: info.ModTime().String()}
 				//fmt.Println("File:", item)
 				filearr = append(filearr, item)
 			}

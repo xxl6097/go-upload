@@ -20,8 +20,11 @@ go get -u gopkg.in/yaml.v3
 
 
 ```azure
-curl -F "file=@/Users/uuxia/Desktop/work/code/go/go-upload/gitcommit.sh" http://localhost:8080/upload
+curl -F "file=@/Users/uuxia/Desktop/work/code/go/go-upload/main.go" -F "token=55" http://localhost:5555/upload
 ```
 ```azure
-curl -F "file=@$1" -F "dir=$2" https://uuxia.cn/v1/api/file/upfile
+curl -F "file=@$1" -F "token=$2" https://uuxia.cn/v1/api/file/upfile
 ```
+
+ENV_PORT
+ENV_TOKEN

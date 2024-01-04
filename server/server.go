@@ -15,7 +15,8 @@ import (
 )
 
 var (
-	fsys http.FileSystem
+	fsys  http.FileSystem
+	token string
 )
 
 func init() {
@@ -24,6 +25,10 @@ func init() {
 
 func Ok(data interface{}) map[string]interface{} {
 	return map[string]interface{}{"code": 0, "msg": "sucess", "data": data}
+}
+
+func Result(code int, msg string, data interface{}) map[string]interface{} {
+	return map[string]interface{}{"code": code, "msg": msg, "data": data}
 }
 
 func Respond(w http.ResponseWriter, data map[string]interface{}) {
@@ -48,6 +53,20 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		}
 		m := r.MultipartForm
 		files := m.File["file"]
+		_token := m.Value["token"]
+		if files == nil {
+			Respond(w, Result(-1, "请在MultipartForm字段中添加file字段和对应文件", nil))
+			return
+		}
+		if _token == nil {
+			Respond(w, Result(-1, "你带上token字段", nil))
+			return
+		}
+		if strings.ToLower(token) == strings.ToLower(_token[0]) {
+		} else {
+			Respond(w, Result(-1, "请检查token是否正确!", _token))
+			return
+		}
 		var filearr []utils.FileStruct
 		for i, _ := range files {
 			file, err := files[i].Open()
@@ -100,10 +119,10 @@ func initRouter(router *mux.Router) {
 	router.PathPrefix("/").Handler(utils.MakeHTTPGzipHandler(http.StripPrefix("/", http.FileServer(fsys)))).Methods("GET")
 }
 
-func FileUploadWebServer(port int, token string) {
+func FileUploadWebServer(port, _token string) {
 	router := mux.NewRouter()
 	initRouter(router)
-	address := fmt.Sprintf(":%d", port)
+	address := fmt.Sprintf(":%s", port)
 	server := &http.Server{
 		Addr:    address,
 		Handler: router,
@@ -112,7 +131,53 @@ func FileUploadWebServer(port int, token string) {
 	if err != nil {
 		return
 	}
-	fmt.Printf("please open http://localhost%s\n", server.Addr)
-	fmt.Printf("please open http://localhost%s/files/\n", server.Addr)
+	token = _token
+	welcom(port, _token)
 	_ = server.Serve(ln)
+}
+
+func Bootstrap() {
+	var port = os.Getenv("ENV_PORT")
+	var token = os.Getenv("ENV_TOKEN")
+	if port == "" && token == "" {
+		switch len(os.Args) {
+		case 3:
+			port = os.Args[1]
+			token = os.Args[2]
+			if port == "" || token == "" {
+				fmt.Printf("请正确输入端口和token等参数")
+				return
+			}
+		default:
+			for {
+				fmt.Printf("请输入端口号：")
+				_, err := fmt.Scanln(&port)
+				if err != nil {
+					fmt.Println("输入错误：", err)
+					continue
+				}
+				if !utils.IsNumeric(port) {
+					fmt.Println("请输入一个数字,谢谢!")
+					continue
+				}
+				break
+			}
+			for {
+				fmt.Printf("请设置token：")
+				_, err := fmt.Scanln(&token)
+				if err != nil {
+					fmt.Println("输入错误：", err)
+					continue
+				}
+				break
+			}
+		}
+	}
+	FileUploadWebServer(port, token)
+}
+
+func welcom(port, token string) {
+	fmt.Println("欢迎使用文件上传助手")
+	fmt.Printf("网页上传：http://localhost:%s\n", port)
+	fmt.Printf("指令上传示例：curl -F \"file=@/root/xxx.log\" -F \"token=%s\" http://localhost:%s/upload\n", token, port)
 }

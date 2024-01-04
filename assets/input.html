@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Table with Downloadable Content</title>
+    <style>
+        /* 表格样式（可选） */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* 设置列宽比例 */
+        th:nth-child(1), td:nth-child(1) {
+            width: 20%;
+        }
+
+        th:nth-child(2), td:nth-child(2) {
+            width: 10%;
+        }
+
+        th:nth-child(3), td:nth-child(3) {
+            width: 10%;
+        }
+
+        th:nth-child(4), td:nth-child(4) {
+            width: 60%;
+        }
+    </style>
+
+
+</head>
+<body>
+<h2>动态表格</h2>
+<table id="myTable">
+    <thead>
+    <tr>
+        <th>文件名</th>
+        <th>下载链接</th>
+        <th>大小</th>
+        <th>位置</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<button onclick="addRow()">添加行</button>
+
+<script>
+    function downloadFile(filename, content) {
+        var blob = new Blob([content], { type: 'text/plain' });
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+    }
+
+    function addRow() {
+        var table = document.getElementById("myTable");
+        var tbody = table.getElementsByTagName("tbody")[0];
+
+        var newRow = tbody.insertRow();
+        var cell1 = newRow.insertCell(0);
+        var cell2 = newRow.insertCell(1);
+        var cell3 = newRow.insertCell(2);
+        var cell4 = newRow.insertCell(3);
+
+        cell3.innerHTML = "10MB";
+        cell4.innerHTML = "/Users/uuxia";
+        // 为新行设置文件名和下载链接
+        cell1.innerHTML = "新文档" + (tbody.rows.length + 1) + ".txt";
+        cell2.innerHTML = '<a href="#" onclick="downloadFile(\'new-document' + (tbody.rows.length + 1) + '.txt\', \'Content for new document ' + (tbody.rows.length + 1) + '\')">下载</a>';
+    }
+</script>
+</body>
+</html>

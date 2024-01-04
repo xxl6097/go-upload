@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Speed Monitor</title>
+</head>
+<body>
+<h2>上传文件</h2>
+<input type="file" id="fileInput" />
+<progress id="progressBar" value="0" max="100"></progress>
+<p id="speed">上传速度: 0 KB/s</p>
+
+<script>
+    document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
+    function handleFileSelect(event) {
+        const fileInput = event.target;
+        const file = fileInput.files[0];
+
+        if (file) {
+            const progressBar = document.getElementById('progressBar');
+            const speedElement = document.getElementById('speed');
+
+            let startTime;
+            let startBytes = 0;
+
+            const updateProgress = (event) => {
+                const currentTime = new Date().getTime();
+                const elapsedSeconds = (currentTime - startTime) / 1000;
+                const uploadedBytes = event.loaded;
+                const speed = (uploadedBytes - startBytes) / elapsedSeconds;
+
+                // 更新上传速度
+                const speedText = formatSpeed(speed);
+                console.log(speedText)
+                speedElement.textContent = `上传速度: ${speedText}`;
+
+                // 更新进度条
+                const progress = (uploadedBytes / file.size) * 100;
+                progressBar.value = progress;
+
+                // 更新起始时间和字节数
+                startTime = currentTime;
+                startBytes = uploadedBytes;
+            };
+
+            const formatSpeed = (bytesPerSecond) => {
+                const kiloBytesPerSecond = bytesPerSecond / (1024*1024);
+                return kiloBytesPerSecond.toFixed(2) + ' MB/s';
+            };
+
+            // 监听上传进度
+            fileInput.addEventListener('progress', updateProgress);
+
+            // 记录上传开始时间
+            startTime = new Date().getTime();
+        }
+    }
+</script>
+</body>
+</html>

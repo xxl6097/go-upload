@@ -21,13 +21,11 @@ FROM alpine AS runner
 WORKDIR /app
 COPY --from=builder /app/main .
 #COPY --from=builder /app/conf ./conf
-RUN mkdir /logs
-RUN echo "https://mirrors.aliyun.com/alpine/v3.8/main/" > /etc/apk/repositories \
-    && echo "https://mirrors.aliyun.com/alpine/v3.8/community/" >> /etc/apk/repositories \
-    && apk add --no-cache tzdata \
-    && cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime  \
-    && echo Asia/Shanghai > /etc/timezone \
-    && apk del tzdata
+#RUN mkdir /logs
+
+VOLUME ["/app/files/"]
+VOLUME ["/app/logs/"]
 # 需暴露的端口
 #EXPOSE 9090
+#EXPOSE map[8080/tcp:{} ]
 ENTRYPOINT ["./main"]

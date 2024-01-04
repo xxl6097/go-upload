@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Upload with Progress</title>
     <style>
+        /* Toast样式 */
+        .toast {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
         #uploadModal {
             display: none;
             position: fixed;
@@ -30,66 +43,94 @@
             height: 100%;
             background-color: #4caf50;
         }
+        /* 表格样式（可选） */
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* 设置列宽比例 */
+        th:nth-child(1), td:nth-child(1) {
+            width: 35%;
+        }
+
+        th:nth-child(2), td:nth-child(2) {
+            width: 5%;
+        }
+
+        th:nth-child(3), td:nth-child(3) {
+            width: 10%;
+        }
+
+        th:nth-child(4), td:nth-child(4) {
+            width: 50%;
+        }
     </style>
 </head>
 <body onload="getFiles()">
-<h1>File Upload with Progress</h1>
+<h2>上传文件</h2>
 
-<button onclick="openUploadModal()">Upload File</button>
-<button onclick="refresh()">Refresh</button>
-
-<div id="uploadModal">
-    <h2>Upload File</h2>
-    <input type="file" id="fileInput" />
-    <div id="progressBar">
-        <div id="progress" style="text-align: right"></div>
-    </div>
-    <button onclick="uploadFile()">Upload</button>
-    <button onclick="closeUploadModal()">Cancel</button>
+<div id="progressBar" style="display: none">
+    <div id="progress" style="text-align: left; width: 0;"></div>
 </div>
+<br>
+<input type="file" id="fileInput" />
+<label for="token">token:</label>
+<input type="text" id="token" name="token">
+<button onclick="uploadFile()">开始上传</button>
+<button onclick="refresh()">刷新列表</button>
+<p id="speed">上传速度: 0 MB/s</p>
+
 
 <div>
-    <ul id="file_list">
-        <!-- Existing list items will be displayed here -->
-    </ul>
+    <table id="myTable">
+        <thead>
+        <tr>
+            <th>文件名</th>
+            <th>下载链接</th>
+            <th>大小</th>
+            <th>修改时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 </div>
-
+<!-- Toast容器 -->
+<div id="toast" class="toast"></div>
 <script>
-    function addItem(newItem) {
-        // Check if the user entered something
-        var listContainer = document.getElementById("file_list");
-        if (newItem !== null) {
-            // Create list item
-            var listItem = document.createElement("li");
-
-            // Create download link
-            var downloadLink = document.createElement("a");
-            var result = newItem.size / (1000 * 1000);
-            var roundedResult = result.toFixed(2);
-            downloadLink.textContent = newItem.name + "(" + roundedResult + "M)";
-            downloadLink.href = newItem.path;
-            downloadLink.download = newItem.name;
-
-            // Append download link to list item
-            listItem.appendChild(downloadLink);
-
-            // Append list item to list container
-            listContainer.appendChild(listItem);
-        } else {
-            alert("Please enter a valid item.");
-        }
+    function showToast(content) {
+        var toastElement = document.getElementById("toast");
+        // 设置Toast文本
+        toastElement.innerText = content;
+        // 显示Toast
+        toastElement.style.display = "block";
+        // 3秒后隐藏Toast
+        setTimeout(function () {
+            toastElement.style.display = "none";
+            document.getElementById('progress').style.width = '0%';
+            document.getElementById('progress').textContent = '';
+            document.getElementById('progressBar').style.display = "none";
+        }, 3000);
     }
 
-    function openUploadModal() {
-        document.getElementById('uploadModal').style.display = 'block';
-        document.getElementById('progress').style.width = '0%';
-    }
 
-    function closeUploadModal() {
-        document.getElementById('uploadModal').style.display = 'none';
-    }
-    
     function getFiles() {
+        var token = document.getElementById("token").value;
+        if (token.length === 0){
+            document.getElementById("token").value = localStorage.getItem("token");;
+        }
+
         var xhr = new XMLHttpRequest();
         var url = '/upload';
         xhr.open('GET', url, true);
@@ -125,9 +166,14 @@
     }
 
     function refresh() {
-        var myElement = document.getElementById("file_list");
-        while (myElement.firstChild) {
-            myElement.removeChild(myElement.firstChild);
+
+        // 获取表格对象
+        var table = document.getElementById("myTable");
+        // 获取表格主体
+        var tbody = table.getElementsByTagName("tbody")[0];
+        // 移除表格主体中的所有行
+        while (tbody.firstChild) {
+            tbody.removeChild(tbody.firstChild);
         }
         getFiles()
     }
@@ -139,8 +185,21 @@
         if (file) {
             var formData = new FormData();
             formData.append('file', file);
+            var token = document.getElementById("token").value;
+            formData.append('token', token);
 
             var xhr = new XMLHttpRequest();
+
+            const progressBar = document.getElementById('progressBar');
+            const speedElement = document.getElementById('speed');
+            const formatSpeed = (bytesPerSecond) => {
+                const kiloBytesPerSecond = bytesPerSecond / (1024*1024);
+                return kiloBytesPerSecond.toFixed(2) + ' MB/s';
+            };// 记录上传开始时间
+
+            let startTime;
+            let startBytes = 0;
+            startTime = new Date().getTime();
 
             // 监听进度事件
             xhr.upload.addEventListener('progress', function (event) {
@@ -150,6 +209,24 @@
                     var roundedResult = percentComplete.toFixed(1);
                     document.getElementById('progress').textContent = roundedResult + '%';
                 }
+
+                const currentTime = new Date().getTime();
+                const elapsedSeconds = (currentTime - startTime) / 1000;
+                const uploadedBytes = event.loaded;
+                const speed = (uploadedBytes - startBytes) / elapsedSeconds;
+
+                // 更新上传速度
+                const speedText = formatSpeed(speed);
+                speedElement.textContent = `上传速度: ${speedText}`;
+
+                // 更新进度条
+                const progress = (uploadedBytes / file.size) * 100;
+                progressBar.value = progress;
+
+                // 更新起始时间和字节数
+                startTime = currentTime;
+                startBytes = uploadedBytes;
+
             });
 
             xhr.onreadystatechange = function () {
@@ -167,8 +244,15 @@
                                 }
                                 //document.getElementById('response').innerHTML = "sucess";
                             }
+                            showToast('上传成功')
+                            // document.getElementById('fileInput').textContent = '';
+                            localStorage.setItem("token", token);
+                            console.log(token)
+                            document.getElementById('progress').textContent = '上传成功';
+
                         }else{
                             console.log('失败了',filejson.msg)
+                            showToast('调用失败:' + filejson.msg)
                         }
                     } else {
                         // 文件上传失败
@@ -176,10 +260,11 @@
                     }
 
                     // 关闭模态框
-                    closeUploadModal();
+                    // closeUploadModal();
+                    clearFileInput()
                 }
             };
-
+            progressBar.style.display = "block"
             // 将 '/upload' 替换为服务器端处理文件上传的路径
             xhr.open('POST', '/upload', true);
             xhr.send(formData);
@@ -187,6 +272,44 @@
             alert('Please select a file before uploading.');
         }
     }
+
+    function clearFileInput() {
+        // 获取文件输入字段
+        var fileInput = document.getElementById('fileInput');
+
+        // 创建一个新的文件输入字段
+        var newFileInput = document.createElement('input');
+        newFileInput.type = 'file';
+        newFileInput.id = 'fileInput';
+
+        // 将新的文件输入字段替换原有的文件输入字段
+        fileInput.parentNode.replaceChild(newFileInput, fileInput);
+    }
+
+    function addItem(newItem) {
+        var table = document.getElementById("myTable");
+        var tbody = table.getElementsByTagName("tbody")[0];
+
+        var newRow = tbody.insertRow();
+        var cell1 = newRow.insertCell(0);
+        var cell2 = newRow.insertCell(1);
+        var cell3 = newRow.insertCell(2);
+        var cell4 = newRow.insertCell(3);
+
+        var downloadLink = document.createElement("a");
+        downloadLink.textContent = "下载";
+        downloadLink.href = newItem.path;
+        downloadLink.download = newItem.name;
+
+        cell1.innerHTML = newItem.name;
+        cell2.innerHTML = "<a href="+newItem.path+">下载</a>";
+
+        var result = newItem.size / (1000 * 1000);
+        var roundedResult = result.toFixed(2);
+        cell3.innerHTML = roundedResult + "M";
+        cell4.innerHTML = newItem.modTime;
+    }
+
 </script>
 
 </body>
