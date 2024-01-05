@@ -4,6 +4,7 @@ appname=go-upload
 #版本号，latest
 #appversion=0.0.0-$(date +"%Y%m%d%H%M%S")
 appversion=0.0.0
+isok='n'
 
 function getversion1() {
   version=$(cat version)
@@ -114,7 +115,12 @@ function menu() {
   [7]) (build_images_to_tencent) ;;
   *) echo "exit" ;;
   esac
-  echo $appversion >version
+  echo "确定执行成功了吗:(y/n)"
+  read isok
+  if [ "$isok" = "y" ]; then
+    echo $appversion >version
+  fi
+
 }
 
 menu

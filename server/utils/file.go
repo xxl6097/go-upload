@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type FileStruct struct {
@@ -77,7 +78,27 @@ func VisitDir(rootDir, prefix string) []FileStruct {
 			// 对路径进行编码
 			fmt.Println("File:", path, info.ModTime().String())
 			if path != "" {
-				item := FileStruct{Name: info.Name(), Size: info.Size(), Path: prefix + path[len(rootDir)+1:], ModTime: info.ModTime().String()}
+				// 判断字符串是否以指定的前缀开头
+				if strings.HasPrefix(path, rootDir) {
+					// 去掉字符串的前缀
+					path = strings.TrimPrefix(path, rootDir)
+					//path = strings.TrimPrefix(path, rootDir)
+					if strings.HasPrefix(path, "/") {
+						index := strings.Index(path, "/")
+						if index != -1 {
+							path = path[index+1:]
+						}
+					}
+				} else {
+					if !strings.HasPrefix(path, "/") {
+						index := strings.Index(path, "/")
+						// 如果找到了 '/'，则截取字符串
+						if index != -1 {
+							path = path[index+1:]
+						}
+					}
+				}
+				item := FileStruct{Name: info.Name(), Size: info.Size(), Path: prefix + path, ModTime: info.ModTime().String()}
 				//fmt.Println("File:", item)
 				filearr = append(filearr, item)
 			}

@@ -10,15 +10,15 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"path/filepath"
 	"runtime"
 	"strings"
 )
 
 var (
-	fsys          http.FileSystem
-	token         string
-	files_dir     string = "./files"
+	fsys      http.FileSystem
+	token     string
+	files_dir string = "./files"
+	//files_dir            = "/Users/uuxia/Desktop/work/code/go/go-upload"
 	static_prefix string = "/files/"
 )
 
@@ -41,11 +41,46 @@ func Respond(w http.ResponseWriter, data map[string]interface{}) {
 	}
 }
 
+func GetReqData[T any](w http.ResponseWriter, r *http.Request) *T {
+	var t T
+	err := json.NewDecoder(r.Body).Decode(&t)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return nil
+	}
+	return &t
+}
+
 func upload(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		filearr := utils.VisitDir(files_dir, static_prefix)
 		Respond(w, Ok(filearr))
+	case "DELETE":
+		req := GetReqData[map[string]interface{}](w, r)
+		_token := (*req)["token"]
+		if _token == nil || _token.(string) == "" {
+			Respond(w, Result(-1, "不好意思，没有token，请滚蛋～", nil))
+			return
+		}
+		if strings.ToLower(token) != strings.ToLower(_token.(string)) {
+			Respond(w, Result(-1, "不好意思，token无效，请滚蛋～", _token))
+			return
+		}
+		path := (*req)["path"]
+		if path == nil || path.(string) == "" {
+			Respond(w, Result(-1, "path is nil", nil))
+			return
+		}
+		realpath := files_dir + path.(string)[len(static_prefix)-1:]
+		err := os.Remove(realpath)
+		if err != nil {
+			fmt.Println("Error deleting file:", err)
+			Respond(w, Result(-1, "remove failed"+path.(string), nil))
+			return
+		}
+		fmt.Println("删除成功", path)
+		Respond(w, Ok(nil))
 	case "POST":
 		//ParseMultipartForm将请求的主体作为multipart/form-data解析。请求的整个主体都会被解析，得到的文件记录最多 maxMemery字节保存在内存，其余部分保存在硬盘的temp文件里。如果必要，ParseMultipartForm会自行调用 ParseForm。重复调用本方法是无意义的
 		//设置内存大小
@@ -54,8 +89,9 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		//files := r.MultipartForm.File["files"]
 		m := r.MultipartForm
-		files := m.File["file"]
+		files := m.File["files[]"]
 		_token := m.Value["token"]
 		if files == nil {
 			Respond(w, Result(-1, "请在MultipartForm字段中添加file字段和对应文件", nil))
@@ -98,9 +134,15 @@ func upload(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			fileName := filepath.Base(filePath)
-			item := utils.FileStruct{Name: fileName, Size: files[i].Size, Path: strings.TrimPrefix(dst.Name(), ".")}
-			fmt.Println(item)
+			fileInfo, err := os.Stat(filePath)
+			if err != nil {
+				fmt.Println("Error:", err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			_path := static_prefix + filePath[len(files_dir)+1:]
+			item := utils.FileStruct{Name: fileInfo.Name(), Size: fileInfo.Size(), Path: _path, ModTime: fileInfo.ModTime().String()}
+			//fmt.Println(item, _path)
 			filearr = append(filearr, item)
 		}
 
@@ -117,8 +159,9 @@ func initRouter(router *mux.Router) {
 	//router.PathPrefix("/a/").Handler(http.StripPrefix("/a/", http.FileServer(http.Dir(dir))))
 
 	router.Use(mux.CORSMethodMiddleware(router))
-	router.HandleFunc("/upload", upload).Methods(http.MethodPost, http.MethodOptions) // view
-	router.HandleFunc("/upload", upload).Methods(http.MethodGet, http.MethodOptions)  // view
+	router.HandleFunc("/upload", upload).Methods(http.MethodPost, http.MethodOptions)   // view
+	router.HandleFunc("/upload", upload).Methods(http.MethodGet, http.MethodOptions)    // view
+	router.HandleFunc("/upload", upload).Methods(http.MethodDelete, http.MethodOptions) // view
 	router.Handle("/favicon.ico", http.FileServer(fsys)).Methods("GET")
 	router.PathPrefix("/").Handler(utils.MakeHTTPGzipHandler(http.StripPrefix("/", http.FileServer(fsys)))).Methods("GET")
 }

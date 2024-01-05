@@ -3,102 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>动态添加目录树</title>
   <style>
-    ul {
-      list-style-type: none;
-      margin-left: 20px;
+    /* 添加阴影层的样式 */
+    #overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
+      justify-content: center;
+      align-items: center;
+      z-index: 1000; /* 使阴影层在最上层 */
     }
-    .folder {
-      cursor: pointer;
-    }
-    .file {
-      margin-left: 20px;
-      cursor: pointer;
+
+    /* 添加加载状态的样式 */
+    #loading {
+      color: white;
+      font-size: 24px;
     }
   </style>
 </head>
 <body>
 
-<div id="directoryTree"></div>
+<!-- 阴影层 -->
+<div id="overlay">
+  <div id="loading">Loading...</div>
+</div>
+
+<!-- 正常的页面内容 -->
+<div>
+  <!-- 页面内容 -->
+  <h1>Hello, World!</h1>
+  <button onclick="makeRequest()">Make Request</button>
+</div>
 
 <script>
-  // 示例数据
-  const directoryData = [
-    {
-      name: "Folder 1",
-      type: "folder",
-      children: [
-        { name: "File 1-1", type: "file" },
-        { name: "File 1-2", type: "file" }
-      ]
-    },
-    {
-      name: "Folder 2",
-      type: "folder",
-      children: [
-        { name: "File 2-1", type: "file" },
-        { name: "File 2-2", type: "file" }
-      ]
-    },
-    { name: "File 3", type: "file" }
-  ];
+  function makeRequest() {
+    // 显示阴影层和加载状态
+    document.getElementById('overlay').style.display = 'flex';
 
-  // 创建目录树
-  function createDirectoryTree(container, data) {
-    const ul = document.createElement("ul");
+    // 发起网络请求
+    fetch('https://jsonplaceholder.typicode.com/todos/1')
+            .then(response => {
+              // 隐藏阴影层
+              document.getElementById('overlay').style.display = 'none';
+              alert('Button clicked for ' );
+              if (!response.ok) {
+                // 请求失败
+                console.log('Request failed');
+                throw new Error('Network response was not ok');
+              }
 
-    data.forEach(item => {
-      const li = document.createElement("li");
-      const span = document.createElement("span");
-      span.textContent = item.name;
-
-      if (item.type === "folder" && item.children) {
-        span.classList.add("folder");
-        span.addEventListener("click", () => {
-          toggleFolder(li);
-        });
-
-        const subTree = createDirectoryTree(li, item.children);
-        li.appendChild(subTree);
-      } else {
-        span.classList.add("file");
-        span.addEventListener("click", () => {
-          addFile(li);
-        });
-      }
-
-      li.appendChild(span);
-      ul.appendChild(li);
-    });
-
-    container.appendChild(ul);
+              // 请求成功
+              console.log('Request successful');
+              return response.json();
+            })
+            .then(data => {
+              // 处理请求成功的数据
+              console.log(data);
+            })
+            .catch(error => {
+              // 处理请求失败的情况
+              console.error('Request failed', error);
+            });
   }
-
-  // 切换文件夹的展开和折叠状态
-  function toggleFolder(folderItem) {
-    const ul = folderItem.querySelector("ul");
-    if (ul) {
-      ul.style.display = ul.style.display === "none" ? "block" : "none";
-    }
-  }
-
-  // 添加新文件
-  function addFile(parentItem) {
-    const newFile = { name: "New File", type: "file" };
-    const li = document.createElement("li");
-    const span = document.createElement("span");
-    span.textContent = newFile.name;
-    span.classList.add("file");
-    span.addEventListener("click", () => {
-      addFile(li);
-    });
-    li.appendChild(span);
-    parentItem.querySelector("ul").appendChild(li);
-  }
-
-  // 初始化目录树
-  createDirectoryTree(document.getElementById("directoryTree"), directoryData);
 </script>
 
 </body>

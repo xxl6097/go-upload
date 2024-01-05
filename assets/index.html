@@ -18,18 +18,6 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
         }
-        #uploadModal {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-        }
 
         #progressBar {
             width: 100%;
@@ -59,38 +47,86 @@
             background-color: #f2f2f2;
         }
 
-        /* 设置列宽比例 */
+        /* 文件名 */
         th:nth-child(1), td:nth-child(1) {
             width: 35%;
         }
-
+        /*下载链接*/
         th:nth-child(2), td:nth-child(2) {
             width: 5%;
         }
-
+        /*删除*/
         th:nth-child(3), td:nth-child(3) {
+            width: 5%;
+        }
+        /*大小*/
+        th:nth-child(4), td:nth-child(4) {
             width: 10%;
         }
+        /*修改时间*/
+        th:nth-child(5), td:nth-child(5) {
+            width: 45%;
+        }
+        /* 添加阴影层的样式 */
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* 使阴影层在最上层 */
+        }
 
-        th:nth-child(4), td:nth-child(4) {
-            width: 50%;
+        /* 添加加载状态的样式 */
+        #loading {
+            color: white;
+            font-size: 24px;
+        }
+        code {
+            display: block;
+            background-color: #f4f4f4;
+            padding: 2px;
+            margin: 3px 0;
+            font-size: 12px;
+            font-family: 'sans-serif', monospace;
+        }
+
+        pre {
+            display: block;
+            background-color: #f4f4f4;
+            padding: 2px;
+            margin: 3px 0;
+            white-space: pre-wrap; /* 保留空白字符和换行符 */
+            font-family: 'sans-serif', monospace;
         }
     </style>
 </head>
 <body onload="getFiles()">
-<h2>上传文件</h2>
+<!-- 显示loading状态的元素 -->
+<div id="overlay">
+    <div id="loading">Loading...</div>
+</div>
 
+<h2>上传文件</h2>
+<div id="code_div" style="display: none">
+    <h6 id="-">指令上传示例：</h6>
+    <pre><code id="code_content"></code></pre>
+</div>
 <div id="progressBar" style="display: none">
     <div id="progress" style="text-align: left; width: 0;"></div>
 </div>
 <br>
-<input type="file" id="fileInput" />
+<!--<input type="file" id="fileInput" />-->
+<input type="file" id="fileInput" name="files[]" multiple>
 <label for="token">token:</label>
 <input type="text" id="token" name="token">
 <button onclick="uploadFile()">开始上传</button>
 <button onclick="refresh()">刷新列表</button>
 <p id="speed">上传速度: 0 MB/s</p>
-
 
 <div>
     <table id="myTable">
@@ -98,6 +134,7 @@
         <tr>
             <th>文件名</th>
             <th>下载链接</th>
+            <th>操作</th>
             <th>大小</th>
             <th>修改时间</th>
         </tr>
@@ -109,6 +146,20 @@
 <!-- Toast容器 -->
 <div id="toast" class="toast"></div>
 <script>
+    function createcode(token) {
+        document.getElementById('code_div').style.display = 'block';
+        const code = `curl -F "file=@/root/xxx.log" -F "token=${token}" ${window.location.origin}/upload`
+        document.getElementById('code_content').textContent = code
+    }
+    var textInput = document.getElementById('token');
+    textInput.addEventListener('input', function(event) {
+        const value = event.target.value; // 获取输入的值
+        createcode(value)
+        console.log(value)
+
+    });
+    createcode(localStorage.getItem("token"))
+
     function showToast(content) {
         var toastElement = document.getElementById("toast");
         // 设置Toast文本
@@ -135,7 +186,11 @@
         var url = '/upload';
         xhr.open('GET', url, true);
         xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
+            if (xhr.readyState === 1) {
+                // 在这里处理loading状态，例如显示loading动画
+                console.log('Loading...');
+                showLoading('大爷，正在获取文件清单，请稍等一会会儿哦～')
+            }else if (xhr.readyState === 4 && xhr.status === 200) {
                 // 请求成功
                 var responseData = JSON.parse(xhr.responseText);
                 console.log(responseData);
@@ -149,13 +204,13 @@
                         // 使用 for...of 循环倒序遍历数组
                         for (var element of filejson.data.reverse()) {
                             console.log(element);
-                            addItem(element)
+                            addItemByGet(element)
                         }
                     }
                 }else{
                     console.log('失败了',filejson.msg)
                 }
-
+                hideLoading()
             } else {
                 // 请求失败或还未完成
                 console.error('get files err ',xhr);
@@ -166,7 +221,6 @@
     }
 
     function refresh() {
-
         // 获取表格对象
         var table = document.getElementById("myTable");
         // 获取表格主体
@@ -180,11 +234,18 @@
 
     function uploadFile() {
         var fileInput = document.getElementById('fileInput');
-        var file = fileInput.files[0];
-
-        if (file) {
+        //var file = fileInput.files[0];
+        var files = fileInput.files;
+        if (files.length === 0) {
+            console.log('No files selected.');
+            alert('No files selected.')
+            return;
+        }
+        if (files) {
             var formData = new FormData();
-            formData.append('file', file);
+            for (var i = 0; i < files.length; i++) {
+                formData.append('files[]', files[i]);
+            }
             var token = document.getElementById("token").value;
             formData.append('token', token);
 
@@ -230,7 +291,11 @@
             });
 
             xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
+                if (xhr.readyState === 1) {
+                    // 在这里处理loading状态，例如显示loading动画
+                    console.log('Loading...');
+                    showLoading('大爷，正在上传文件哦～')
+                }else if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
                         // 文件上传成功
                         console.log('File uploaded successfully!');
@@ -240,7 +305,7 @@
                             console.log('成功了哦')
                             if (filejson.data){
                                 for (var item of  filejson.data){
-                                    addItem(item)
+                                    addItemByUpload(item)
                                 }
                                 //document.getElementById('response').innerHTML = "sucess";
                             }
@@ -249,7 +314,6 @@
                             localStorage.setItem("token", token);
                             console.log(token)
                             document.getElementById('progress').textContent = '上传成功';
-
                         }else{
                             console.log('失败了',filejson.msg)
                             showToast('调用失败:' + filejson.msg)
@@ -262,6 +326,7 @@
                     // 关闭模态框
                     // closeUploadModal();
                     clearFileInput()
+                    hideLoading()
                 }
             };
             progressBar.style.display = "block"
@@ -271,6 +336,36 @@
         } else {
             alert('Please select a file before uploading.');
         }
+    }
+
+    function deletefile(path,callback) {
+        var token = document.getElementById("token").value;
+        const jsonData = {
+            path: path,
+            token: token,
+        };
+        const xhr = new XMLHttpRequest();
+        xhr.open('DELETE', '/upload', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    console.log('Post deleted successfully');
+                    filejson = JSON.parse(xhr.response)
+                    if (filejson.code === 0){
+                        console.log('成功了哦')
+                        callback(true,filejson.msg)
+                    }else{
+                        callback(false,filejson.msg)
+                    }
+
+                } else {
+                    console.error('Request failed');
+                    callback(false,'' + xhr.status)
+                }
+            }
+        };
+        xhr.send(JSON.stringify(jsonData));
     }
 
     function clearFileInput() {
@@ -286,15 +381,12 @@
         fileInput.parentNode.replaceChild(newFileInput, fileInput);
     }
 
-    function addItem(newItem) {
-        var table = document.getElementById("myTable");
-        var tbody = table.getElementsByTagName("tbody")[0];
-
-        var newRow = tbody.insertRow();
+    function insertRow(tbody,newRow,newItem) {
         var cell1 = newRow.insertCell(0);
         var cell2 = newRow.insertCell(1);
         var cell3 = newRow.insertCell(2);
         var cell4 = newRow.insertCell(3);
+        var cell5 = newRow.insertCell(4);
 
         var downloadLink = document.createElement("a");
         downloadLink.textContent = "下载";
@@ -302,15 +394,64 @@
         downloadLink.download = newItem.name;
 
         cell1.innerHTML = newItem.name;
+        cell1.alt = "faefef"
         var encodedPath = encodeURIComponent(newItem.path);
         cell2.innerHTML = "<a href="+encodedPath+">下载</a>";
+        cell2.innerHTML = "<a href="+encodedPath+">下载</a>";
+
+        // 创建按钮并设置事件处理程序
+        var button = document.createElement('button');
+        button.textContent = '删除';
+        button.addEventListener('click', function() {
+            // 当按钮点击时触发的事件
+            var result = window.confirm(newItem.name + " 确定要删除这个文件吗，请认真思考哦，大爷～");
+            if (result) {
+                deletefile(newItem.path,function (ok,msg) {
+                    if (ok){
+                        showToast('删除成功' + newItem.path)
+                        tbody.removeChild(newRow);
+                    }else{
+                        showToast('删除失败 ' + msg)
+                    }
+                })
+            } else {
+            }
+
+        });
+
+        cell3.appendChild(button);
 
         var result = newItem.size / (1000 * 1000);
         var roundedResult = result.toFixed(2);
-        cell3.innerHTML = roundedResult + "M";
-        cell4.innerHTML = newItem.modTime;
+        cell4.innerHTML = roundedResult + "M";
+        cell5.innerHTML = newItem.modTime;
     }
 
+    function addItemByUpload(newItem) {
+        var table = document.getElementById("myTable");
+        var tbody = table.getElementsByTagName("tbody")[0];
+        var newRow = tbody.insertRow(0);
+        insertRow(tbody,newRow,newItem)
+    }
+
+    function addItemByGet(newItem) {
+        var table = document.getElementById("myTable");
+        var tbody = table.getElementsByTagName("tbody")[0];
+        var newRow = tbody.insertRow();
+        insertRow(tbody,newRow,newItem)
+    }
+    function showLoading(msg) {
+        // 显示loading状态
+        // document.getElementById('overlay').style.display = 'block';
+        document.getElementById('overlay').style.display = 'flex';
+        document.getElementById('loading').innerText = msg
+    }
+
+    function hideLoading() {
+        // 隐藏loading状态
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('loading').innerText = '加载中...'
+    }
 </script>
 
 </body>
