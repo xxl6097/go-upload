@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Upload with Progress</title>
     <style>
+        /*body {*/
+        /*    background-color: lightblue; !* 使用预定义的颜色名称 *!*/
+        /*}*/
         /* Toast样式 */
         .toast {
             display: none;
@@ -46,25 +49,28 @@
         th {
             background-color: #f2f2f2;
         }
-
         /* 文件名 */
         th:nth-child(1), td:nth-child(1) {
-            width: 35%;
+            width: 2%;
+        }
+        /* 文件名 */
+        th:nth-child(2), td:nth-child(2) {
+            width: 33%;
         }
         /*下载链接*/
-        th:nth-child(2), td:nth-child(2) {
-            width: 5%;
-        }
-        /*删除*/
         th:nth-child(3), td:nth-child(3) {
             width: 5%;
         }
-        /*大小*/
+        /*删除*/
         th:nth-child(4), td:nth-child(4) {
+            width: 5%;
+        }
+        /*大小*/
+        th:nth-child(5), td:nth-child(5) {
             width: 10%;
         }
         /*修改时间*/
-        th:nth-child(5), td:nth-child(5) {
+        th:nth-child(6), td:nth-child(6) {
             width: 45%;
         }
         /* 添加阴影层的样式 */
@@ -80,71 +86,87 @@
             align-items: center;
             z-index: 1000; /* 使阴影层在最上层 */
         }
+        .delete-btn {
+            background-color: #ff0000;
+            color: #ffffff;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
 
         /* 添加加载状态的样式 */
         #loading {
             color: white;
-            font-size: 24px;
+            font-size: 20px;
         }
         code {
-            display: block;
+            display: inline-block;
             background-color: #f4f4f4;
-            padding: 2px;
-            margin: 3px 0;
-            font-size: 12px;
+            padding: 1px;
+            margin: 2px 0;
+            font-size: 11px;
             font-family: 'sans-serif', monospace;
         }
 
         pre {
-            display: block;
+            display: inline-block;
             background-color: #f4f4f4;
-            padding: 2px;
-            margin: 3px 0;
+            padding: 1px;
+            margin: 2px 0;
             white-space: pre-wrap; /* 保留空白字符和换行符 */
             font-family: 'sans-serif', monospace;
         }
     </style>
 </head>
 <body onload="getFiles()">
-<!-- 显示loading状态的元素 -->
-<div id="overlay">
-    <div id="loading">Loading...</div>
-</div>
-
-<h2>上传文件</h2>
-<div id="code_div" style="display: none">
-    <h6 id="-">指令上传示例：</h6>
-    <pre><code id="code_content"></code></pre>
-</div>
-<div id="progressBar" style="display: none">
-    <div id="progress" style="text-align: left; width: 0;"></div>
-</div>
-<br>
-<!--<input type="file" id="fileInput" />-->
-<input type="file" id="fileInput" name="files[]" multiple>
-<label for="token">token:</label>
-<input type="text" id="token" name="token">
-<button onclick="uploadFile()">开始上传</button>
-<button onclick="refresh()">刷新列表</button>
-<p id="speed">上传速度: 0 MB/s</p>
-
 <div>
-    <table id="myTable">
-        <thead>
-        <tr>
-            <th>文件名</th>
-            <th>下载链接</th>
-            <th>操作</th>
-            <th>大小</th>
-            <th>修改时间</th>
-        </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
+    <!-- 显示loading状态的元素 -->
+    <div id="overlay">
+        <div id="loading">Loading...</div>
+    </div>
+
+    <h2>上传文件</h2>
+    <div id="code_div" style="display: none">
+        <p>指令上传示例：</p>
+        <pre><code id="code_content"></code></pre>
+    </div>
+    <div id="progressBar" style="display: none">
+        <div id="progress" style="text-align: left; width: 0;"></div>
+    </div>
+    <div style="display: flex;margin-top: 5px;">
+        <input type="file" id="fileInput" name="files[]" multiple>
+    </div>
+<!--    <p id="speed" style="color: red">上传速度: 0 MB/s</p>-->
+    <div>
+
+        <label for="token">token:</label>
+        <input type="text" id="token" name="token">
+        <button onclick="uploadFile()">开始上传</button>
+        <button onclick="refresh()">刷新列表</button>
+        <button onclick="deleteSelectedRows()" class="delete-btn">删除选择行</button>
+        <label id="speed" style="color: red"></label>
+    </div>
+    <div style="margin-top: 5px;">
+        <table id="myTable">
+            <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAll" onchange="selectAllRows()"></th>
+                <th>文件名</th>
+                <th>下载链接</th>
+                <th>操作</th>
+                <th>大小</th>
+                <th>修改时间</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <!-- Toast容器 -->
+    <div id="toast" class="toast"></div>
+
 </div>
-<!-- Toast容器 -->
-<div id="toast" class="toast"></div>
+</body>
 <script>
     function createcode(token) {
         document.getElementById('code_div').style.display = 'block';
@@ -338,23 +360,33 @@
         }
     }
 
-    function deletefile(path,callback) {
+    function deletefile(files,callback) {
         var token = document.getElementById("token").value;
         const jsonData = {
-            path: path,
+            files: files,
             token: token,
         };
         const xhr = new XMLHttpRequest();
         xhr.open('DELETE', '/upload', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
+            if (xhr.readyState === 1){
+                console.log('Loading...');
+                showLoading('大爷，正在删除文件哦～')
+            } else if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
-                    console.log('Post deleted successfully');
+                    console.log('Post deleted successfully', xhr.responseText);
                     filejson = JSON.parse(xhr.response)
                     if (filejson.code === 0){
-                        console.log('成功了哦')
-                        callback(true,filejson.msg)
+                        data = filejson.data
+                        if (data.length == 1){
+                            if (data[0].sucess){
+                                console.log('成功了哦')
+                                callback(true,filejson.msg)
+                            }
+                        }else{
+                            callback(true,data)
+                        }
                     }else{
                         callback(false,filejson.msg)
                     }
@@ -363,6 +395,7 @@
                     console.error('Request failed');
                     callback(false,'' + xhr.status)
                 }
+                hideLoading()
             }
         };
         xhr.send(JSON.stringify(jsonData));
@@ -382,11 +415,18 @@
     }
 
     function insertRow(tbody,newRow,newItem) {
-        var cell1 = newRow.insertCell(0);
-        var cell2 = newRow.insertCell(1);
-        var cell3 = newRow.insertCell(2);
-        var cell4 = newRow.insertCell(3);
-        var cell5 = newRow.insertCell(4);
+        //<td><input type="checkbox" class="selectRow"></td>
+        var cell0 = newRow.insertCell(0);
+        var cell1 = newRow.insertCell(1);
+        var cell2 = newRow.insertCell(2);
+        var cell3 = newRow.insertCell(3);
+        var cell4 = newRow.insertCell(4);
+        var cell5 = newRow.insertCell(5);
+        var input = document.createElement('input');
+        input.type = 'checkbox'
+        input.className = 'selectRow'
+        input.alt = newItem.path
+        cell0.appendChild(input);
 
         var downloadLink = document.createElement("a");
         downloadLink.textContent = "下载";
@@ -394,19 +434,18 @@
         downloadLink.download = newItem.name;
 
         cell1.innerHTML = newItem.name;
-        cell1.alt = "faefef"
         var encodedPath = encodeURIComponent(newItem.path);
-        cell2.innerHTML = "<a href="+encodedPath+">下载</a>";
         cell2.innerHTML = "<a href="+encodedPath+">下载</a>";
 
         // 创建按钮并设置事件处理程序
         var button = document.createElement('button');
         button.textContent = '删除';
+        button.className = 'delete-btn'
         button.addEventListener('click', function() {
             // 当按钮点击时触发的事件
             var result = window.confirm(newItem.name + " 确定要删除这个文件吗，请认真思考哦，大爷～");
             if (result) {
-                deletefile(newItem.path,function (ok,msg) {
+                deletefile([newItem.path],function (ok,msg) {
                     if (ok){
                         showToast('删除成功' + newItem.path)
                         tbody.removeChild(newRow);
@@ -440,6 +479,39 @@
         var newRow = tbody.insertRow();
         insertRow(tbody,newRow,newItem)
     }
+
+    function selectAllRows() {
+        var checkboxes = document.getElementsByClassName('selectRow');
+        var selectAllCheckbox = document.getElementById('selectAll');
+
+        for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = selectAllCheckbox.checked;
+        }
+        showToast('大爷，您的总文件数量为：'+checkboxes.length)
+    }
+
+
+    function deleteSelectedRows() {
+        var result = window.confirm("确定要删除这个文件吗，请认真思考哦，大爷～");
+        if (result) {
+            var checkboxes = document.getElementsByClassName('selectRow');
+            var dataArr = [];
+            for (var i = checkboxes.length - 1; i >= 0; i--) {
+                if (checkboxes[i].checked) {
+                    var row = checkboxes[i].parentNode.parentNode;
+                    dataArr.push(checkboxes[i].alt)
+                    row.parentNode.removeChild(row);
+                }
+            }
+            deletefile(dataArr,function (ok,msg) {
+                showToast('大爷厉害，成功删除文件数：'+msg.length)
+            })
+        } else {
+            showToast('感谢大爷不删之恩～')
+        }
+
+    }
+
     function showLoading(msg) {
         // 显示loading状态
         // document.getElementById('overlay').style.display = 'block';
@@ -454,5 +526,5 @@
     }
 </script>
 
-</body>
+
 </html>

@@ -3,73 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    /* 添加阴影层的样式 */
-    #overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
-      justify-content: center;
-      align-items: center;
-      z-index: 1000; /* 使阴影层在最上层 */
-    }
-
-    /* 添加加载状态的样式 */
-    #loading {
-      color: white;
-      font-size: 24px;
-    }
-  </style>
+  <title>获取天气信息</title>
 </head>
 <body>
-
-<!-- 阴影层 -->
-<div id="overlay">
-  <div id="loading">Loading...</div>
-</div>
-
-<!-- 正常的页面内容 -->
-<div>
-  <!-- 页面内容 -->
-  <h1>Hello, World!</h1>
-  <button onclick="makeRequest()">Make Request</button>
-</div>
+<h1>天气信息</h1>
+<p id="weather-info"></p>
 
 <script>
-  function makeRequest() {
-    // 显示阴影层和加载状态
-    document.getElementById('overlay').style.display = 'flex';
+  // 用于获取天气信息的函数
+  function getWeather(city, apiKey) {
+    // 构建 API 请求 URL
+    var apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
 
-    // 发起网络请求
-    fetch('https://jsonplaceholder.typicode.com/todos/1')
-            .then(response => {
-              // 隐藏阴影层
-              document.getElementById('overlay').style.display = 'none';
-              alert('Button clicked for ' );
-              if (!response.ok) {
-                // 请求失败
-                console.log('Request failed');
-                throw new Error('Network response was not ok');
-              }
-
-              // 请求成功
-              console.log('Request successful');
-              return response.json();
-            })
+    // 发送 GET 请求
+    fetch(apiUrl)
+            .then(response => response.json())
             .then(data => {
-              // 处理请求成功的数据
-              console.log(data);
+              // 解析 JSON 数据
+              var weatherDescription = data.weather[0].description;
+              var temperature = data.main.temp;
+              var cityName = data.name;
+
+              // 显示天气信息
+              var weatherInfo = `${cityName}: ${weatherDescription}, 温度: ${temperature}°C`;
+              document.getElementById('weather-info').innerText = weatherInfo;
             })
             .catch(error => {
-              // 处理请求失败的情况
-              console.error('Request failed', error);
+              console.error('获取天气信息时发生错误:', error);
+              document.getElementById('weather-info').innerText = '无法获取天气信息';
             });
   }
-</script>
 
+  // 调用函数并传递城市和API密钥
+  var city = 'YourCity'; // 替换为你的城市
+  var apiKey = 'YourAPIKey'; // 替换为你的OpenWeatherMap API密钥
+  getWeather(city, apiKey);
+</script>
 </body>
 </html>

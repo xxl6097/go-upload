@@ -3,25 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Input Event Listener</title>
+    <title>拖拽或点击上传文件</title>
+    <style>
+        #drop-area {
+            width: 300px;
+            height: 200px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            text-align: center;
+            padding: 20px;
+            margin: 50px auto;
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        #upload-btn {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
-<label for="textInput">Type something:</label>
-<input type="text" id="textInput">
-
-<div id="output">You typed: </div>
+<div id="drop-area" ondragover="handleDragOver(event)" ondrop="handleFileDrop(event)">
+    <p>拖拽文件到这里或点击上传</p>
+    <input type="file" id="file-input" onchange="handleFileSelect()">
+    <button id="upload-btn" onclick="uploadFile()">上传文件</button>
+</div>
 
 <script>
-    // 获取输入框和显示结果的元素
-    var textInput = document.getElementById('textInput');
-    var outputDiv = document.getElementById('output');
+    function handleDragOver(event) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy';
+    }
 
-    // 添加输入事件监听器
-    textInput.addEventListener('input', function(event) {
-        // 当输入框内容发生变化时，更新显示的结果
-        outputDiv.textContent = 'You typed: ' + event.target.value;
-    });
+    function handleFileDrop(event) {
+        event.preventDefault();
+
+        var files = event.dataTransfer.files;
+
+        if (files.length > 0) {
+            // 处理上传的文件
+            handleFiles(files);
+        }
+    }
+
+    function handleFileSelect() {
+        var files = document.getElementById('file-input').files;
+
+        if (files.length > 0) {
+            // 处理上传的文件
+            handleFiles(files);
+        }
+    }
+
+    function handleFiles(files) {
+        var output = document.getElementById('drop-area');
+        output.innerHTML = '';
+
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+
+            output.innerHTML += '<p>文件名: ' + file.name + ', 类型: ' + file.type + ', 大小: ' + file.size + ' 字节</p>';
+        }
+    }
+
+    function uploadFile() {
+        // 这里可以添加上传文件的逻辑
+        alert('执行上传文件的逻辑');
+    }
 </script>
 
 </body>

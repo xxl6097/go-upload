@@ -3,27 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Confirmation Dialog</title>
+    <title>横向布局 - 使用 Float</title>
+    <style>
+        .container {
+            overflow: auto; /* 清除浮动 */
+        }
+
+        .box {
+            float: left;
+            width: 50%;
+            box-sizing: border-box; /* 防止盒模型的边框和内边距增加宽度 */
+            border: 1px solid #ccc;
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
 
-<button onclick="showConfirmation()">Show Confirmation Dialog</button>
+<div class="container">
+    <div class="box">
+        <!-- 第一个盒子的内容 -->
+        <p>Box 1</p>
+    </div>
+    <div class="box">
+        <!-- 第二个盒子的内容 -->
+        <p>Box 2</p>
+    </div>
 
-<script>
-    function showConfirmation() {
-        // 使用 window.confirm() 显示确认对话框
-        var result = window.confirm("Are you sure you want to proceed?");
+</div>
 
-        // 根据用户的选择执行相应的操作
-        if (result) {
-            alert("User clicked OK. Proceeding...");
-            // 在这里执行你想要的操作
-        } else {
-            alert("User clicked Cancel. Operation canceled.");
-            // 在这里执行取消操作
-        }
-    }
-</script>
 
 </body>
 </html>

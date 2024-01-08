@@ -20,6 +20,7 @@ var (
 	files_dir string = "./files"
 	//files_dir            = "/Users/uuxia/Desktop/work/code/go/go-upload"
 	static_prefix string = "/files/"
+	my                   = "/my"
 )
 
 func init() {
@@ -36,6 +37,7 @@ func Result(code int, msg string, data interface{}) map[string]interface{} {
 
 func Respond(w http.ResponseWriter, data map[string]interface{}) {
 	w.Header().Add("Content-Type", "application/json")
+	//fmt.Println(data)
 	if json.NewEncoder(w).Encode(data) != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
@@ -67,20 +69,34 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			Respond(w, Result(-1, "不好意思，token无效，请滚蛋～", _token))
 			return
 		}
-		path := (*req)["path"]
-		if path == nil || path.(string) == "" {
+		files := (*req)["files"]
+		if files == nil {
 			Respond(w, Result(-1, "path is nil", nil))
 			return
 		}
-		realpath := files_dir + path.(string)[len(static_prefix)-1:]
-		err := os.Remove(realpath)
-		if err != nil {
-			fmt.Println("Error deleting file:", err)
-			Respond(w, Result(-1, "remove failed"+path.(string), nil))
-			return
+		var res = make([]interface{}, 0)
+		for _, path := range files.([]interface{}) {
+			realpath := files_dir + path.(string)[len(static_prefix)-1:]
+			err := os.Remove(realpath)
+			if err != nil {
+				msg := fmt.Sprintf("[%s] 删除失败:%s", realpath, err.Error())
+				var respone = struct {
+					Path   string `json:"path"`
+					Sucess bool   `json:"sucess"`
+				}{realpath, false}
+				res = append(res, respone)
+				fmt.Println(msg)
+			} else {
+				msg := fmt.Sprintf("[%s] 删除成功", realpath)
+				var respone = struct {
+					Path   string `json:"path"`
+					Sucess bool   `json:"sucess"`
+				}{realpath, true}
+				res = append(res, respone)
+				fmt.Println(msg)
+			}
 		}
-		fmt.Println("删除成功", path)
-		Respond(w, Ok(nil))
+		Respond(w, Result(0, "", res))
 	case "POST":
 		//ParseMultipartForm将请求的主体作为multipart/form-data解析。请求的整个主体都会被解析，得到的文件记录最多 maxMemery字节保存在内存，其余部分保存在硬盘的temp文件里。如果必要，ParseMultipartForm会自行调用 ParseForm。重复调用本方法是无意义的
 		//设置内存大小
@@ -153,15 +169,26 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func fileserver(w http.ResponseWriter, r *http.Request) {
+
+}
+
 func initRouter(router *mux.Router) {
 	//http server
 	router.PathPrefix(static_prefix).Handler(http.StripPrefix(static_prefix, http.FileServer(http.Dir(files_dir))))
 	//router.PathPrefix("/a/").Handler(http.StripPrefix("/a/", http.FileServer(http.Dir(dir))))
+	if utils.IsDirExists(my) {
+		sub := router.NewRoute().Subrouter()
+		sub.Use(utils.NewHTTPAuthMiddleware("admin", "het002402").Middleware)
+		sub.PathPrefix("/fileserver/").Handler(http.StripPrefix("/fileserver/", http.FileServer(http.Dir(my))))
+	}
 
 	router.Use(mux.CORSMethodMiddleware(router))
-	router.HandleFunc("/upload", upload).Methods(http.MethodPost, http.MethodOptions)   // view
-	router.HandleFunc("/upload", upload).Methods(http.MethodGet, http.MethodOptions)    // view
-	router.HandleFunc("/upload", upload).Methods(http.MethodDelete, http.MethodOptions) // view
+	router.HandleFunc("/upload", upload).Methods(http.MethodPost, http.MethodOptions)        // view
+	router.HandleFunc("/upload", upload).Methods(http.MethodGet, http.MethodOptions)         // view
+	router.HandleFunc("/upload", upload).Methods(http.MethodDelete, http.MethodOptions)      // view
+	router.HandleFunc("/fileserver", fileserver).Methods(http.MethodGet, http.MethodOptions) // view
+
 	router.Handle("/favicon.ico", http.FileServer(fsys)).Methods("GET")
 	router.PathPrefix("/").Handler(utils.MakeHTTPGzipHandler(http.StripPrefix("/", http.FileServer(fsys)))).Methods("GET")
 }
@@ -249,6 +276,6 @@ func welcom(port, token string) {
 	fmt.Println("欢迎使用文件上传助手")
 	fmt.Printf("文件路径：%s\n", files_dir)
 	fmt.Printf("网页上传：http://localhost:%s\n", port)
-	fmt.Printf("网页上传：http://localhost:%s%s\n", port, files_dir)
+	fmt.Printf("网页上传：http://localhost:%s%s\n", port, static_prefix)
 	fmt.Printf("指令上传示例：curl -F \"file=@/root/xxx.log\" -F \"token=%s\" http://localhost:%s/upload\n", token, port)
 }
