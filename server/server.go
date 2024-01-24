@@ -55,7 +55,7 @@ func GetReqData[T any](w http.ResponseWriter, r *http.Request) *T {
 
 func upload(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "GET":
+	case "GET": //获取目录或者子目录下的所有文件
 		filearr := utils.VisitDir(files_dir, static_prefix)
 		Respond(w, Ok(filearr))
 	case "DELETE":
@@ -130,7 +130,8 @@ func upload(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
-			dir := files_dir + "/" + utils.GetTimeDir()
+			dir := files_dir + "/" + utils.GetDirAtDay()
+			//判断文件夹是否存在，不存在则创建文件夹
 			if !utils.IsDirExists(dir) {
 				err := utils.CreateMutiDir(dir)
 				if err != nil {
@@ -139,6 +140,16 @@ func upload(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			filePath := dir + files[i].Filename
+			_, err1 := os.Stat(filePath)
+			if err1 == nil {
+				// 删除文件
+				err2 := os.Remove(filePath)
+				if err2 != nil {
+					fmt.Println("删除文件时发生错误:", err)
+				} else {
+					fmt.Println("文件存在，已删除:", filePath)
+				}
+			}
 			dst, err := os.Create(filePath)
 			defer dst.Close()
 			if err != nil {
@@ -160,6 +171,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			item := utils.FileStruct{Name: fileInfo.Name(), Size: fileInfo.Size(), Path: _path, ModTime: fileInfo.ModTime().String()}
 			//fmt.Println(item, _path)
 			filearr = append(filearr, item)
+			fmt.Println("文件上传成功:", filePath)
 		}
 
 		Respond(w, Ok(filearr))

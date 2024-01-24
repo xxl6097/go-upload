@@ -40,3 +40,7 @@ func GetTimeFormat(format string) string {
 func GetTimeDir() string {
 	return GetTimeFormat("2006/01/02/15/04/05/")
 }
+
+func GetDirAtDay() string {
+	return GetTimeFormat("2006/01/02/")
+}
