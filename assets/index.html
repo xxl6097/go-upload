@@ -266,7 +266,7 @@
         if (files) {
             var formData = new FormData();
             for (var i = 0; i < files.length; i++) {
-                formData.append('files[]', files[i]);
+                formData.append('file', files[i]);
             }
             var token = document.getElementById("token").value;
             formData.append('token', token);

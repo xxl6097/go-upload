@@ -19,10 +19,13 @@ go get -u gopkg.in/yaml.v3
 
 ```azure
 curl -F "file=@/Users/uuxia/Desktop/work/code/go/go-upload/main.go" -F "token=55" http://localhost:5555/upload
+
+curl -F "files=@/Users/uuxia/Desktop/work/code/go/go-upload/main.go" -F "token=het002402" http://uuxia.cn:8087/upload
 ```
 
 ```azure
 curl -F "file=@$1" -F "token=$2" https://uuxia.cn/v1/api/file/upfile
+
 ```
 
 

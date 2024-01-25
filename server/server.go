@@ -107,7 +107,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		}
 		//files := r.MultipartForm.File["files"]
 		m := r.MultipartForm
-		files := m.File["files[]"]
+		files := m.File["file"]
 		_token := m.Value["token"]
 		if files == nil {
 			Respond(w, Result(-1, "请在MultipartForm字段中添加file字段和对应文件", nil))
