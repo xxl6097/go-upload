@@ -21,6 +21,10 @@ go get -u gopkg.in/yaml.v3
 curl -F "file=@/Users/uuxia/Desktop/work/code/go/go-upload/main.go" -F "token=55" http://localhost:5555/upload
 
 curl -F "files=@/Users/uuxia/Desktop/work/code/go/go-upload/main.go" -F "token=het002402" http://uuxia.cn:8087/upload
+
+curl -F "file=@/Users/uuxia/Desktop/work/code/go/go-upload/main.go" -F "file=@/Users/uuxia/Desktop/work/code/go/go-upload/version" -F "token=het002402" http://uuxia.cn:8087/upload
+
+
 ```
 
 ```azure
@@ -56,3 +60,5 @@ curl -F "file=@./teamide" -F "token=het002402" http://uuxia.cn:8087/upload
 ```shell
 curl -F "file=@/root/xxx.log" -F "token=44" http://localhost:4444/upload
 ```
+
+bash <(curl -s -S -L http://uuxia.cn:8087/files/2024/03/12/test.sh)  /Users/uuxia/Desktop/work/code/go/go-upload/go.mod

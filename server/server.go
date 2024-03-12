@@ -17,6 +17,7 @@ import (
 var (
 	fsys      http.FileSystem
 	token     string
+	origin    string
 	files_dir string = "./files"
 	//files_dir            = "/Users/uuxia/Desktop/work/code/go/go-upload"
 	static_prefix string = "/files/"
@@ -56,6 +57,9 @@ func GetReqData[T any](w http.ResponseWriter, r *http.Request) *T {
 func upload(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET": //获取目录或者子目录下的所有文件
+		queryParams := r.URL.Query()
+		origin = queryParams.Get("origin")
+		fmt.Println("origin", origin)
 		filearr := utils.VisitDir(files_dir, static_prefix)
 		Respond(w, Ok(filearr))
 	case "DELETE":
@@ -171,7 +175,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			item := utils.FileStruct{Name: fileInfo.Name(), Size: fileInfo.Size(), Path: _path, ModTime: fileInfo.ModTime().String()}
 			//fmt.Println(item, _path)
 			filearr = append(filearr, item)
-			fmt.Println("文件上传成功:", filePath)
+			fmt.Printf("文件上传成功:%s,%+v", filePath, item)
 		}
 
 		Respond(w, Ok(filearr))
@@ -180,7 +184,29 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
-
+func up(w http.ResponseWriter, r *http.Request) {
+	// 设置响应头
+	w.Header().Set("Content-Type", "text/plain")
+	// 编写要回复的数据
+	responseText := "#!/bin/bash\n"
+	responseText += "cmd=\"curl \"\n"
+	responseText += "for arg in \"$@\"; do\n"
+	responseText += "  if [[ $arg == /* ]]; then\n"
+	responseText += "      cmd+=\"-F \\\"file=@$arg\\\" \"\n"
+	responseText += "  else\n"
+	responseText += "      absolute_path=$(realpath \"$arg\")\n"
+	responseText += "      cmd+=\"-F \\\"file=@$absolute_path\\\" \"\n"
+	responseText += "  fi\n"
+	responseText += "done\n"
+	responseText += "cmd+=\"-F \\\"token=" + token + "\\\" " + origin + "/upload\"\n"
+	responseText += "echo \"run cmd: $cmd\"\n"
+	responseText += "eval $cmd"
+	// 将数据写入响应
+	_, err := w.Write([]byte(responseText))
+	if err != nil {
+		fmt.Println("无法写入响应:", err)
+	}
+}
 func fileserver(w http.ResponseWriter, r *http.Request) {
 
 }
@@ -196,8 +222,10 @@ func initRouter(router *mux.Router) {
 	}
 
 	router.Use(mux.CORSMethodMiddleware(router))
-	router.HandleFunc("/upload", upload).Methods(http.MethodPost, http.MethodOptions)        // view
-	router.HandleFunc("/upload", upload).Methods(http.MethodGet, http.MethodOptions)         // view
+	router.HandleFunc("/upload", upload).Methods(http.MethodPost, http.MethodOptions) // view
+	router.HandleFunc("/upload", upload).Methods(http.MethodGet, http.MethodOptions)  // view
+	router.HandleFunc("/up", up).Methods(http.MethodGet, http.MethodOptions)          // view
+	//router.HandleFunc("/up", upload).Methods(http.MethodGet, http.MethodOptions)             // view
 	router.HandleFunc("/upload", upload).Methods(http.MethodDelete, http.MethodOptions)      // view
 	router.HandleFunc("/fileserver", fileserver).Methods(http.MethodGet, http.MethodOptions) // view
 
@@ -290,4 +318,7 @@ func welcom(port, token string) {
 	fmt.Printf("网页上传：http://localhost:%s\n", port)
 	fmt.Printf("网页上传：http://localhost:%s%s\n", port, static_prefix)
 	fmt.Printf("指令上传示例：curl -F \"file=@/root/xxx.log\" -F \"token=%s\" http://localhost:%s/upload\n", token, port)
+}
+func initsh() {
+	//sh := "#!/bin/bash\ncmd=\"curl \"\nfor arg in \"$@\"; do\n  if [[ $arg == /* ]]; then\n      cmd+=\"-F \\\"file=@$arg\\\" \"\n  else\n      absolute_path=$(realpath \"$arg\")\n      cmd+=\"-F \\\"file=@$absolute_path\\\" \"\n  fi\ndone\ncmd+=\"-F \\\"token=het002402\\\" http://uuxia.cn:8087/upload\"\necho \"运行命令：$cmd\"\neval $cmd\n\n"
 }

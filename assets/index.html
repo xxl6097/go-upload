@@ -101,11 +101,7 @@
         }
         code {
             display: inline-block;
-            background-color: #f4f4f4;
-            padding: 1px;
-            margin: 2px 0;
-            font-size: 11px;
-            font-family: 'sans-serif', monospace;
+            font-size: 13px;
         }
 
         pre {
@@ -170,7 +166,7 @@
 <script>
     function createcode(token) {
         document.getElementById('code_div').style.display = 'block';
-        const code = `curl -F "file=@/root/xxx.log" -F "token=${token}" ${window.location.origin}/upload`
+        const code = `单文件：curl -F "file=@/root/x001.log" -F "token=${token}" ${window.location.origin}/upload\n多文件：curl -F "file=@/root/x001.log" -F "file=@/root/x002.log" -F "token=${token}" ${window.location.origin}/upload\n脚本运行：bash <(curl -s -S -L ${window.location.origin}/up) /home/a.txt /home/b.txt`
         document.getElementById('code_content').textContent = code
     }
     var textInput = document.getElementById('token');
@@ -206,6 +202,7 @@
 
         var xhr = new XMLHttpRequest();
         var url = '/upload';
+        url += `?origin=${window.location.origin}`
         xhr.open('GET', url, true);
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 1) {
@@ -414,6 +411,22 @@
         fileInput.parentNode.replaceChild(newFileInput, fileInput);
     }
 
+    function formatFileSize(sizeInBytes) {
+        const kilobyte = 1024;
+        const megabyte = kilobyte * 1024;
+        const gigabyte = megabyte * 1024;
+
+        if (sizeInBytes < kilobyte) {
+            return sizeInBytes.toFixed(2) + ' B';
+        } else if (sizeInBytes < megabyte) {
+            return (sizeInBytes / kilobyte).toFixed(2) + ' KB';
+        } else if (sizeInBytes < gigabyte) {
+            return (sizeInBytes / megabyte).toFixed(2) + ' MB';
+        } else {
+            return (sizeInBytes / gigabyte).toFixed(2) + ' GB';
+        }
+    }
+
     function insertRow(tbody,newRow,newItem) {
         //<td><input type="checkbox" class="selectRow"></td>
         var cell0 = newRow.insertCell(0);
@@ -460,10 +473,9 @@
 
         cell3.appendChild(button);
 
-        var result = newItem.size / (1000 * 1000);
-        var roundedResult = result.toFixed(2);
-        cell4.innerHTML = roundedResult + "M";
+        cell4.innerHTML = formatFileSize(newItem.size)
         cell5.innerHTML = newItem.modTime;
+        console.log('==>',newItem)
     }
 
     function addItemByUpload(newItem) {
