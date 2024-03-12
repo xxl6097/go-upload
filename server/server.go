@@ -126,7 +126,8 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			Respond(w, Result(-1, "请检查token是否正确!", _token))
 			return
 		}
-		var filearr []utils.FileStruct
+		var filearr []string
+		//var filesstr []string
 		for i, _ := range files {
 			file, err := files[i].Open()
 			defer file.Close()
@@ -174,7 +175,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			_path := static_prefix + filePath[len(files_dir)+1:]
 			item := utils.FileStruct{Name: fileInfo.Name(), Size: fileInfo.Size(), Path: _path, ModTime: fileInfo.ModTime().String()}
 			//fmt.Println(item, _path)
-			filearr = append(filearr, item)
+			filearr = append(filearr, origin+_path)
 			fmt.Printf("文件上传成功:%s,%+v", filePath, item)
 		}
 
@@ -198,7 +199,9 @@ func up(w http.ResponseWriter, r *http.Request) {
 	responseText += "      cmd+=\"-F \\\"file=@$absolute_path\\\" \"\n"
 	responseText += "  fi\n"
 	responseText += "done\n"
-	responseText += "cmd+=\"-F \\\"token=" + token + "\\\" " + origin + "/upload\"\n"
+	responseText += "echo \"please input token\"\n"
+	responseText += "read token\n"
+	responseText += "cmd+=\"-F \\\"token=$token\\\" " + origin + "/upload\"\n"
 	responseText += "echo \"run cmd: $cmd\"\n"
 	responseText += "eval $cmd"
 	// 将数据写入响应

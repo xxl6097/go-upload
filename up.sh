@@ -8,7 +8,9 @@ for arg in "$@"; do
       cmd+="-F \"file=@$absolute_path\" "
   fi
 done
-cmd+="-F \"token=het002402\" http://uuxia.cn:8087/upload"
+echo "请输入token"
+read token
+cmd+="-F \"token=$token\" http://uuxia.cn:8087/upload"
 echo "运行命令：$cmd"
 eval $cmd
 

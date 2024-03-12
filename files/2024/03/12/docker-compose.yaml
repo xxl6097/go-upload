@@ -1,0 +1,21 @@
+version: '3.3'
+services:
+  upload:
+    restart: always
+    volumes:
+      - '/tmp/zfsv2/zenith_sata/18688947359/data/public/files:/data/files'
+      - '/:/my'
+    ports:
+      - '8087:8087'
+    environment:
+      - ENV_PORT=8087
+      - ENV_TOKEN=het002402
+      - ENV_FILES=/data/files
+      - PUID=0
+      - PGID=0
+      - UMASK=022
+    privileged: true
+    user: root
+    container_name: upload
+    image: 'xxl6097/go-upload:0.1.5'
+
