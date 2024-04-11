@@ -123,8 +123,20 @@
 
     <h2>Go文件上传助手</h2>
     <div id="code_div" style="display: none">
-        <p>多种文件上传方式：</p>
-        <pre><code id="code_content"></code></pre>
+        <div>单文件：
+            <label id="up_1"></label>
+            <button onclick="copy1()">复制</button>
+        </div>
+
+        <div>多文件：
+            <label id="up_2"></label>
+            <button onclick="copy2()">复制</button>
+        </div>
+
+        <div>脚本式：
+            <label id="up_3"></label><label>/home/a.txt /home/b.txt</label>
+            <button onclick="copy3()">复制</button>
+        </div>
     </div>
     <div id="progressBar" style="display: none">
         <div id="progress" style="text-align: left; width: 0;"></div>
@@ -139,7 +151,7 @@
         <button onclick="uploadFile()">开始上传</button>
         <button onclick="refresh()">刷新列表</button>
         <button onclick="deleteSelectedRows()" class="delete-btn">删除选择行</button>
-        <label id="pubip" style="color: red"></label>
+        <a id="pubip"></a>
         <label id="speed" style="color: red"></label>
     </div>
     <div style="margin-top: 5px;">
@@ -164,10 +176,44 @@
 </div>
 </body>
 <script>
+    function copy1() {
+        var copyText = document.getElementById("up_1");
+        var tempTextArea = document.createElement("textarea");
+        tempTextArea.value = copyText.textContent;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempTextArea)
+    }
+    function copy2() {
+        var copyText = document.getElementById("up_2");
+        var tempTextArea = document.createElement("textarea");
+        tempTextArea.value = copyText.textContent;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempTextArea)
+    }
+    function copy3() {
+        var copyText = document.getElementById("up_3");
+        var tempTextArea = document.createElement("textarea");
+        tempTextArea.value = copyText.textContent;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempTextArea)
+    }
     function createcode(token) {
         document.getElementById('code_div').style.display = 'block';
-        const code = `单文件：curl -F "file=@/root/x001.log" -F "token=${token}" ${window.location.origin}/upload\n多文件：curl -F "file=@/root/x001.log" -F "file=@/root/x002.log" -F "token=${token}" ${window.location.origin}/upload\n脚本运行：bash <(curl -s -S -L ${window.location.origin}/up) /home/a.txt /home/b.txt`
-        document.getElementById('code_content').textContent = code
+
+        const code3 = document.getElementById('up_3')
+        code3.textContent = `bash <(curl -s -S -L ${window.location.origin}/up) `
+
+        const code2 = document.getElementById('up_2')
+        code2.textContent = `curl -F "file=@/root/x001.log" -F "file=@/root/x002.log" -F "token=${token}" ${window.location.origin}/upload`
+
+        const code1 = document.getElementById('up_1')
+        code1.textContent = `curl -F "file=@/root/x001.log" -F "token=${token}" ${window.location.origin}/upload`
     }
     var textInput = document.getElementById('token');
     textInput.addEventListener('input', function(event) {
@@ -250,8 +296,12 @@
                 console.log('Loading...');
                 showLoading('大爷，正在获取文件清单，请稍等一会会儿哦～')
             }else if (xhr.readyState === 4 && xhr.status === 200) {
-                const speedElement = document.getElementById('pubip');
-                speedElement.textContent = xhr.responseText
+                // 获取<a>标签的引用
+                var link = document.getElementById('pubip');
+                // 设置超链接的目标URL
+                link.href = xhr.responseText;
+                // 设置链接文本
+                link.textContent = '公网';
                 hideLoading()
             } else {
                 // 请求失败或还未完成

@@ -22,6 +22,7 @@ var (
 	//files_dir            = "/Users/uuxia/Desktop/work/code/go/go-upload"
 	static_prefix string = "/files/"
 	my                   = "/my"
+	_port                = "8087"
 )
 
 func init() {
@@ -205,11 +206,13 @@ func up(w http.ResponseWriter, r *http.Request) {
 	responseText += "      cmd+=\"-F \\\"file=@$absolute_path\\\" \"\n"
 	responseText += "  fi\n"
 	responseText += "done\n"
-	responseText += "echo -e \"\\033[31mplease input token:\\033[0m\""
+	responseText += "echo -e \"\\033[31mplease input token:\\033[0m\"\n"
 	responseText += "read token\n"
 	responseText += "cmd+=\"-F \\\"token=$token\\\" " + origin + "/upload\"\n"
 	responseText += "echo \"run cmd: $cmd\"\n"
 	responseText += "eval $cmd"
+
+	fmt.Println(responseText)
 	// 将数据写入响应
 	_, err := w.Write([]byte(responseText))
 	if err != nil {
@@ -319,6 +322,7 @@ func Bootstrap() {
 			}
 		}
 	}
+	_port = port
 	FileUploadWebServer(port, token)
 }
 
@@ -353,7 +357,7 @@ func getPubIP() string {
 
 	// 输出公网IP地址
 	fmt.Println("公网IP地址:", ipResponse.IP)
-	return ipResponse.IP
+	return fmt.Sprintf("http://%s:%s", ipResponse.IP, _port)
 }
 func initsh() {
 	//sh := "#!/bin/bash\ncmd=\"curl \"\nfor arg in \"$@\"; do\n  if [[ $arg == /* ]]; then\n      cmd+=\"-F \\\"file=@$arg\\\" \"\n  else\n      absolute_path=$(realpath \"$arg\")\n      cmd+=\"-F \\\"file=@$absolute_path\\\" \"\n  fi\ndone\ncmd+=\"-F \\\"token=het002402\\\" http://uuxia.cn:8087/upload\"\necho \"运行命令：$cmd\"\neval $cmd\n\n"
