@@ -53,6 +53,12 @@ func GetReqData[T any](w http.ResponseWriter, r *http.Request) *T {
 	}
 	return &t
 }
+func getip(w http.ResponseWriter, r *http.Request) {
+	_, err := w.Write([]byte(getPubIP()))
+	if err != nil {
+		fmt.Println("无法写入响应:", err)
+	}
+}
 
 func upload(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -199,7 +205,7 @@ func up(w http.ResponseWriter, r *http.Request) {
 	responseText += "      cmd+=\"-F \\\"file=@$absolute_path\\\" \"\n"
 	responseText += "  fi\n"
 	responseText += "done\n"
-	responseText += "echo \"please input token\"\n"
+	responseText += "echo -e \"\\033[31mplease input token:\\033[0m\""
 	responseText += "read token\n"
 	responseText += "cmd+=\"-F \\\"token=$token\\\" " + origin + "/upload\"\n"
 	responseText += "echo \"run cmd: $cmd\"\n"
@@ -227,6 +233,7 @@ func initRouter(router *mux.Router) {
 	router.Use(mux.CORSMethodMiddleware(router))
 	router.HandleFunc("/upload", upload).Methods(http.MethodPost, http.MethodOptions) // view
 	router.HandleFunc("/upload", upload).Methods(http.MethodGet, http.MethodOptions)  // view
+	router.HandleFunc("/getip", getip).Methods(http.MethodGet, http.MethodOptions)    // view
 	router.HandleFunc("/up", up).Methods(http.MethodGet, http.MethodOptions)          // view
 	//router.HandleFunc("/up", upload).Methods(http.MethodGet, http.MethodOptions)             // view
 	router.HandleFunc("/upload", upload).Methods(http.MethodDelete, http.MethodOptions)      // view
@@ -321,6 +328,32 @@ func welcom(port, token string) {
 	fmt.Printf("网页上传：http://localhost:%s\n", port)
 	fmt.Printf("网页上传：http://localhost:%s%s\n", port, static_prefix)
 	fmt.Printf("指令上传示例：curl -F \"file=@/root/xxx.log\" -F \"token=%s\" http://localhost:%s/upload\n", token, port)
+}
+
+type IPResponse struct {
+	IP string `json:"ip"`
+}
+
+func getPubIP() string {
+	// 发送GET请求到API
+	resp, err := http.Get("https://api.ipify.org?format=json")
+	if err != nil {
+		fmt.Println("请求失败:", err)
+		return ""
+	}
+	defer resp.Body.Close()
+
+	// 解析JSON响应
+	var ipResponse IPResponse
+	err = json.NewDecoder(resp.Body).Decode(&ipResponse)
+	if err != nil {
+		fmt.Println("解析JSON失败:", err)
+		return ""
+	}
+
+	// 输出公网IP地址
+	fmt.Println("公网IP地址:", ipResponse.IP)
+	return ipResponse.IP
 }
 func initsh() {
 	//sh := "#!/bin/bash\ncmd=\"curl \"\nfor arg in \"$@\"; do\n  if [[ $arg == /* ]]; then\n      cmd+=\"-F \\\"file=@$arg\\\" \"\n  else\n      absolute_path=$(realpath \"$arg\")\n      cmd+=\"-F \\\"file=@$absolute_path\\\" \"\n  fi\ndone\ncmd+=\"-F \\\"token=het002402\\\" http://uuxia.cn:8087/upload\"\necho \"运行命令：$cmd\"\neval $cmd\n\n"

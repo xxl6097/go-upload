@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Upload with Progress</title>
+    <title>GO文件上传助手</title>
     <style>
         /*body {*/
         /*    background-color: lightblue; !* 使用预定义的颜色名称 *!*/
@@ -121,9 +121,9 @@
         <div id="loading">Loading...</div>
     </div>
 
-    <h2>上传文件</h2>
+    <h2>Go文件上传助手</h2>
     <div id="code_div" style="display: none">
-        <p>指令上传示例：</p>
+        <p>多种文件上传方式：</p>
         <pre><code id="code_content"></code></pre>
     </div>
     <div id="progressBar" style="display: none">
@@ -134,12 +134,12 @@
     </div>
 <!--    <p id="speed" style="color: red">上传速度: 0 MB/s</p>-->
     <div>
-
         <label for="token">token:</label>
         <input type="text" id="token" name="token">
         <button onclick="uploadFile()">开始上传</button>
         <button onclick="refresh()">刷新列表</button>
         <button onclick="deleteSelectedRows()" class="delete-btn">删除选择行</button>
+        <label id="pubip" style="color: red"></label>
         <label id="speed" style="color: red"></label>
     </div>
     <div style="margin-top: 5px;">
@@ -195,6 +195,7 @@
 
 
     function getFiles() {
+        getPubIp()
         var token = document.getElementById("token").value;
         if (token.length === 0){
             document.getElementById("token").value = localStorage.getItem("token");
@@ -229,6 +230,28 @@
                 }else{
                     console.log('失败了',filejson.msg)
                 }
+                hideLoading()
+            } else {
+                // 请求失败或还未完成
+                console.error('get files err ',xhr);
+            }
+        };
+
+        xhr.send();
+    }
+
+    function getPubIp() {
+        var xhr = new XMLHttpRequest();
+        var url = '/getip';
+        xhr.open('GET', url, true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 1) {
+                // 在这里处理loading状态，例如显示loading动画
+                console.log('Loading...');
+                showLoading('大爷，正在获取文件清单，请稍等一会会儿哦～')
+            }else if (xhr.readyState === 4 && xhr.status === 200) {
+                const speedElement = document.getElementById('pubip');
+                speedElement.textContent = xhr.responseText
                 hideLoading()
             } else {
                 // 请求失败或还未完成
