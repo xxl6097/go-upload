@@ -399,7 +399,6 @@
                                 for (var item of  filejson.data){
                                     addItemByUpload(item)
                                 }
-                                //document.getElementById('response').innerHTML = "sucess";
                             }
                             showToast('上传成功')
                             // document.getElementById('fileInput').textContent = '';
@@ -424,6 +423,7 @@
             progressBar.style.display = "block"
             // 将 '/upload' 替换为服务器端处理文件上传的路径
             xhr.open('POST', '/upload', true);
+            xhr.setRequestHeader("source","web")
             xhr.send(formData);
         } else {
             alert('Please select a file before uploading.');
@@ -519,7 +519,8 @@
         downloadLink.href = newItem.path;
         downloadLink.download = newItem.name;
 
-        cell1.innerHTML = newItem.name;
+        //cell1.innerHTML = newItem.name;
+        cell1.innerHTML = "<a href="+newItem.path+">"+ newItem.name +"</a>";
         var encodedPath = encodeURIComponent(newItem.path);
         cell2.innerHTML = "<a href="+encodedPath+">下载</a>";
 

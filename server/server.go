@@ -109,6 +109,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		}
 		Respond(w, Result(0, "", res))
 	case "POST":
+		source := r.Header.Get("source")
 		//ParseMultipartForm将请求的主体作为multipart/form-data解析。请求的整个主体都会被解析，得到的文件记录最多 maxMemery字节保存在内存，其余部分保存在硬盘的temp文件里。如果必要，ParseMultipartForm会自行调用 ParseForm。重复调用本方法是无意义的
 		//设置内存大小
 		err := r.ParseMultipartForm(32 << 20)
@@ -133,8 +134,8 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			Respond(w, Result(-1, "请检查token是否正确!", _token))
 			return
 		}
-		var filearr []string
-		//var filesstr []string
+		//var filearr []string
+		var filearr []interface{}
 		for i, _ := range files {
 			file, err := files[i].Open()
 			defer file.Close()
@@ -175,14 +176,18 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			}
 			fileInfo, err := os.Stat(filePath)
 			if err != nil {
-				fmt.Println("Error:", err)
+				fmt.Println("Error:", err, source)
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 			_path := static_prefix + filePath[len(files_dir)+1:]
 			item := utils.FileStruct{Name: fileInfo.Name(), Size: fileInfo.Size(), Path: _path, ModTime: fileInfo.ModTime().String()}
 			//fmt.Println(item, _path)
-			filearr = append(filearr, origin+_path)
+			if source == "web" {
+				filearr = append(filearr, item)
+			} else {
+				filearr = append(filearr, origin+_path)
+			}
 			fmt.Printf("文件上传成功:%s,%+v", filePath, item)
 		}
 
