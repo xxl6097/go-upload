@@ -71,6 +71,7 @@ function build_images_to_hubdocker() {
   docker build -t ${appname} .
   docker tag ${appname}:${appversion} xxl6097/${appname}:${appversion}
   docker buildx build --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${appversion} --push .
+  #sh 'docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/$DEPLOY_ENV/$SERVICE_NAMES:$ServiceVersion -f Dockerfile --push .'
 
   docker tag ${appname}:${appversion} xxl6097/${appname}:latest
   docker buildx build --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .

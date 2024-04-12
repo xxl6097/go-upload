@@ -1,15 +1,25 @@
 #!/bin/bash
 cmd="curl "
 for arg in "$@"; do
-  if [[ $arg == /* ]]; then
+  case $arg in
+  token*) cmd+="-F \"$arg\" " ;;
+  *) if [[ $arg == /* ]]; then
+    if [ -n "$arg" ]; then
       cmd+="-F \"file=@$arg\" "
+    fi
   else
-      absolute_path=$(realpath "$arg")
+    absolute_path=$(realpath "$arg")
+    if [ -n "$absolute_path" ]; then
       cmd+="-F \"file=@$absolute_path\" "
-  fi
+    fi
+  fi ;;
+  esac
 done
-echo -e "\033[31mplease input token:\033[0m"
-read token
-cmd+="-F \"token=$token\" http://localhost:4444/upload"
-echo "run cmd: $cmd"
+if [[ $cmd != *"token"* ]]; then
+  read -s -p "enter token:" token
+  echo "token = $token"
+  cmd+="-F \"token=$token\""
+fi
+cmd+=" http://localhost:4444/upload"
+echo "$cmd"
 eval $cmd
