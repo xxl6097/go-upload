@@ -120,6 +120,7 @@ function menu() {
   if [ "$isok" = "y" ]; then
     echo $appversion >version
   fi
+  rm -rf files
   git add .
   git commit -m "$appversion"
   git push

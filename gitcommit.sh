@@ -26,6 +26,7 @@ function gitpush() {
   fi
 
   echo $commit
+  rm -rf files
   git add .
   git commit -m "$commit"
   #  git push -u origin main
