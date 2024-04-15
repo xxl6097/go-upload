@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"sort"
 	"strings"
 )
 
@@ -68,6 +69,9 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		origin = queryParams.Get("origin")
 		fmt.Println("origin", origin)
 		filearr := utils.VisitDir(files_dir, static_prefix)
+		sort.Slice(filearr, func(i, j int) bool {
+			return filearr[i].ModTime.Before(filearr[j].ModTime)
+		})
 		Respond(w, Ok(filearr))
 	case "DELETE":
 		req := GetReqData[map[string]interface{}](w, r)
@@ -181,7 +185,8 @@ func upload(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			_path := static_prefix + filePath[len(files_dir)+1:]
-			item := utils.FileStruct{Name: fileInfo.Name(), Size: fileInfo.Size(), Path: _path, ModTime: fileInfo.ModTime().String()}
+			//item := utils.FileStruct{Name: fileInfo.Name(), Size: fileInfo.Size(), Path: _path, ModTime: fileInfo.ModTime().String()}
+			item := utils.FileStruct{Name: fileInfo.Name(), Size: fileInfo.Size(), Path: _path, ModTime: fileInfo.ModTime()}
 			//fmt.Println(item, _path)
 			if source == "web" {
 				filearr = append(filearr, item)
@@ -201,31 +206,6 @@ func up(w http.ResponseWriter, r *http.Request) {
 	// 设置响应头
 	w.Header().Set("Content-Type", "text/plain")
 	// 编写要回复的数据
-	//responseText := "#!/bin/bash\n"
-	//responseText += "cmd=\"curl \"\n"
-	//responseText += "for arg in \"$@\"; do\n"
-	//responseText += "  case $arg in\n"
-	//responseText += "  token*) cmd+=\"-F \\\"$arg\\\" \" ;;\n"
-	//responseText += "  *) if [[ $arg == /* ]]; then\n"
-	//responseText += "    if [ -n \"$arg\" ]; then\n"
-	//responseText += "      cmd+=\"-F \\\"file=@$arg\\\" \"\n"
-	//responseText += "    fi\n"
-	//responseText += "  else\n"
-	//responseText += "    absolute_path=$(realpath \"$arg\")\n"
-	//responseText += "    if [ -n \"$absolute_path\" ]; then\n"
-	//responseText += "      cmd+=\"-F \\\"file=@$absolute_path\\\" \"\n"
-	//responseText += "    fi\n"
-	//responseText += "  fi ;;\n"
-	//responseText += "  esac\n"
-	//responseText += "done\n"
-	//responseText += "if [[ $cmd != *\"token\"* ]]; then\n"
-	//responseText += "  read -s -p \"enter token:\" token\n"
-	//responseText += "  echo \"token = $token\"\n"
-	//responseText += "  cmd+=\"-F \\\"token=$token\\\"\"\n"
-	//responseText += "fi\n"
-	//responseText += "cmd+=\" http://localhost:4444/upload\"\n"
-	//responseText += "echo \"$cmd\"\n"
-	//responseText += "eval $cmd\n"
 	responseText := "#!/bin/bash\ncmd=\"curl \"\nhost=\"" + origin + "/upload\"\nfor arg in \"$@\"; do\n  case $arg in\n  token*) cmd+=\"-F \\\"$arg\\\" \" ;;\n  *) if [[ $arg == /* ]]; then\n    if [ -n \"$arg\" ]; then\n      cmd+=\"-F \\\"file=@$arg\\\" \"\n    fi\n  else\n    absolute_path=$(realpath \"$arg\")\n    if [ -n \"$absolute_path\" ]; then\n      cmd+=\"-F \\\"file=@$absolute_path\\\" \"\n    fi\n  fi ;;\n  esac\ndone\nif [[ $cmd != *\"token\"* ]]; then\n  read -s -p \"enter token:\" token\n  echo \"token = $token\"\n  cmd+=\"-F \\\"token=$token\\\"\"\nfi\ncmd+=\" $host\"\necho \"$cmd\"\neval $cmd\n"
 	fmt.Println(responseText)
 	// 将数据写入响应

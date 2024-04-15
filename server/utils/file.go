@@ -6,13 +6,14 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type FileStruct struct {
-	Name    string `json:"name"`
-	Path    string `json:"path"`
-	Size    int64  `json:"size"`
-	ModTime string `json:"modTime"`
+	Name    string    `json:"name"`
+	Path    string    `json:"path"`
+	Size    int64     `json:"size"`
+	ModTime time.Time `json:"modTime"`
 }
 
 func IsDirExists(path string) bool {
@@ -98,7 +99,8 @@ func VisitDir(rootDir, prefix string) []FileStruct {
 						}
 					}
 				}
-				item := FileStruct{Name: info.Name(), Size: info.Size(), Path: prefix + path, ModTime: info.ModTime().String()}
+				//item := FileStruct{Name: info.Name(), Size: info.Size(), Path: prefix + path, ModTime: info.ModTime().String()}
+				item := FileStruct{Name: info.Name(), Size: info.Size(), Path: prefix + path, ModTime: info.ModTime()}
 				//fmt.Println("File:", item)
 				filearr = append(filearr, item)
 			}
