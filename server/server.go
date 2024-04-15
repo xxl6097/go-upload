@@ -226,9 +226,7 @@ func up(w http.ResponseWriter, r *http.Request) {
 	//responseText += "cmd+=\" http://localhost:4444/upload\"\n"
 	//responseText += "echo \"$cmd\"\n"
 	//responseText += "eval $cmd\n"
-
-	responseText := "#!/bin/bash\ncmd=\"curl \"\nfor arg in \"$@\"; do\n  case $arg in\n  token*) cmd+=\"-F \\\"$arg\\\" \" ;;\n  *) if [[ $arg == /* ]]; then\n    if [ -n \"$arg\" ]; then\n      cmd+=\"-F \\\"file=@$arg\\\" \"\n    fi\n  else\n    absolute_path=$(realpath \"$arg\")\n    if [ -n \"$absolute_path\" ]; then\n      cmd+=\"-F \\\"file=@$absolute_path\\\" \"\n    fi\n  fi ;;\n  esac\ndone\nif [[ $cmd != *\"token\"* ]]; then\n  read -s -p \"enter token:\" token\n  echo \"token = $token\"\n  cmd+=\"-F \\\"token=$token\\\"\"\nfi\ncmd+=\" http://localhost:4444/upload\"\necho \"$cmd\"\neval $cmd\n"
-
+	responseText := "#!/bin/bash\ncmd=\"curl \"\nhost=\"" + origin + "/upload\"\nfor arg in \"$@\"; do\n  case $arg in\n  token*) cmd+=\"-F \\\"$arg\\\" \" ;;\n  *) if [[ $arg == /* ]]; then\n    if [ -n \"$arg\" ]; then\n      cmd+=\"-F \\\"file=@$arg\\\" \"\n    fi\n  else\n    absolute_path=$(realpath \"$arg\")\n    if [ -n \"$absolute_path\" ]; then\n      cmd+=\"-F \\\"file=@$absolute_path\\\" \"\n    fi\n  fi ;;\n  esac\ndone\nif [[ $cmd != *\"token\"* ]]; then\n  read -s -p \"enter token:\" token\n  echo \"token = $token\"\n  cmd+=\"-F \\\"token=$token\\\"\"\nfi\ncmd+=\" $host\"\necho \"$cmd\"\neval $cmd\n"
 	fmt.Println(responseText)
 	// 将数据写入响应
 	_, err := w.Write([]byte(responseText))

@@ -1,5 +1,6 @@
 #!/bin/bash
 cmd="curl "
+host="http://localhost:4444/upload"
 for arg in "$@"; do
   case $arg in
   token*) cmd+="-F \"$arg\" " ;;
@@ -20,6 +21,6 @@ if [[ $cmd != *"token"* ]]; then
   echo "token = $token"
   cmd+="-F \"token=$token\""
 fi
-cmd+=" http://localhost:4444/upload"
+cmd+=" $host"
 echo "$cmd"
 eval $cmd
