@@ -21,6 +21,21 @@
             a {
                 color: blue; /* 设置超链接在浅色主题下的颜色 */
             }
+            .delete-btn {
+                background-color: #ff0000;
+                color: #000000;
+                padding: 5px 10px;
+                border: none;
+                cursor: pointer;
+            }
+            button {
+                background-color: #f9f7f7;
+                color: #000000;
+            }
+            input {
+                background-color: #f9f7f7;
+                color: #000000;
+            }
         }
 
         /* Dark Mode */
@@ -31,6 +46,22 @@
             }
             a {
                 color: lightblue; /* 设置超链接在深色主题下的颜色 */
+            }
+
+            .delete-btn {
+                background-color: #626e36;
+                color: #ffffff;
+                padding: 5px 10px;
+                border: none;
+                cursor: pointer;
+            }
+            button {
+                background-color: #665b5b;
+                color: #d7d5ce;
+            }
+            input {
+                background-color: #665b5b;
+                color: #d7d5ce;
             }
         }
         /*body {*/
@@ -114,14 +145,6 @@
             align-items: center;
             z-index: 1000; /* 使阴影层在最上层 */
         }
-        .delete-btn {
-            background-color: #ff0000;
-            color: #ffffff;
-            padding: 5px 10px;
-            border: none;
-            cursor: pointer;
-        }
-
         /* 添加加载状态的样式 */
         #loading {
             color: white;
