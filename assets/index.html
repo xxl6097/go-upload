@@ -6,6 +6,33 @@
     <link rel="Shortcut Icon" href="favi.ico" type="image/x-icon" />
     <title>GO文件上传助手</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            transition: background-color 0.5s, color 0.5s;
+        }
+
+        /* Light Mode */
+        @media (prefers-color-scheme: light) {
+            body {
+                background-color: white;
+                color: black;
+            }
+            a {
+                color: blue; /* 设置超链接在浅色主题下的颜色 */
+            }
+        }
+
+        /* Dark Mode */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #0f0f0f;
+                color: #7d7171;
+            }
+            a {
+                color: lightblue; /* 设置超链接在深色主题下的颜色 */
+            }
+        }
         /*body {*/
         /*    background-color: lightblue; !* 使用预定义的颜色名称 *!*/
         /*}*/
@@ -48,7 +75,7 @@
         }
 
         th {
-            background-color: #f2f2f2;
+            //background-color: #f2f2f2;
         }
         /* 文件名 */
         th:nth-child(1), td:nth-child(1) {
@@ -60,7 +87,7 @@
         }
         /*下载链接*/
         th:nth-child(3), td:nth-child(3) {
-            width: 5%;
+            width: 7%;
         }
         /*删除*/
         th:nth-child(4), td:nth-child(4) {
@@ -72,7 +99,7 @@
         }
         /*修改时间*/
         th:nth-child(6), td:nth-child(6) {
-            width: 45%;
+            width: 43%;
         }
         /* 添加阴影层的样式 */
         #overlay {
