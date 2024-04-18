@@ -1,12 +1,28 @@
 package utils
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"strconv"
+	"time"
 )
 
+// 耗时统计，eg：defer TrackTime(time.Now())
+func TrackTime(pre time.Time) time.Duration {
+	elapsed := time.Since(pre)
+	fmt.Println("elapsed:", elapsed)
+	return elapsed
+}
+
+// 两阶段延时执行 eg:defer setTeardown()
+func setupTeardown() func() {
+	fmt.Println("init")
+	return func() {
+		fmt.Println("end..")
+	}
+}
 func IsNumeric(s string) bool {
 	_, err := strconv.ParseFloat(s, 64)
 	return err == nil

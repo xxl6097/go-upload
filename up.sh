@@ -1,26 +1,16 @@
 #!/bin/bash
-cmd="curl "
+cmd="curl"
+header="-H \"Authorization: het002402\""
 host="http://localhost:4444/upload"
+files=""
 for arg in "$@"; do
-  case $arg in
-  token*) cmd+="-F \"$arg\" " ;;
-  *) if [[ $arg == /* ]]; then
-    if [ -n "$arg" ]; then
-      cmd+="-F \"file=@$arg\" "
-    fi
+  if [[ $arg == /* ]]; then
+      files+="-F \"file=@$arg\" "
   else
-    absolute_path=$(realpath "$arg")
-    if [ -n "$absolute_path" ]; then
-      cmd+="-F \"file=@$absolute_path\" "
-    fi
-  fi ;;
-  esac
+      absolute_path=$(realpath "$arg")
+      files+="-F \"file=@$absolute_path\" "
+  fi
 done
-if [[ $cmd != *"token"* ]]; then
-  read -s -p "enter token:" token
-  echo "token = $token"
-  cmd+="-F \"token=$token\""
-fi
-cmd+=" $host"
+cmd="curl $header $files$host"
 echo "$cmd"
 eval $cmd

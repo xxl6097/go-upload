@@ -15,6 +15,7 @@ import (
 	"strings"
 )
 
+// curl -H "Authorization: 44" -F "file=@/Users/uuxia/Desktop/work/code/go/go-upload/main.go" http://localhost:4444/upload
 var (
 	fsys      http.FileSystem
 	token     string
@@ -62,7 +63,22 @@ func getip(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func auth(w http.ResponseWriter, r *http.Request) {
+	_token := r.Header.Get("Authorization")
+	if strings.ToLower(token) == strings.ToLower(_token) {
+		w.WriteHeader(200)
+	} else {
+		w.WriteHeader(502)
+	}
+}
+
 func upload(w http.ResponseWriter, r *http.Request) {
+	_authorization := r.Header.Get("Authorization")
+	if strings.ToLower(token) != strings.ToLower(_authorization) {
+		w.WriteHeader(502)
+		Respond(w, Result(-1, "请检查Authorization是否正确!", _authorization))
+		return
+	}
 	switch r.Method {
 	case "GET": //获取目录或者子目录下的所有文件
 		queryParams := r.URL.Query()
@@ -75,15 +91,6 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		Respond(w, Ok(filearr))
 	case "DELETE":
 		req := GetReqData[map[string]interface{}](w, r)
-		_token := (*req)["token"]
-		if _token == nil || _token.(string) == "" {
-			Respond(w, Result(-1, "不好意思，没有token，请滚蛋～", nil))
-			return
-		}
-		if strings.ToLower(token) != strings.ToLower(_token.(string)) {
-			Respond(w, Result(-1, "不好意思，token无效，请滚蛋～", _token))
-			return
-		}
 		files := (*req)["files"]
 		if files == nil {
 			Respond(w, Result(-1, "path is nil", nil))
@@ -124,18 +131,8 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		//files := r.MultipartForm.File["files"]
 		m := r.MultipartForm
 		files := m.File["file"]
-		_token := m.Value["token"]
 		if files == nil {
 			Respond(w, Result(-1, "请在MultipartForm字段中添加file字段和对应文件", nil))
-			return
-		}
-		if _token == nil {
-			Respond(w, Result(-1, "你带上token字段", nil))
-			return
-		}
-		if strings.ToLower(token) == strings.ToLower(_token[0]) {
-		} else {
-			Respond(w, Result(-1, "请检查token是否正确!", _token))
 			return
 		}
 		//var filearr []string
@@ -206,7 +203,7 @@ func up(w http.ResponseWriter, r *http.Request) {
 	// 设置响应头
 	w.Header().Set("Content-Type", "text/plain")
 	// 编写要回复的数据
-	responseText := "#!/bin/bash\ncmd=\"curl \"\nhost=http://\"" + r.Host + "/upload\"\nfor arg in \"$@\"; do\n  case $arg in\n  token*) cmd+=\"-F \\\"$arg\\\" \" ;;\n  *) if [[ $arg == /* ]]; then\n    if [ -n \"$arg\" ]; then\n      cmd+=\"-F \\\"file=@$arg\\\" \"\n    fi\n  else\n    absolute_path=$(realpath \"$arg\")\n    if [ -n \"$absolute_path\" ]; then\n      cmd+=\"-F \\\"file=@$absolute_path\\\" \"\n    fi\n  fi ;;\n  esac\ndone\nif [[ $cmd != *\"token\"* ]]; then\n  read -s -p \"enter token:\" token\n  echo \"token = $token\"\n  cmd+=\"-F \\\"token=$token\\\"\"\nfi\ncmd+=\" $host\"\necho \"$cmd\"\neval $cmd\n"
+	responseText := "#!/bin/bash\ncmd=\"curl\"\nheader=\"-H \\\"Authorization: " + token + "\\\"\"\nhost=\"http://" + r.Host + "/upload\"\nfiles=\"\"\nfor arg in \"$@\"; do\n  if [[ $arg == /* ]]; then\n      files+=\"-F \\\"file=@$arg\\\" \"\n  else\n      absolute_path=$(realpath \"$arg\")\n      files+=\"-F \\\"file=@$absolute_path\\\" \"\n  fi\ndone\ncmd=\"curl $header $files$host\"\necho \"$cmd\"\neval $cmd"
 	fmt.Println(responseText)
 	// 将数据写入响应
 	_, err := w.Write([]byte(responseText))
@@ -229,6 +226,7 @@ func initRouter(router *mux.Router) {
 	}
 
 	router.Use(mux.CORSMethodMiddleware(router))
+	router.HandleFunc("/auth", auth).Methods(http.MethodPost, http.MethodOptions)     // view
 	router.HandleFunc("/upload", upload).Methods(http.MethodPost, http.MethodOptions) // view
 	router.HandleFunc("/upload", upload).Methods(http.MethodGet, http.MethodOptions)  // view
 	router.HandleFunc("/getip", getip).Methods(http.MethodGet, http.MethodOptions)    // view
@@ -264,8 +262,8 @@ func preArgs() {
 	switch _os {
 	case "darwin":
 		fmt.Println("当前运行在 macOS 操作系统上")
-		os.Setenv("ENV_PORT", "4444")
-		os.Setenv("ENV_TOKEN", "44")
+		os.Setenv("ENV_PORT", "8888")
+		os.Setenv("ENV_TOKEN", "88")
 		//os.Setenv("ENV_FILES", "/Users/uuxia/Desktop/work/doc")
 	case "windows":
 		fmt.Println("当前运行在 Windows 操作系统上")
