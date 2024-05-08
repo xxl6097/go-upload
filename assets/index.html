@@ -171,6 +171,17 @@
             white-space: pre-wrap; /* 保留空白字符和换行符 */
             font-family: 'sans-serif', monospace;
         }
+
+        #drop_zone {
+            border: 2px dashed #ccc;
+            width: 170px;
+            height: 20px;
+            padding: 10px;
+            font-size: 14px;
+        }
+        #fileInput {
+            display: none;
+        }
     </style>
 </head>
 <!--<body onload="getFiles()">-->
@@ -207,11 +218,15 @@
             <div id="progress" style="text-align: left; width: 0;"></div>
         </div>
         <div style="display: flex;margin-top: 5px;">
-            <input type="file" id="fileInput" name="files[]" multiple>
+<!--            <input type="file" id="fileInput" name="files[]" multiple>-->
+            <div id="drop_zone" onclick="fileInput.click()">点击或拖拽文件到此处上传</div>
+            <input type="file" id="fileInput" name="files[]"  onchange="handleFiles(this.files)" multiple>
+
         </div>
+        <ul id="file_list"></ul>
         <!--    <p id="speed" style="color: red">上传速度: 0 MB/s</p>-->
         <div>
-            <button onclick="uploadFile()">开始上传</button>
+            <button onclick="uploadFile()" >开始上传</button>
             <button onclick="refresh()">刷新列表</button>
             <button onclick="deleteSelectedRows()" class="delete-btn">删除选择行</button>
             <a id="pubip"></a>
@@ -239,6 +254,46 @@
 </div>
 </body>
 <script>
+    var dropZone = document.getElementById('drop_zone');
+    var fileList = document.getElementById('file_list');
+    var fileInput = document.getElementById('fileInput');
+    var upfiles = new Array();
+    dropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        var files = e.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    function handleFiles(files) {
+        for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var listItem = document.createElement('li');
+            listItem.textContent = file.name + ' - ' + formatBytes(file.size);
+            fileList.appendChild(listItem);
+            upfiles.push(file)
+        }
+    }
+
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
     var authcode = ''
     function init() {
         authcode = localStorage.getItem('password');
@@ -422,115 +477,118 @@
         xhr.send();
     }
 
-    function uploadFile() {
-        var fileInput = document.getElementById('fileInput');
-        //var file = fileInput.files[0];
-        var files = fileInput.files;
-        if (files.length === 0) {
-            console.log('No files selected.');
-            alert('No files selected.')
-            return;
-        }
-        if (files) {
-            var formData = new FormData();
-            var total_size = 0;
-            for (var i = 0; i < files.length; i++) {
-                formData.append('file', files[i]);
-                total_size += files[i].size
+    function uploadFiles(formData,total_size){
+        var xhr = new XMLHttpRequest();
+
+        const progressBar = document.getElementById('progressBar');
+        const speedElement = document.getElementById('speed');
+        const formatSpeed = (bytesPerSecond) => {
+            const kiloBytesPerSecond = bytesPerSecond / (1024*1024);
+            return kiloBytesPerSecond.toFixed(2) + ' MB/s';
+        };// 记录上传开始时间
+
+        let startTime;
+        let startBytes = 0;
+        startTime = new Date().getTime();
+
+        // 监听进度事件
+        xhr.upload.addEventListener('progress', function (event) {
+            if (event.lengthComputable) {
+                var percentComplete = (event.loaded / event.total) * 100;
+                document.getElementById('progress').style.width = percentComplete + '%';
+                var roundedResult = percentComplete.toFixed(1);
+                document.getElementById('progress').textContent = roundedResult + '%';
             }
 
+            const currentTime = new Date().getTime();
+            const elapsedSeconds = (currentTime - startTime) / 1000;
+            const uploadedBytes = event.loaded;
+            const speed = (uploadedBytes - startBytes) / elapsedSeconds;
+
+            // 更新上传速度
+            const speedText = formatSpeed(speed);
+            speedElement.textContent = `上传速度: ${speedText}`;
+
+            // 更新进度条
+            const progress = (uploadedBytes / total_size) * 100;
+            progressBar.value = progress;
+
+            // 更新起始时间和字节数
+            startTime = currentTime;
+            startBytes = uploadedBytes;
+
+        });
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 1) {
+                // 在这里处理loading状态，例如显示loading动画
+                console.log('Loading...');
+                showLoading('大爷，正在上传文件哦～')
+            }else if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    // 文件上传成功
+                    console.log('File uploaded successfully!');
+                    console.log(xhr)
+                    filejson = JSON.parse(xhr.response)
+                    if (filejson.code === 0){
+                        console.log('成功了哦')
+                        if (filejson.data){
+                            for (var item of  filejson.data){
+                                addItemByUpload(item)
+                            }
+                        }
+                        showToast('上传成功')
+                        // document.getElementById('fileInput').textContent = '';
+                        //localStorage.setItem("token", token);
+                        //console.log(token)
+                        document.getElementById('progress').textContent = '上传成功';
+                        while (fileList.firstChild) {
+                            fileList.removeChild(fileList.firstChild);
+                        }
+                    }else{
+                        console.log('失败了',filejson.msg)
+                        showToast('调用失败:' + filejson.msg)
+                    }
+                } else {
+                    // 文件上传失败
+                    console.error('File upload failed. Please try again.');
+                }
+
+                // 关闭模态框
+                // closeUploadModal();
+                clearFileInput()
+                hideLoading()
+                while (fileList.firstChild) {
+                    fileList.removeChild(fileList.firstChild);
+                }
+            }
+        };
+        progressBar.style.display = "block"
+        // 将 '/upload' 替换为服务器端处理文件上传的路径
+        xhr.open('POST', '/upload', true);
+        xhr.setRequestHeader("Authorization",authcode)
+        xhr.setRequestHeader("source","web")
+        xhr.send(formData);
+    }
+
+    function uploadFile(){
+        var filecount = upfiles.length
+        if (filecount == 0){
+            showToast('请选择文件上传～')
+        }else{
+            var formData = new FormData();
+            var total_size = 0;
+            for (var i = 0; i < filecount; i++) {
+                var file = upfiles.pop()
+                formData.append('file', file);
+                total_size += file.size
+            }
             console.log('total_size',total_size)
             formData.append('token', authcode);
-
-            var xhr = new XMLHttpRequest();
-
-            const progressBar = document.getElementById('progressBar');
-            const speedElement = document.getElementById('speed');
-            const formatSpeed = (bytesPerSecond) => {
-                const kiloBytesPerSecond = bytesPerSecond / (1024*1024);
-                return kiloBytesPerSecond.toFixed(2) + ' MB/s';
-            };// 记录上传开始时间
-
-            let startTime;
-            let startBytes = 0;
-            startTime = new Date().getTime();
-
-            // 监听进度事件
-            xhr.upload.addEventListener('progress', function (event) {
-                if (event.lengthComputable) {
-                    var percentComplete = (event.loaded / event.total) * 100;
-                    document.getElementById('progress').style.width = percentComplete + '%';
-                    var roundedResult = percentComplete.toFixed(1);
-                    document.getElementById('progress').textContent = roundedResult + '%';
-                }
-
-                const currentTime = new Date().getTime();
-                const elapsedSeconds = (currentTime - startTime) / 1000;
-                const uploadedBytes = event.loaded;
-                const speed = (uploadedBytes - startBytes) / elapsedSeconds;
-
-                // 更新上传速度
-                const speedText = formatSpeed(speed);
-                speedElement.textContent = `上传速度: ${speedText}`;
-
-                // 更新进度条
-                const progress = (uploadedBytes / total_size) * 100;
-                progressBar.value = progress;
-
-                // 更新起始时间和字节数
-                startTime = currentTime;
-                startBytes = uploadedBytes;
-
-            });
-
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 1) {
-                    // 在这里处理loading状态，例如显示loading动画
-                    console.log('Loading...');
-                    showLoading('大爷，正在上传文件哦～')
-                }else if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        // 文件上传成功
-                        console.log('File uploaded successfully!');
-                        console.log(xhr)
-                        filejson = JSON.parse(xhr.response)
-                        if (filejson.code === 0){
-                            console.log('成功了哦')
-                            if (filejson.data){
-                                for (var item of  filejson.data){
-                                    addItemByUpload(item)
-                                }
-                            }
-                            showToast('上传成功')
-                            // document.getElementById('fileInput').textContent = '';
-                            //localStorage.setItem("token", token);
-                            //console.log(token)
-                            document.getElementById('progress').textContent = '上传成功';
-                        }else{
-                            console.log('失败了',filejson.msg)
-                            showToast('调用失败:' + filejson.msg)
-                        }
-                    } else {
-                        // 文件上传失败
-                        console.error('File upload failed. Please try again.');
-                    }
-
-                    // 关闭模态框
-                    // closeUploadModal();
-                    clearFileInput()
-                    hideLoading()
-                }
-            };
-            progressBar.style.display = "block"
-            // 将 '/upload' 替换为服务器端处理文件上传的路径
-            xhr.open('POST', '/upload', true);
-            xhr.setRequestHeader("Authorization",authcode)
-            xhr.setRequestHeader("source","web")
-            xhr.send(formData);
-        } else {
-            alert('Please select a file before uploading.');
+            uploadFiles(formData,total_size)
         }
     }
+
 
     function deletefile(files,callback) {
         const jsonData = {

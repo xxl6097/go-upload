@@ -1,6 +1,21 @@
 package main
 
-import "github.com/xxl6097/go-upload/server"
+import (
+	"fmt"
+	"github.com/xxl6097/go-upload/server"
+	"net"
+	"time"
+)
+
+func checkPort(host string, port string, second int) bool {
+	conn, err := net.DialTimeout("tcp", host+":"+port, time.Duration(second)*time.Second)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return false
+	}
+	defer conn.Close()
+	return true
+}
 
 func main() {
 	//dir := "/Users/uuxia/Desktop/work"
@@ -12,6 +27,9 @@ func main() {
 	//if err != nil {
 	//	fmt.Println("服务器启动失败:", err)
 	//}
+
+	//is := checkPort("10.16.14.103", "31381", 300)
+	//fmt.Println(is)
 
 	server.Bootstrap()
 }
