@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"strings"
@@ -138,47 +139,56 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		//var filearr []string
 		var filearr []interface{}
 		for i, _ := range files {
-			file, err := files[i].Open()
+			file, err2 := files[i].Open()
 			defer file.Close()
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+			if err2 != nil {
+				http.Error(w, err2.Error(), http.StatusInternalServerError)
 				return
 			}
 			dir := files_dir + "/" + utils.GetDirAtDay()
 			//判断文件夹是否存在，不存在则创建文件夹
 			if !utils.IsDirExists(dir) {
-				err := utils.CreateMutiDir(dir)
-				if err != nil {
-					http.Error(w, err.Error(), http.StatusInternalServerError)
+				err1 := utils.CreateMutiDir(dir)
+				if err1 != nil {
+					http.Error(w, err1.Error(), http.StatusInternalServerError)
 					return
 				}
 			}
 			filePath := dir + files[i].Filename
 			_, err1 := os.Stat(filePath)
 			if err1 == nil {
-				// 删除文件
-				err2 := os.Remove(filePath)
-				if err2 != nil {
-					fmt.Println("删除文件时发生错误:", err)
-				} else {
-					fmt.Println("文件存在，已删除:", filePath)
+				fileName := filepath.Base(filePath)
+				ext := filepath.Ext(fileName)
+				fileName = fileName[:len(fileName)-len(filepath.Ext(fileName))]
+				// 重命名文件
+				newFile := dir + fileName + "_" + utils.GetFileNameWithTime() + ext
+				err12 := os.Rename(filePath, newFile)
+				if err12 != nil {
+					fmt.Println("重命名文件时发生错误:", err)
+					//文件存在，删除文件
+					err2 := os.Remove(filePath)
+					if err2 != nil {
+						fmt.Println("删除文件时发生错误:", err)
+					} else {
+						fmt.Println("文件存在，已删除:", filePath)
+					}
 				}
 			}
-			dst, err := os.Create(filePath)
+			dst, err3 := os.Create(filePath)
 			defer dst.Close()
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+			if err3 != nil {
+				http.Error(w, err3.Error(), http.StatusInternalServerError)
 				return
 			}
 			//copy the uploaded file to the destination file
-			if _, err := io.Copy(dst, file); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+			if _, err4 := io.Copy(dst, file); err4 != nil {
+				http.Error(w, err4.Error(), http.StatusInternalServerError)
 				return
 			}
-			fileInfo, err := os.Stat(filePath)
-			if err != nil {
-				fmt.Println("Error:", err, source)
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+			fileInfo, err5 := os.Stat(filePath)
+			if err5 != nil {
+				fmt.Println("Error:", err5, source)
+				http.Error(w, err5.Error(), http.StatusInternalServerError)
 				return
 			}
 			_path := static_prefix + filePath[len(files_dir)+1:]

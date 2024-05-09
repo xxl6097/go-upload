@@ -1,0 +1,72 @@
+version: "2.1"
+
+services:
+  redis:
+    image: redis:6.0.6
+    container_name: redis-test1
+    ports:
+      - "6389:6389"
+    expose:
+      - 6389
+    volumes:
+      - ./volumes/redis/data:/data
+      - ./volumes/redis/conf:/etc/redis.conf
+    restart: always
+    privileged: true
+    mem_limit: 512m
+    mem_reservation: 512m
+  eureka:
+    image: clife-devops-docker.pkg.coding.net/public-repository/testsl/clink-cloud-eureka:1.0.0-20210723111610
+    container_name: eureka-test1
+    ports:
+      - "8761:8761"
+    environment:
+      SMART_CLOUD_EUREKA_HOST: eureka
+      SMART_CLOUD_EUREKA_PORT: 8761
+    restart: always
+    depends_on:
+      - redis
+    mem_limit: 512m
+    mem_reservation: 512m
+  clink-lonbon-location:
+    image: clife-devops-docker.pkg.coding.net/public-repository/testsl/clink-lonbon-location-order:3.0.0-20230722104004
+    container_name: clink-lonbon-location
+    ports:
+      - "56008:56008"
+    environment:
+      CLINK_CLOUD_EUREKA_HOST: eureka
+      CLINK_CLOUD_EUREKA_PORT: 8761
+      # CLINK_FEIGN_URL 地址填写之前，测试一下能否正常访问
+      # 临颍地址：https://zhyl-linying.cn/clink/api/clifemode
+      # 数联生产环境：https://open.api.clife.cn/clink/api/clifemode
+      # 数联itest环境：https://itest.clife.net/clink/api/clifemode
+      CLINK_FEIGN_URL: {{CLINK_FEIGN_URL}}
+      CLINK_REDIS_HOST: redis
+      CLINK_REDIS_POST: 6379
+      CLINK_SMART_CONFIG_PROFILE: api
+      # CLIFE_MQTT_CONFIG_URL 地址填写之前，测试一下能否正常访问
+      # 临颍地址：https://zhyl-linying.cn/v1/app
+      # 数联生产环境：https://api.clife.cn/v1/app
+      # 数联itest环境：https://pre.api.clife.cn/v1/app
+      CLIFE_MQTT_CONFIG_URL: {{CLIFE_MQTT_CONFIG_URL}}
+      ACE_SMART_DEVICE_PORT: 56008
+      # LONBON_SERVER_URL 来邦地址，填之前，请先ping一下地址是否通
+      LONBON_SERVER_URL: {{LONBON_SERVER_URL}}
+      # LONBON_SERVER_POST 来邦端口
+      LONBON_SERVER_POST: {{LONBON_SERVER_POST}}
+      # LONBON_ORGID 来邦机构ID
+      LONBON_ORGID: {{LONBON_ORGID}}
+      # LONBON_FEIGN_URL 来邦api地址，同样，填之前判断一下能否正常访问
+      LONBON_FEIGN_URL: {{LONBON_FEIGN_URL}}
+      # LONBON_API_USERNAME 来邦账户，默认：clink，来帮私有管理地址示例：http://192.168.x.x:8080
+      LONBON_API_USERNAME: {{LONBON_API_USERNAME}}
+      # LONBON_API_PASSWORD 来邦密码，默认：Het@1234
+      LONBON_API_PASSWORD: {{LONBON_API_PASSWORD}}
+    user: root
+    privileged: true
+    volumes:
+      - /home/clink/logs:/logs
+    restart: always
+    entrypoint: "/wait-for-it.sh -t 0 eureka:8761 -- java -Djava.security.egd=file:/dev/./urandom -jar /app.jar"
+    mem_limit: 4096m
+    mem_reservation: 4096m
