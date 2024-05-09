@@ -71,6 +71,11 @@ func auth(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(502)
 	}
+	w.Write([]byte(utils.Version))
+}
+
+func config(w http.ResponseWriter, r *http.Request) {
+	Respond(w, Ok(map[string]interface{}{"version": "0.3.8"}))
 }
 
 func upload(w http.ResponseWriter, r *http.Request) {
@@ -236,6 +241,7 @@ func initRouter(router *mux.Router) {
 	}
 
 	router.Use(mux.CORSMethodMiddleware(router))
+	router.HandleFunc("/config", config).Methods(http.MethodPost, http.MethodOptions) // view
 	router.HandleFunc("/auth", auth).Methods(http.MethodPost, http.MethodOptions)     // view
 	router.HandleFunc("/upload", upload).Methods(http.MethodPost, http.MethodOptions) // view
 	router.HandleFunc("/upload", upload).Methods(http.MethodGet, http.MethodOptions)  // view

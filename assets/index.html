@@ -197,7 +197,7 @@
             <div id="loading">Loading...</div>
         </div>
 
-        <h2>Go文件上传助手</h2>
+        <h2 id="title_h2">Go文件上传助手</h2>
         <div id="code_div" style="display: none">
             <div>单文件：
                 <label id="up_1"></label>
@@ -312,6 +312,8 @@
                 event.target.value = ''; // Clear the input field
             }
         });
+
+        GetConfig()
     }
     function cache(){
         localStorage.setItem('key', 'value');
@@ -462,7 +464,7 @@
                     document.getElementById('content').style.display = 'block';
                     document.getElementById('auth').style.display = 'none';
                     getFiles()
-                    console.log('sucess',xhr.status)
+                    console.log('sucess',xhr.status,xhr.responseText)
                     showToast('认证成功')
                     localStorage.setItem('password', password);
                     createcode(password)
@@ -471,6 +473,25 @@
                     showToast('认证失败')
                     document.getElementById('content').style.display = 'none';
                     document.getElementById('auth').style.display = 'block';
+                }
+            }
+        };
+        xhr.send();
+    }
+
+    function GetConfig() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/config', true);
+        //xhr.setRequestHeader("Authorization",password)
+        xhr.onreadystatechange = function() {
+            console.log('====',xhr.readyState,xhr.status)
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200){
+                    console.log('sucess',xhr.status,xhr.responseText)
+                    filejson = JSON.parse(xhr.response)
+                    if (filejson.code === 0){
+                        document.getElementById('title_h2').textContent = 'Go文件上传助手v' + filejson.data.version;
+                    }
                 }
             }
         };

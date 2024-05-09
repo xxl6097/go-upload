@@ -3,8 +3,13 @@ package main
 import (
 	"fmt"
 	"github.com/xxl6097/go-upload/server"
+	"github.com/xxl6097/go-upload/server/utils"
 	"net"
 	"time"
+)
+
+var (
+	Version string
 )
 
 func checkPort(host string, port string, second int) bool {
@@ -30,5 +35,6 @@ func main() {
 
 	//is := checkPort("10.16.14.103", "31381", 300)
 	//fmt.Println(is)
+	utils.Version = Version
 	server.Bootstrap()
 }
