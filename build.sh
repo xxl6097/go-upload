@@ -42,19 +42,23 @@ function getversion() {
 }
 
 function build_windows_amd64() {
-  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ${appname}.exe
+#  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ${appname}.exe
+  docker_push_result=$(CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ${appname}.exe 2>&1)
 }
 
 function build_linux_amd64() {
-  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${appname}
+#  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${appname}
+  docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${appname} 2>&1)
 }
 
 function build_linux_arm64() {
-  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ${appname}
+#  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ${appname}
+  docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ${appname} 2>&1)
 }
 
 function build_darwin_arm64() {
-  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ${appname}
+#  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ${appname}
+  docker_push_result=$(CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ${appname} 2>&1)
 }
 
 function build_images_to_tencent() {
@@ -84,8 +88,9 @@ function build_images_to_conding() {
   docker login -u prdsl-1683373983040 -p ffd28ef40d69e45f4e919e6b109d5a98601e3acd clife-devops-docker.pkg.coding.net
   docker build -t ${appname} .
   docker tag ${appname}:${appversion} clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion}
-  docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion} --push .
-  echo docker pull clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion}
+#  docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion} --push .
+  docker_push_result=$(docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion} --push . 2>&1)
+  echo "docker pull clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion}"
 }
 
 function gomodtidy() {
@@ -166,10 +171,11 @@ function menu() {
   exit_status=$?
   # 检查退出状态码
   if [ $exit_status -eq 0 ]; then
-    echo "镜像推送成功 $docker_push_result"
+    echo "镜像推送成功 【$docker_push_result】"
+    echo $appversion >version
   else
     echo "镜像推送失败"
-    echo "====》$docker_push_result+++"
+    echo "【$docker_push_result】"
   fi
 
   #  if read -t 10 -p "确定执行成功了吗:(y/n)" isok; then
