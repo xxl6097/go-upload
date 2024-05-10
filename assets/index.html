@@ -180,6 +180,19 @@
             padding: 10px;
             font-size: 14px;
         }
+
+        #code_div {
+            border: 2px dashed #ccc;
+            width: 99%;
+            height: auto;
+            padding: 5px;
+            font-size: 14px;
+        }
+        #up_bg_txt {
+            font-size: 25px;
+            align-content: center;
+            text-align: center;
+        }
         #fileInput {
             display: none;
         }
@@ -199,34 +212,33 @@
         </div>
 
         <h2 id="title_h2">Go文件上传助手</h2>
-        <div id="code_div" style="display: none">
-            <div>单文件：
-                <label id="up_1"></label>
-                <button onclick="copy1()">复制</button>
-            </div>
 
-            <div>多文件：
-                <label id="up_2"></label>
-                <button onclick="copy2()">复制</button>
-            </div>
+        <div id="code_div"  onclick="fileInput.click()">
+            <div style="display: flex;">
+                <div id="sample" style="width: 100%;">
+                    <div>单文件：
+                        <label id="up_1"></label>
+                        <button onclick="copy1(event)">复制</button>
+                    </div>
 
-            <div>脚本式：
-                <label id="up_3"></label><label>/home/a.txt /home/b.txt</label>
-                <button onclick="copy3()">复制</button>
+                    <div>多文件：
+                        <label id="up_2"></label>
+                        <button onclick="copy2(event)">复制</button>
+                    </div>
+
+                    <div>脚本式：
+                        <label id="up_3"></label><label>/home/a.txt /home/b.txt</label>
+                        <button onclick="copy3(event)">复制</button>
+                    </div>
+                </div>
+                <div id="up_bg_txt" style="width: 100%;">点击或拖拽文件到此处上传</div>
             </div>
         </div>
+        <input type="file" id="fileInput" name="files[]"  onchange="handleFiles(this.files)" multiple>
 
-        <!--    <p id="speed" style="color: red">上传速度: 0 MB/s</p>-->
-
-        <div style="display: flex;margin-top: 5px;">
-            <div style="display: flex;margin-top: 5px;">
-                <!--            <input type="file" id="fileInput" name="files[]" multiple>-->
-                <div id="drop_zone" onclick="fileInput.click()">点击或拖拽文件到此处上传</div>
-                <input type="file" id="fileInput" name="files[]"  onchange="handleFiles(this.files)" multiple>
-
-            </div>
-
-            <div style="align-content: center;margin-left: 5px;">
+        <!--按钮模块-->
+        <div style="margin-top: 8px;">
+            <div style="align-content: center;">
                 <button onclick="uploadFile()" style="height: 70%;" >开始上传</button>
                 <button onclick="refresh()" style="height: 70%;">刷新列表</button>
                 <button onclick="deleteSelectedRows()" style="height: 70%;">删除选择行</button><!--class="delete-btn"-->
@@ -238,9 +250,9 @@
         <div id="progressBar" style="display: none;width: 40%;">
             <div id="progress" style="text-align: center; width: 0;"></div>
         </div>
-        <ul id="file_list"></ul>
+        <div id="file_list" style="padding-left: 10px;"></div>
 
-        <div style="margin-top: 5px;">
+        <div style="margin-top: 1px;">
             <table id="myTable">
                 <thead>
                 <tr>
@@ -262,7 +274,7 @@
 </div>
 </body>
 <script>
-    var dropZone = document.getElementById('drop_zone');
+    var dropZone = document.getElementById('code_div');//code_div drop_zone
     var fileList = document.getElementById('file_list');
     var fileInput = document.getElementById('fileInput');
     var upfiles = new Array();
@@ -340,14 +352,18 @@
         document.execCommand("copy");
         // Remove the textarea from the document body
         document.body.removeChild(textarea);
+        showToast('已复制：' + text)
     }
-    function copy1() {
+    function copy1(event) {
+        event.stopPropagation();
         copyToClipboard(document.getElementById("up_1").textContent)
     }
-    function copy2() {
+    function copy2(event) {
+        event.stopPropagation();
         copyToClipboard(document.getElementById("up_2").textContent)
     }
-    function copy3() {
+    function copy3(event) {
+        event.stopPropagation();
         copyToClipboard(document.getElementById("up_3").textContent)
     }
     function createcode(token) {
