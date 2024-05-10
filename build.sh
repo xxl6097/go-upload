@@ -83,18 +83,18 @@ function build_images_to_hubdocker() {
 
   # 检查退出状态码
   if [ $exit_status -eq 0 ]; then
-      echo "Docker push succeeded."
+      echo "镜像推送成功"
   else
-      echo "Docker push failed:"
+      echo "镜像推送失败"
       echo "$docker_push_result"
   fi
   echo "docker pull xxl6097/${appname}:${appversion}"
   #docker run -d -p 9911:8080 --name go-raspberry xxl6097/${appname}:${appversion}
   # 检查返回代码
   if [ $? -eq 0 ]; then
-      echo "镜像推送成功"
+      echo "----镜像推送成功"
   else
-      echo "镜像推送失败"
+      echo "-----镜像推送失败"
   fi
 }
 
