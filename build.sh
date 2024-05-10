@@ -75,27 +75,9 @@ function build_images_to_hubdocker() {
 
   docker tag ${appname}:${appversion} xxl6097/${appname}:latest
   #docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
-  # 推送Docker镜像
   docker_push_result=$(docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push . 2>&1)
-
-  # 获取命令的退出状态码
-  exit_status=$?
-
-  # 检查退出状态码
-  if [ $exit_status -eq 0 ]; then
-      echo "镜像推送成功"
-  else
-      echo "镜像推送失败"
-      echo "$docker_push_result"
-  fi
   echo "docker pull xxl6097/${appname}:${appversion}"
   #docker run -d -p 9911:8080 --name go-raspberry xxl6097/${appname}:${appversion}
-  # 检查返回代码
-  if [ $? -eq 0 ]; then
-      echo "----镜像推送成功"
-  else
-      echo "-----镜像推送失败"
-  fi
 }
 
 function build_images_to_conding() {
@@ -179,14 +161,25 @@ function menu() {
   [7]) (build_images_to_tencent) ;;
   *) echo "exit" ;;
   esac
-  if read -t 10 -p "确定执行成功了吗:(y/n)" isok; then
-    echo "-->$isok"
+
+  # 获取命令的退出状态码
+  exit_status=$?
+  # 检查退出状态码
+  if [ $exit_status -eq 0 ]; then
+    echo "镜像推送成功 $docker_push_result"
   else
-    isok="y"
+    echo "镜像推送失败"
+    echo "====》$docker_push_result+++"
   fi
-  if [ "$isok" = "y" ]; then
-    echo $appversion >version
-  fi
+
+  #  if read -t 10 -p "确定执行成功了吗:(y/n)" isok; then
+  #    echo "-->$isok"
+  #  else
+  #    isok="y"
+  #  fi
+  #  if [ "$isok" = "y" ]; then
+  #    echo $appversion >version
+  #  fi
   rm -rf files
   git add .
   git commit -m "$appversion"
