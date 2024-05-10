@@ -74,7 +74,20 @@ function build_images_to_hubdocker() {
   #sh 'docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/$DEPLOY_ENV/$SERVICE_NAMES:$ServiceVersion -f Dockerfile --push .'
 
   docker tag ${appname}:${appversion} xxl6097/${appname}:latest
-  docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
+  #docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
+  # 推送Docker镜像
+  docker_push_result=$(docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push . 2>&1)
+
+  # 获取命令的退出状态码
+  exit_status=$?
+
+  # 检查退出状态码
+  if [ $exit_status -eq 0 ]; then
+      echo "Docker push succeeded."
+  else
+      echo "Docker push failed:"
+      echo "$docker_push_result"
+  fi
   echo "docker pull xxl6097/${appname}:${appversion}"
   #docker run -d -p 9911:8080 --name go-raspberry xxl6097/${appname}:${appversion}
   # 检查返回代码
