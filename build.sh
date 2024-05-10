@@ -70,11 +70,11 @@ function build_images_to_hubdocker() {
   #docker login ghcr.io --username xxl6097 --password-stdin
   docker build --build-arg ARG_VERSION="${appversion}" -t ${appname} .
   docker tag ${appname}:${appversion} xxl6097/${appname}:${appversion}
-  docker buildx build --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${appversion} --push .
+  docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${appversion} --push .
   #sh 'docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/$DEPLOY_ENV/$SERVICE_NAMES:$ServiceVersion -f Dockerfile --push .'
 
   docker tag ${appname}:${appversion} xxl6097/${appname}:latest
-  docker buildx build --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
+  docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
   echo docker pull xxl6097/${appname}:${appversion}
   #docker run -d -p 9911:8080 --name go-raspberry xxl6097/${appname}:${appversion}
 }
