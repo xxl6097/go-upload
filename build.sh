@@ -5,6 +5,14 @@ appname=go-upload
 #appversion=0.0.0-$(date +"%Y%m%d%H%M%S")
 appversion=0.0.0
 isok='n'
+APP_NAME=${appname}
+APP_VERSION=$(git log -1 --oneline)
+BUILD_VERSION=$(git log -1 --oneline)
+BUILD_TIME=$(date "+%FT%T%z")
+GIT_REVISION=$(git rev-parse --short HEAD)
+GIT_BRANCH=$(git name-rev --name-only HEAD)
+GO_VERSION=$(go version)
+
 
 function getversion1() {
   version=$(cat version)
