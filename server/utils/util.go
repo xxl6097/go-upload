@@ -31,7 +31,23 @@ func IsNumeric(s string) bool {
 	_, err := strconv.ParseFloat(s, 64)
 	return err == nil
 }
-
+func GetHostIp() string {
+	addrList, err := net.InterfaceAddrs()
+	if err != nil {
+		fmt.Println("get current host ip err: ", err)
+		return ""
+	}
+	var ip string
+	for _, address := range addrList {
+		if ipNet, ok := address.(*net.IPNet); ok && !ipNet.IP.IsLoopback() && ipNet.IP.IsPrivate() {
+			if ipNet.IP.To4() != nil {
+				ip = ipNet.IP.String()
+				break
+			}
+		}
+	}
+	return ip
+}
 func GetPublicIP() (string, error) {
 	resp, err := http.Get("https://ipinfo.io/ip")
 	if err != nil {

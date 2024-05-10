@@ -48,6 +48,14 @@ func Respond(w http.ResponseWriter, data map[string]interface{}) {
 	}
 }
 
+func Respond1(w http.ResponseWriter, data interface{}) {
+	w.Header().Add("Content-Type", "application/json")
+	//fmt.Println(data)
+	if json.NewEncoder(w).Encode(data) != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
 func GetReqData[T any](w http.ResponseWriter, r *http.Request) *T {
 	var t T
 	err := json.NewDecoder(r.Body).Decode(&t)
@@ -141,7 +149,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			Respond(w, Result(-1, "请在MultipartForm字段中添加file字段和对应文件", nil))
 			return
 		}
-		//var filearr []string
+		var filearrs []string
 		var filearr []interface{}
 		for i, _ := range files {
 			file, err2 := files[i].Open()
@@ -203,13 +211,18 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			if source == "web" {
 				filearr = append(filearr, item)
 			} else {
-				filearr = append(filearr, origin+_path)
+				filearrs = append(filearrs, origin+_path)
 			}
 			fmt.Printf("文件上传成功:%s,%+v", filePath, item)
 		}
-
-		Respond(w, Ok(filearr))
-
+		//curl -F "file=@/Users/uuxia/Desktop/work/code/go/go-upload/build.sh"  -H "Authorization: 88" http://localhost:8888/upload
+		if source == "web" {
+			Respond(w, Ok(filearr))
+		} else {
+			result := strings.Join(filearrs, "\r\n")
+			fmt.Println(result)
+			w.Write([]byte(result))
+		}
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
@@ -330,6 +343,10 @@ func Bootstrap() {
 				break
 			}
 		}
+	}
+	ip := utils.GetHostIp()
+	if origin == "" {
+		origin = fmt.Sprintf("http://%s:%s", ip, port)
 	}
 	_port = port
 	FileUploadWebServer(port, token)

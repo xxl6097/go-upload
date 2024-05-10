@@ -490,6 +490,7 @@
                     console.log('sucess',xhr.status,xhr.responseText)
                     filejson = JSON.parse(xhr.response)
                     if (filejson.code === 0){
+                        document.title = "Go文件上传助手v" + filejson.data.version;
                         document.getElementById('title_h2').textContent = 'Go文件上传助手v' + filejson.data.version;
                     }
                 }
