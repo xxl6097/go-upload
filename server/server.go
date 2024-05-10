@@ -221,7 +221,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		} else {
 			result := strings.Join(filearrs, "\r\n")
 			fmt.Println(result)
-			w.Write([]byte(result))
+			w.Write([]byte(result + "\r\n"))
 		}
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
