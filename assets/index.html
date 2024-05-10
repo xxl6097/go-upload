@@ -176,6 +176,7 @@
             border: 2px dashed #ccc;
             width: 170px;
             height: 20px;
+            text-align: center;
             padding: 10px;
             font-size: 14px;
         }
@@ -214,24 +215,31 @@
                 <button onclick="copy3()">复制</button>
             </div>
         </div>
-        <div id="progressBar" style="display: none">
-            <div id="progress" style="text-align: left; width: 0;"></div>
-        </div>
-        <div style="display: flex;margin-top: 5px;">
-<!--            <input type="file" id="fileInput" name="files[]" multiple>-->
-            <div id="drop_zone" onclick="fileInput.click()">点击或拖拽文件到此处上传</div>
-            <input type="file" id="fileInput" name="files[]"  onchange="handleFiles(this.files)" multiple>
 
+        <!--    <p id="speed" style="color: red">上传速度: 0 MB/s</p>-->
+
+        <div style="display: flex;margin-top: 5px;">
+            <div style="display: flex;margin-top: 5px;">
+                <!--            <input type="file" id="fileInput" name="files[]" multiple>-->
+                <div id="drop_zone" onclick="fileInput.click()">点击或拖拽文件到此处上传</div>
+                <input type="file" id="fileInput" name="files[]"  onchange="handleFiles(this.files)" multiple>
+
+            </div>
+
+            <div style="align-content: center;margin-left: 5px;">
+                <button onclick="uploadFile()" style="height: 70%;" >开始上传</button>
+                <button onclick="refresh()" style="height: 70%;">刷新列表</button>
+                <button onclick="deleteSelectedRows()" style="height: 70%;">删除选择行</button><!--class="delete-btn"-->
+                <a id="pubip"></a>
+                <label id="speed" style="color: red"></label>
+            </div>
+        </div>
+
+        <div id="progressBar" style="display: none;width: 40%;">
+            <div id="progress" style="text-align: center; width: 0;"></div>
         </div>
         <ul id="file_list"></ul>
-        <!--    <p id="speed" style="color: red">上传速度: 0 MB/s</p>-->
-        <div>
-            <button onclick="uploadFile()" >开始上传</button>
-            <button onclick="refresh()">刷新列表</button>
-            <button onclick="deleteSelectedRows()">删除选择行</button><!--class="delete-btn"-->
-            <a id="pubip"></a>
-            <label id="speed" style="color: red"></label>
-        </div>
+
         <div style="margin-top: 5px;">
             <table id="myTable">
                 <thead>
