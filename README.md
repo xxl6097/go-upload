@@ -62,3 +62,7 @@ curl -F "file=@/root/xxx.log" -F "token=44" http://localhost:4444/upload
 ```
 
 bash <(curl -s -S -L http://uuxia.cn:8087/files/2024/03/12/test.sh)  /Users/uuxia/Desktop/work/code/go/go-upload/go.mod
+
+```ssh
+ssh -T git@github.com
+```
