@@ -142,7 +142,7 @@ function os_type() {
 
 function menu() {
   os_type
-  echo "0. 编译 Windows amd64"
+  echo -e "\r\n0. 编译 Windows amd64"
   echo "1. 编译 Linux amd64"
   echo "2. 编译 Linux arm64"
   echo "3. 编译 MacOS"
@@ -171,10 +171,10 @@ function menu() {
   exit_status=$?
   # 检查退出状态码
   if [ $exit_status -eq 0 ]; then
-    echo "镜像推送成功 【$docker_push_result】"
+    echo "成功 【$docker_push_result】"
     echo $appversion >version
   else
-    echo "镜像推送失败"
+    echo "失败"
     echo "【$docker_push_result】"
   fi
 
