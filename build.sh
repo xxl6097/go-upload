@@ -75,8 +75,14 @@ function build_images_to_hubdocker() {
 
   docker tag ${appname}:${appversion} xxl6097/${appname}:latest
   docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
-  echo docker pull xxl6097/${appname}:${appversion}
+  echo "docker pull xxl6097/${appname}:${appversion}"
   #docker run -d -p 9911:8080 --name go-raspberry xxl6097/${appname}:${appversion}
+  # 检查返回代码
+  if [ $? -eq 0 ]; then
+      echo "镜像推送成功"
+  else
+      echo "镜像推送失败"
+  fi
 }
 
 function build_images_to_conding() {
@@ -91,7 +97,51 @@ function gomodtidy() {
   go mod tidy
 }
 
+function check_docker_macos() {
+  # 检查 Docker 是否正在运行
+  if ! docker info &>/dev/null; then
+    echo "Docker 未启动，正在启动 Docker..."
+    open --background -a Docker
+    echo "Docker 已启动"
+    sleep 10
+    docker version
+  else
+    echo "Docker 已经在运行"
+  fi
+}
+
+function check_docker_linux() {
+  # 检查 Docker 是否正在运行
+  if ! docker info &>/dev/null; then
+    echo "Docker 未启动，正在启动 Docker..."
+    systemctl start docker
+    echo "Docker 已启动"
+    sleep 5
+    docker version
+  else
+    echo "Docker 已经在运行"
+  fi
+}
+
+function os_type() {
+  # 获取操作系统名称
+  os_name=$(uname -s)
+  # 判断操作系统
+  if [ "$os_name" = "Darwin" ]; then
+    echo "这是 macOS"
+    # 在这里添加针对 macOS 的操作
+    check_docker_macos
+  elif [ "$os_name" = "Linux" ]; then
+    echo "这是 Linux"
+    # 在这里添加针对 Linux 的操作
+    check_docker_linux
+  else
+    echo "未知操作系统"
+  fi
+}
+
 function menu() {
+  os_type
   echo "0. 编译 Windows amd64"
   echo "1. 编译 Linux amd64"
   echo "2. 编译 Linux arm64"
@@ -116,8 +166,11 @@ function menu() {
   [7]) (build_images_to_tencent) ;;
   *) echo "exit" ;;
   esac
-  echo "确定执行成功了吗:(y/n)"
-  read isok
+  if read -t 10 -p "确定执行成功了吗:(y/n)" isok; then
+    echo "-->$isok"
+  else
+    isok="y"
+  fi
   if [ "$isok" = "y" ]; then
     echo $appversion >version
   fi
