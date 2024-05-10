@@ -101,7 +101,7 @@ function check_docker_macos() {
   # 检查 Docker 是否正在运行
   if ! docker info &>/dev/null; then
     echo "Docker 未启动，正在启动 Docker..."
-    open --background -a Docker
+    #open --background -a Docker
     echo "Docker 已启动"
     sleep 10
     docker version
