@@ -36,6 +36,6 @@ func main() {
 	//is := checkPort("10.16.14.103", "31381", 300)
 	//fmt.Println(is)
 	utils.Version = Version
-	fmt.Println("====>", Version)
+	fmt.Println("Version====>", Version)
 	server.Bootstrap()
 }
