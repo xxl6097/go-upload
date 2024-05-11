@@ -181,7 +181,7 @@ function menu() {
     # 检查退出状态码
     if [ $exit_status -eq 0 ]; then
       echo "成功"
-      echo $appversion >version.txt
+      echo $appversion > version.txt
     else
       echo "失败"
       echo "【$docker_push_result】"
