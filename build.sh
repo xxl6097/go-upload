@@ -48,7 +48,7 @@ function GetLDFLAGS() {
     -X ${versionDir}.GitRevision=${GIT_REVISION} \
     -X ${versionDir}.GitBranch=${GIT_BRANCH} \
     -X ${versionDir}.GoVersion=${GO_VERSION}"
-  echo $ldflags
+  #echo $ldflags
 }
 
 function build_windows_amd64() {
@@ -72,7 +72,7 @@ function build_darwin_arm64() {
   #  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ${appname}
   # echo "build macos arm64 $(GetLDFLAGS)"
   #  docker_push_result=$(CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
-  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "$(GetLDFLAGS)" -o ${appname}
+  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "$ldflags" -o ${appname}
 }
 
 function build_images_to_tencent() {
@@ -202,4 +202,8 @@ function menu() {
 
 }
 
-menu
+function main() {
+    GetLDFLAGS
+    menu
+}
+main
