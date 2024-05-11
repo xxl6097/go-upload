@@ -53,23 +53,26 @@ function GetLDFLAGS() {
 
 function build_windows_amd64() {
   #  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ${appname}.exe
-  docker_push_result=$(CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags $(GetLDFLAGS) -o ${appname}.exe 2>&1)
+  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags $(GetLDFLAGS) -o ${appname}.exe
 }
 
 function build_linux_amd64() {
   #  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${appname}
-  docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
+  #  docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
+  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags $(GetLDFLAGS) -o ${appname}
 }
 
 function build_linux_arm64() {
   #  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ${appname}
-  docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
+  #  docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
+  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname}
 }
 
 function build_darwin_arm64() {
   #  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ${appname}
   echo "build macos arm64 $(GetLDFLAGS)"
-  docker_push_result=$(CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
+  #  docker_push_result=$(CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
+  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname}
 }
 
 function build_images_to_tencent() {
