@@ -72,7 +72,7 @@ function build_darwin_arm64() {
   #  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ${appname}
   # echo "build macos arm64 $(GetLDFLAGS)"
   #  docker_push_result=$(CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
-  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname}
+  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "$(GetLDFLAGS)" -o ${appname}
 }
 
 function build_images_to_tencent() {
