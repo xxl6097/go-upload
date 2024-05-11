@@ -14,9 +14,9 @@ ENV GOPROXY https://goproxy.cn,direct
 # 编译，关闭CGO，防止编译后的文件有动态链接，而alpine镜像里有些c库没有，直接没有文件的错误
 #RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" main.go
 #RUN go build -ldflags="-w -s" *.go
-RUN echo "====>${ARG_LDFLAGS}"
+RUN echo "====>'${ARG_LDFLAGS}'"
 #RUN go build -ldflags="-s -w -X 'main.Version=$ARG_VERSION'" *.go
-RUN go build -ldflags ${ARG_LDFLAGS} *.go
+RUN go build -ldflags "${ARG_LDFLAGS}" *.go
 
 
 
