@@ -357,7 +357,7 @@
                 build_info += '\r\nGitRevision：' + jsonData.GitRevision
                 build_info += '\r\nGitBranch：' + jsonData.GitBranch
                 build_info += '\r\nGoVersion：' + jsonData.GoVersion
-                showToast(build_info)
+                Toast(build_info,10)
             } else {
                 // 否则，更新上次点击的时间
                 lastClickTime = now;
@@ -409,6 +409,10 @@
     }
 
     function showToast(content) {
+        Toast(content,3)
+    }
+
+    function Toast(content,timeout) {
         var toastElement = document.getElementById("toast");
         // 设置Toast文本
         toastElement.innerText = content;
@@ -420,9 +424,8 @@
             document.getElementById('progress').style.width = '0%';
             document.getElementById('progress').textContent = '';
             document.getElementById('progressBar').style.display = "none";
-        }, 3000);
+        }, 3*timeout);
     }
-
 
     function getFiles() {
         getPubIp()

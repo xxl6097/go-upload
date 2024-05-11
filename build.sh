@@ -1,10 +1,7 @@
 #!/bin/bash
 #修改为自己的应用名称
 appname=go-upload
-#版本号，latest
-#appversion=0.0.0-$(date +"%Y%m%d%H%M%S")
 appversion=0.0.0
-isok='n'
 
 function getversion() {
   appversion=$(cat version.txt)
@@ -52,36 +49,26 @@ function GetLDFLAGS() {
 }
 
 function build_windows_amd64() {
-  #  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ${appname}.exe
   CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "$ldflags" -o ${appname}.exe
 }
 
 function build_linux_amd64() {
-  #  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${appname}
-  #  docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
   CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "$ldflags" -o ${appname}
 }
 
 function build_linux_arm64() {
-  #  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ${appname}
-  #  docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
   CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "$ldflags" -o ${appname}
 }
 
 function build_darwin_arm64() {
-  #  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ${appname}
-  # echo "build macos arm64 $(GetLDFLAGS)"
-  #  docker_push_result=$(CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
-  #  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "$ldflags" -o ${appname}
   CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "$ldflags" -o ${appname}
-  #echo 'CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "'$ldflags'" -o '${appname}''
 }
 
 function build_images_to_tencent() {
   docker login ccr.ccs.tencentyun.com --username=100016471941 -p het002402
-  docker build -t ${appname} .
+  docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
   docker tag ${appname}:${appversion} ccr.ccs.tencentyun.com/100016471941/${appname}:${appversion}
-  docker buildx build --platform linux/amd64,linux/arm64 -t ccr.ccs.tencentyun.com/100016471941/${appname}:${appversion} --push .
+  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t ccr.ccs.tencentyun.com/100016471941/${appname}:${appversion} --push .
 }
 
 function build_images_to_hubdocker() {
@@ -99,10 +86,9 @@ function build_images_to_hubdocker() {
 
 function build_images_to_conding() {
   docker login -u prdsl-1683373983040 -p ffd28ef40d69e45f4e919e6b109d5a98601e3acd clife-devops-docker.pkg.coding.net
-  docker build -t ${appname} .
+  docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
   docker tag ${appname}:${appversion} clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion}
-  #  docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion} --push .
-  docker_push_result=$(docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion} --push . 2>&1)
+  docker_push_result=$(docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion} --push . 2>&1)
   echo "docker pull clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion}"
 }
 
@@ -111,7 +97,6 @@ function gomodtidy() {
 }
 
 function check_docker_macos() {
-  # 检查 Docker 是否正在运行
   if ! docker info &>/dev/null; then
     echo "Docker 未启动，正在启动 Docker..."
     open --background -a Docker
@@ -124,7 +109,6 @@ function check_docker_macos() {
 }
 
 function check_docker_linux() {
-  # 检查 Docker 是否正在运行
   if ! docker info &>/dev/null; then
     echo "Docker 未启动，正在启动 Docker..."
     systemctl start docker
@@ -175,22 +159,13 @@ function menu() {
     exit_status=$?
     # 检查退出状态码
     if [ $exit_status -eq 0 ]; then
-      echo "成功"
+      echo "成功推送Docker"
       echo $appversion >version.txt
     else
       echo "失败"
       echo "【$docker_push_result】"
     fi
   fi
-
-  #  if read -t 10 -p "确定执行成功了吗:(y/n)" isok; then
-  #    echo "-->$isok"
-  #  else
-  #    isok="y"
-  #  fi
-  #  if [ "$isok" = "y" ]; then
-  #    echo $appversion >version
-  #  fi
   rm -rf files
   git add .
   git commit -m "$appversion"
