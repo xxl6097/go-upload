@@ -41,6 +41,12 @@ function GetLDFLAGS() {
   GIT_BRANCH=$(git name-rev --name-only HEAD)
   GO_VERSION=$(go version)
   ldflags="\"-s -w \
+    -X '${versionDir}.AppName=${APP_NAME}' \
+    -X '${versionDir}.AppVersion=${APP_VERSION}' \
+    -X '${versionDir}.BuildVersion=${BUILD_VERSION}' \
+    -X '${versionDir}.BuildTime=${BUILD_TIME}' \
+    -X '${versionDir}.GitRevision=${GIT_REVISION}' \
+    -X '${versionDir}.GitBranch=${GIT_BRANCH}' \
   -X '${versionDir}.GoVersion=${GO_VERSION}'\
   "\"
   #echo $ldflags
@@ -67,7 +73,7 @@ function build_darwin_arm64() {
   #  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ${appname}
   # echo "build macos arm64 $(GetLDFLAGS)"
   #  docker_push_result=$(CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
-#  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "$ldflags" -o ${appname}
+  #  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "$ldflags" -o ${appname}
   echo CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags ${ldflags} -o ${appname}
 }
 
@@ -199,7 +205,7 @@ function menu() {
 }
 
 function main() {
-    GetLDFLAGS
-    menu
+  GetLDFLAGS
+  menu
 }
 main
