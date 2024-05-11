@@ -144,8 +144,8 @@ function os_type() {
   fi
 }
 
+
 function menu() {
-  os_type
   echo -e "\r\n0. 编译 Windows amd64"
   echo "1. 编译 Linux amd64"
   echo "2. 编译 Linux arm64"
@@ -170,6 +170,13 @@ function menu() {
   [7]) (build_images_to_tencent) ;;
   *) echo "exit" ;;
   esac
+
+  val=10
+  if (( val >= 0 && val <= 100 )); then
+      echo "Value is within the range 0 to 100."
+  else
+      echo "Value is outside the range."
+  fi
 
   # 获取命令的退出状态码
   exit_status=$?
