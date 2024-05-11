@@ -88,7 +88,7 @@ function build_images_to_hubdocker() {
   #这个地方登录一次就够了
   docker login -u xxl6097 -p het002402
   #docker login ghcr.io --username xxl6097 --password-stdin
-  docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
+  docker build --build-arg ARG_LDFLAGS="aaaa" -t ${appname} .
 #  docker tag ${appname}:${appversion} xxl6097/${appname}:${appversion}
 #  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${appversion} --push .
 #  #sh 'docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/$DEPLOY_ENV/$SERVICE_NAMES:$ServiceVersion -f Dockerfile --push .'
