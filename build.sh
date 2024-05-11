@@ -40,7 +40,9 @@ function GetLDFLAGS() {
   GIT_REVISION=$(git rev-parse --short HEAD)
   GIT_BRANCH=$(git name-rev --name-only HEAD)
   GO_VERSION=$(go version)
-  ldflags="\"-s -w -X '${versionDir}.GoVersion=${GO_VERSION}'"\"
+  ldflags="\"-s -w \
+  -X '${versionDir}.GoVersion=${GO_VERSION}'\
+  "\"
   #echo $ldflags
 }
 
