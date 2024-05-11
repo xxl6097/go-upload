@@ -161,6 +161,7 @@ function menu() {
   read index
 
   appversion=$(getversion)
+  git tag $appversion
   echo "start===>$appversion"
   case "$index" in
   [0]) (build_windows_amd64) ;;
@@ -198,8 +199,7 @@ function menu() {
   rm -rf files
   git add .
   git commit -m "$appversion"
-  git push
-
+  git push --tags
 }
 
 function main() {

@@ -84,7 +84,7 @@ func auth(w http.ResponseWriter, r *http.Request) {
 }
 
 func config(w http.ResponseWriter, r *http.Request) {
-	Respond(w, Ok(map[string]interface{}{"version": version.Version}))
+	Respond(w, Ok(map[string]interface{}{"version": version.AppVersion}))
 }
 
 func upload(w http.ResponseWriter, r *http.Request) {
