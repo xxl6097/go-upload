@@ -89,15 +89,14 @@ function build_images_to_hubdocker() {
   docker login -u xxl6097 -p het002402
   #docker login ghcr.io --username xxl6097 --password-stdin
   docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
-  docker tag ${appname}:${appversion} xxl6097/${appname}:${appversion}
-  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${appversion} --push .
-  #sh 'docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/$DEPLOY_ENV/$SERVICE_NAMES:$ServiceVersion -f Dockerfile --push .'
-
-  docker tag ${appname}:${appversion} xxl6097/${appname}:latest
-  #docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
-  docker_push_result=$(docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push . 2>&1)
-  echo "docker pull xxl6097/${appname}:${appversion}"
-  #docker run -d -p 9911:8080 --name go-raspberry xxl6097/${appname}:${appversion}
+#  docker tag ${appname}:${appversion} xxl6097/${appname}:${appversion}
+#  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${appversion} --push .
+#  #sh 'docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/$DEPLOY_ENV/$SERVICE_NAMES:$ServiceVersion -f Dockerfile --push .'
+#
+#  docker tag ${appname}:${appversion} xxl6097/${appname}:latest
+#  #docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
+#  docker_push_result=$(docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push . 2>&1)
+#  echo "docker pull xxl6097/${appname}:${appversion}"
 }
 
 function build_images_to_conding() {
