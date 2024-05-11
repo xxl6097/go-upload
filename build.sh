@@ -41,12 +41,6 @@ function GetLDFLAGS() {
   GIT_BRANCH=$(git name-rev --name-only HEAD)
   GO_VERSION=$(go version)
   ldflags='"-s -w \
-#    -X '${versionDir}.AppName=${APP_NAME}' \
-#    -X '${versionDir}.AppVersion=${APP_VERSION}' \
-#    -X '${versionDir}.BuildVersion=${BUILD_VERSION}' \
-#    -X '${versionDir}.BuildTime=${BUILD_TIME}' \
-#    -X '${versionDir}.GitRevision=${GIT_REVISION}' \
-#    -X '${versionDir}.GitBranch=${GIT_BRANCH}' \
     -X '${versionDir}.GoVersion=${GO_VERSION}'"'
   #echo $ldflags
 }
