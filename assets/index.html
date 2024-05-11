@@ -333,7 +333,36 @@
             }
         });
 
-        GetConfig()
+        GetConfig((data) => {
+            document.title = "Go文件上传助手v" + data.AppVersion;
+            document.getElementById('title_h2').textContent = 'Go文件上传助手v' + data.AppVersion;
+            getBuildInfo(data)
+        })
+    }
+
+    function getBuildInfo(jsonData) {
+        const DOUBLE_CLICK_TIME = 300;
+        let lastClickTime = 0;
+        document.getElementById('title_h2').addEventListener('click', function(event) {
+            // 获取当前时间
+            const now = new Date().getTime();
+            // 检查当前点击与上次点击的时间差
+            if (now - lastClickTime < DOUBLE_CLICK_TIME) {
+                // 如果两次点击的时间差小于阈值，则触发双击事件
+                //handleDoubleClick(event);
+                build_info = '应用名称：' + jsonData.AppName
+                build_info += '\r\n应用版本：' + jsonData.AppVersion
+                build_info += '\r\n编译版本：' + jsonData.BuildVersion
+                build_info += '\r\n编译日期：' + jsonData.BuildTime
+                build_info += '\r\nGitRevision：' + jsonData.GitRevision
+                build_info += '\r\nGitBranch：' + jsonData.GitBranch
+                build_info += '\r\nGoVersion：' + jsonData.GoVersion
+                showToast(build_info)
+            } else {
+                // 否则，更新上次点击的时间
+                lastClickTime = now;
+            }
+        });
     }
     function cache(){
         localStorage.setItem('key', 'value');
@@ -503,7 +532,7 @@
         xhr.send();
     }
 
-    function GetConfig() {
+    function GetConfig(callback) {
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/config', true);
         //xhr.setRequestHeader("Authorization",password)
@@ -514,8 +543,7 @@
                     console.log('sucess',xhr.status,xhr.responseText)
                     filejson = JSON.parse(xhr.response)
                     if (filejson.code === 0){
-                        document.title = "Go文件上传助手v" + filejson.data.version;
-                        document.getElementById('title_h2').textContent = 'Go文件上传助手v' + filejson.data.version;
+                        callback(filejson.data)
                     }
                 }
             }
