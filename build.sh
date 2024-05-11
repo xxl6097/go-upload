@@ -74,7 +74,7 @@ function build_darwin_arm64() {
   # echo "build macos arm64 $(GetLDFLAGS)"
   #  docker_push_result=$(CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
   #  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "$ldflags" -o ${appname}
-  echo CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags ${ldflags} -o ${appname}
+  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags ${ldflags} -o ${appname}
 }
 
 function build_images_to_tencent() {
@@ -88,14 +88,14 @@ function build_images_to_hubdocker() {
   #这个地方登录一次就够了
   docker login -u xxl6097 -p het002402
   #docker login ghcr.io --username xxl6097 --password-stdin
-  docker build --build-arg ARG_LDFLAGS="$(GetLDFLAGS)" -t ${appname} .
+  docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
   docker tag ${appname}:${appversion} xxl6097/${appname}:${appversion}
-  docker buildx build --build-arg ARG_LDFLAGS="$(GetLDFLAGS)" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${appversion} --push .
+  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${appversion} --push .
   #sh 'docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/$DEPLOY_ENV/$SERVICE_NAMES:$ServiceVersion -f Dockerfile --push .'
 
   docker tag ${appname}:${appversion} xxl6097/${appname}:latest
   #docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
-  docker_push_result=$(docker buildx build --build-arg ARG_LDFLAGS="$(GetLDFLAGS)" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push . 2>&1)
+  docker_push_result=$(docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push . 2>&1)
   echo "docker pull xxl6097/${appname}:${appversion}"
   #docker run -d -p 9911:8080 --name go-raspberry xxl6097/${appname}:${appversion}
 }
