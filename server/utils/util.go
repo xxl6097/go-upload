@@ -9,10 +9,6 @@ import (
 	"time"
 )
 
-var (
-	Version string
-)
-
 // 耗时统计，eg：defer TrackTime(time.Now())
 func TrackTime(pre time.Time) time.Duration {
 	elapsed := time.Since(pre)

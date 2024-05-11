@@ -5,26 +5,9 @@ appname=go-upload
 #appversion=0.0.0-$(date +"%Y%m%d%H%M%S")
 appversion=0.0.0
 isok='n'
-APP_NAME=${appname}
-APP_VERSION=$(git log -1 --oneline)
-BUILD_VERSION=$(git log -1 --oneline)
-BUILD_TIME=$(date "+%FT%T%z")
-GIT_REVISION=$(git rev-parse --short HEAD)
-GIT_BRANCH=$(git name-rev --name-only HEAD)
-GO_VERSION=$(go version)
-
-
-function getversion1() {
-  version=$(cat version)
-  if [ "$version" = "" ]; then
-    version="0.0.0"
-    echo $version >version
-  fi
-  echo $version
-}
 
 function getversion() {
-  version=$(cat version)
+  version=$(cat version.txt)
   if [ "$version" = "" ]; then
     version="0.0.0"
     echo $version
@@ -46,27 +29,46 @@ function getversion() {
     ver="$v1.$v2.$v3"
     echo $ver
   fi
+}
 
+function GetLDFLAGS() {
+    versionDir="github.com/xxl6097/go-upload/version"
+    APP_NAME=${appname}
+    APP_VERSION=${appversion}
+    BUILD_VERSION=$(if [ "`git describe --tags --abbrev=0 2>/dev/null`" != "" ];then git describe --tags --abbrev=0; else git log --pretty=format:'%h' -n 1; fi)
+    BUILD_TIME=$(TZ=Asia/Shanghai date +%FT%T%z)
+    GIT_REVISION=$(git rev-parse --short HEAD)
+    GIT_BRANCH=$(git name-rev --name-only HEAD)
+    GO_VERSION=$(go version)
+    ldflags="-s -w \
+    -X ${versionDir}.AppName=${APP_NAME} \
+    -X ${versionDir}.AppVersion=${APP_VERSION} \
+    -X ${versionDir}.BuildVersion=${BUILD_VERSION} \
+    -X ${versionDir}.BuildTime=${BUILD_TIME} \
+    -X ${versionDir}.GitRevision=${GIT_REVISION} \
+    -X ${versionDir}.GitBranch=${GIT_BRANCH} \
+    -X ${versionDir}.GoVersion=${GO_VERSION}"
+    echo $ldflags
 }
 
 function build_windows_amd64() {
 #  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ${appname}.exe
-  docker_push_result=$(CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ${appname}.exe 2>&1)
+  docker_push_result=$(CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags $(GetLDFLAGS) -o ${appname}.exe 2>&1)
 }
 
 function build_linux_amd64() {
 #  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${appname}
-  docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${appname} 2>&1)
+  docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
 }
 
 function build_linux_arm64() {
 #  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ${appname}
-  docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ${appname} 2>&1)
+  docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
 }
 
 function build_darwin_arm64() {
 #  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ${appname}
-  docker_push_result=$(CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ${appname} 2>&1)
+  docker_push_result=$(CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
 }
 
 function build_images_to_tencent() {
@@ -80,14 +82,14 @@ function build_images_to_hubdocker() {
   #这个地方登录一次就够了
   docker login -u xxl6097 -p het002402
   #docker login ghcr.io --username xxl6097 --password-stdin
-  docker build --build-arg ARG_VERSION="${appversion}" -t ${appname} .
+  docker build --build-arg ARG_LDFLAGS="$(GetLDFLAGS)" -t ${appname} .
   docker tag ${appname}:${appversion} xxl6097/${appname}:${appversion}
-  docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${appversion} --push .
+  docker buildx build --build-arg ARG_LDFLAGS="$(GetLDFLAGS)" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${appversion} --push .
   #sh 'docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/$DEPLOY_ENV/$SERVICE_NAMES:$ServiceVersion -f Dockerfile --push .'
 
   docker tag ${appname}:${appversion} xxl6097/${appname}:latest
   #docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push .
-  docker_push_result=$(docker buildx build --build-arg ARG_VERSION="${appversion}" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push . 2>&1)
+  docker_push_result=$(docker buildx build --build-arg ARG_LDFLAGS="$(GetLDFLAGS)" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push . 2>&1)
   echo "docker pull xxl6097/${appname}:${appversion}"
   #docker run -d -p 9911:8080 --name go-raspberry xxl6097/${appname}:${appversion}
 }
@@ -174,7 +176,7 @@ function menu() {
   # 检查退出状态码
   if [ $exit_status -eq 0 ]; then
     echo "成功"
-    echo $appversion >version
+    echo $appversion > version.txt
   else
     echo "失败"
     echo "【$docker_push_result】"

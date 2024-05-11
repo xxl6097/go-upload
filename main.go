@@ -1,41 +1,19 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"github.com/xxl6097/go-upload/server"
-	"github.com/xxl6097/go-upload/server/utils"
-	"net"
-	"time"
+	"github.com/xxl6097/go-upload/version"
 )
-
-var (
-	Version string
-)
-
-func checkPort(host string, port string, second int) bool {
-	conn, err := net.DialTimeout("tcp", host+":"+port, time.Duration(second)*time.Second)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return false
-	}
-	defer conn.Close()
-	return true
-}
 
 func main() {
-	//dir := "/Users/uuxia/Desktop/work"
-	//fileServer := http.FileServer(http.Dir(dir))
-	//http.Handle("/", http.StripPrefix("/", fileServer))
-	//port := 8080
-	//fmt.Printf("文件服务器已启动，访问地址：http://localhost:%d\n", port)
-	//err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
-	//if err != nil {
-	//	fmt.Println("服务器启动失败:", err)
-	//}
-
-	//is := checkPort("10.16.14.103", "31381", 300)
-	//fmt.Println(is)
-	utils.Version = Version
-	fmt.Println("版本号：", Version)
+	// 构建信息，golang版本 commit id 时间
+	var isVersion bool
+	flag.BoolVar(&isVersion, "v", false, "version")
+	flag.Parse()
+	if isVersion {
+		version.Version()
+		return
+	}
 	server.Bootstrap()
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/xxl6097/go-upload/assets"
 	"github.com/xxl6097/go-upload/server/utils"
+	"github.com/xxl6097/go-upload/version"
 	"io"
 	"net"
 	"net/http"
@@ -83,7 +84,7 @@ func auth(w http.ResponseWriter, r *http.Request) {
 }
 
 func config(w http.ResponseWriter, r *http.Request) {
-	Respond(w, Ok(map[string]interface{}{"version": utils.Version}))
+	Respond(w, Ok(map[string]interface{}{"version": version.Version}))
 }
 
 func upload(w http.ResponseWriter, r *http.Request) {
