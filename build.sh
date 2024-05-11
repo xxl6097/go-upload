@@ -7,14 +7,14 @@ appversion=0.0.0
 isok='n'
 
 function getversion() {
-  version=$(cat version.txt)
-  if [ "$version" = "" ]; then
-    version="0.0.0"
-    echo $version
+  appversion=$(cat version.txt)
+  if [ "$appversion" = "" ]; then
+    appversion="0.0.0"
+    echo $appversion
   else
-    v3=$(echo $version | awk -F'.' '{print($3);}')
-    v2=$(echo $version | awk -F'.' '{print($2);}')
-    v1=$(echo $version | awk -F'.' '{print($1);}')
+    v3=$(echo $appversion | awk -F'.' '{print($3);}')
+    v2=$(echo $appversion | awk -F'.' '{print($2);}')
+    v1=$(echo $appversion | awk -F'.' '{print($1);}')
     if [[ $(expr $v3 \>= 9) == 1 ]]; then
       v3=0
       if [[ $(expr $v2 \>= 9) == 1 ]]; then
