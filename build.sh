@@ -1,5 +1,4 @@
 #!/bin/bash
-#修改为自己的应用名称
 appname=go-upload
 appversion=0.0.0
 
