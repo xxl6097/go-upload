@@ -32,15 +32,15 @@ function getversion() {
 }
 
 function GetLDFLAGS() {
-    versionDir="github.com/xxl6097/go-upload/version"
-    APP_NAME=${appname}
-    APP_VERSION=${appversion}
-    BUILD_VERSION=$(if [ "`git describe --tags --abbrev=0 2>/dev/null`" != "" ];then git describe --tags --abbrev=0; else git log --pretty=format:'%h' -n 1; fi)
-    BUILD_TIME=$(TZ=Asia/Shanghai date +%FT%T%z)
-    GIT_REVISION=$(git rev-parse --short HEAD)
-    GIT_BRANCH=$(git name-rev --name-only HEAD)
-    GO_VERSION=$(go version)
-    ldflags="-s -w \
+  versionDir="github.com/xxl6097/go-upload/version"
+  APP_NAME=${appname}
+  APP_VERSION=${appversion}
+  BUILD_VERSION=$(if [ "$(git describe --tags --abbrev=0 2>/dev/null)" != "" ]; then git describe --tags --abbrev=0; else git log --pretty=format:'%h' -n 1; fi)
+  BUILD_TIME=$(TZ=Asia/Shanghai date +%FT%T%z)
+  GIT_REVISION=$(git rev-parse --short HEAD)
+  GIT_BRANCH=$(git name-rev --name-only HEAD)
+  GO_VERSION=$(go version)
+  ldflags="-s -w \
     -X ${versionDir}.AppName=${APP_NAME} \
     -X ${versionDir}.AppVersion=${APP_VERSION} \
     -X ${versionDir}.BuildVersion=${BUILD_VERSION} \
@@ -48,26 +48,26 @@ function GetLDFLAGS() {
     -X ${versionDir}.GitRevision=${GIT_REVISION} \
     -X ${versionDir}.GitBranch=${GIT_BRANCH} \
     -X ${versionDir}.GoVersion=${GO_VERSION}"
-    echo $ldflags
+  echo $ldflags
 }
 
 function build_windows_amd64() {
-#  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ${appname}.exe
+  #  CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o ${appname}.exe
   docker_push_result=$(CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags $(GetLDFLAGS) -o ${appname}.exe 2>&1)
 }
 
 function build_linux_amd64() {
-#  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${appname}
+  #  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o ${appname}
   docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
 }
 
 function build_linux_arm64() {
-#  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ${appname}
+  #  CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o ${appname}
   docker_push_result=$(CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
 }
 
 function build_darwin_arm64() {
-#  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ${appname}
+  #  CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o ${appname}
   docker_push_result=$(CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags $(GetLDFLAGS) -o ${appname} 2>&1)
 }
 
@@ -98,7 +98,7 @@ function build_images_to_conding() {
   docker login -u prdsl-1683373983040 -p ffd28ef40d69e45f4e919e6b109d5a98601e3acd clife-devops-docker.pkg.coding.net
   docker build -t ${appname} .
   docker tag ${appname}:${appversion} clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion}
-#  docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion} --push .
+  #  docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion} --push .
   docker_push_result=$(docker buildx build --platform linux/amd64,linux/arm64 -t clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion} --push . 2>&1)
   echo "docker pull clife-devops-docker.pkg.coding.net/public-repository/prdsl/${appname}:${appversion}"
 }
@@ -144,7 +144,6 @@ function os_type() {
   fi
 }
 
-
 function menu() {
   echo -e "\r\n0. 编译 Windows amd64"
   echo "1. 编译 Linux amd64"
@@ -152,8 +151,8 @@ function menu() {
   echo "3. 编译 MacOS"
   echo "4. 打包多平台镜像->DockerHub"
   echo "5. 打包多平台镜像->Coding"
-  echo "6. go mod tidy"
-  echo "7. 打包多平台镜像->Tencent"
+  echo "6. 打包多平台镜像->Tencent"
+  echo "7. go mod tidy"
   echo "请输入编号:"
   read index
 
@@ -166,27 +165,22 @@ function menu() {
   [3]) (build_darwin_arm64) ;;
   [4]) (build_images_to_hubdocker) ;;
   [5]) (build_images_to_conding) ;;
-  [6]) (gomodtidy) ;;
-  [7]) (build_images_to_tencent) ;;
+  [6]) (build_images_to_tencent) ;;
+  [7]) (gomodtidy) ;;
   *) echo "exit" ;;
   esac
 
-  val=10
-  if (( val >= 0 && val <= 100 )); then
-      echo "Value is within the range 0 to 100."
-  else
-      echo "Value is outside the range."
-  fi
-
-  # 获取命令的退出状态码
-  exit_status=$?
-  # 检查退出状态码
-  if [ $exit_status -eq 0 ]; then
-    echo "成功"
-    echo $appversion > version.txt
-  else
-    echo "失败"
-    echo "【$docker_push_result】"
+  if ((index >= 4 && index <= 6)); then
+    # 获取命令的退出状态码
+    exit_status=$?
+    # 检查退出状态码
+    if [ $exit_status -eq 0 ]; then
+      echo "成功"
+      echo $appversion >version.txt
+    else
+      echo "失败"
+      echo "【$docker_push_result】"
+    fi
   fi
 
   #  if read -t 10 -p "确定执行成功了吗:(y/n)" isok; then
