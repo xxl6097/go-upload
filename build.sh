@@ -40,16 +40,15 @@ function GetLDFLAGS() {
   GIT_REVISION=$(git rev-parse --short HEAD)
   GIT_BRANCH=$(git name-rev --name-only HEAD)
   GO_VERSION=$(go version)
-  ldflags="-s -w \
-  -X '${versionDir}.AppName=${APP_NAME}'\
-  -X '${versionDir}.AppVersion=${APP_VERSION}'\
-  -X '${versionDir}.BuildVersion=${BUILD_VERSION}'\
-  -X '${versionDir}.BuildTime=${BUILD_TIME}'\
-  -X '${versionDir}.GitRevision=${GIT_REVISION}'\
-  -X '${versionDir}.GitBranch=${GIT_BRANCH}'\
-  -X '${versionDir}.GoVersion=${GO_VERSION}'\
-  "
-  #echo $ldflags
+  ldflags="-s -w\
+ -X '${versionDir}.AppName=${APP_NAME}'\
+ -X '${versionDir}.AppVersion=${APP_VERSION}'\
+ -X '${versionDir}.BuildVersion=${BUILD_VERSION}'\
+ -X '${versionDir}.BuildTime=${BUILD_TIME}'\
+ -X '${versionDir}.GitRevision=${GIT_REVISION}'\
+ -X '${versionDir}.GitBranch=${GIT_BRANCH}'\
+ -X '${versionDir}.GoVersion=${GO_VERSION}'"
+  echo "$ldflags"
 }
 
 function build_windows_amd64() {
@@ -159,10 +158,6 @@ function menu() {
   echo "7. go mod tidy"
   echo "请输入编号:"
   read index
-
-  appversion=$(getversion)
-  git tag $appversion
-  echo "start===>$appversion"
   case "$index" in
   [0]) (build_windows_amd64) ;;
   [1]) (build_linux_amd64) ;;
@@ -181,7 +176,7 @@ function menu() {
     # 检查退出状态码
     if [ $exit_status -eq 0 ]; then
       echo "成功"
-      echo $appversion > version.txt
+      echo $appversion >version.txt
     else
       echo "失败"
       echo "【$docker_push_result】"
@@ -203,6 +198,9 @@ function menu() {
 }
 
 function main() {
+  appversion=$(getversion)
+  echo "当前版本：$appversion"
+  git tag $appversion
   GetLDFLAGS
   menu
 }
