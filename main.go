@@ -7,7 +7,6 @@ import (
 )
 
 func main() {
-	// 构建信息，golang版本 commit id 时间
 	var isVersion bool
 	flag.BoolVar(&isVersion, "v", false, "version")
 	flag.Parse()
