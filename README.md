@@ -1,8 +1,13 @@
+
+
+git add .
+git commit -m "My first release 2.0.4"
+git tag -a 2.0.4 -m "My first release 2.0.4"
+git push origin 2.0.4
+
+
 ## 添加依赖
-```azure
-    2.0.1
-    git tag -a 2.0.0 -m "My first release 2.0.1"
-```
+
 
 ```shell
 go get -u github.com/mdp/qrterminal/v3 v3.0.0
