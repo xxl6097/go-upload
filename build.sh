@@ -71,6 +71,7 @@ function build_images_to_tencent() {
 }
 
 function build_images_to_hubdocker() {
+  os_type
   #这个地方登录一次就够了
   docker login -u xxl6097 -p het002402
   #docker login ghcr.io --username xxl6097 --password-stdin
@@ -121,6 +122,7 @@ function check_docker_linux() {
 
 function os_type() {
   os_name=$(uname -s)
+  echo "操作系统:$os_name"
   if [ "$os_name" = "Darwin" ]; then
     check_docker_macos
   elif [ "$os_name" = "Linux" ]; then
