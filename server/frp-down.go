@@ -40,9 +40,9 @@ func check(path string) {
 	}
 
 	frp_dir := filepath.Join(path, repo)
-
 	// 下载每个发布版本的文件
-	for _, release := range releases {
+	for i := len(releases) - 1; i >= 0; i-- {
+		release := releases[i]
 		fmt.Println("Downloading release:", release.TagName)
 		CreateMutiDir(filepath.Join(frp_dir, release.TagName))
 		err := downloadAssets(filepath.Join(frp_dir, release.TagName), release)
@@ -50,6 +50,7 @@ func check(path string) {
 			fmt.Println("Error downloading assets for release", release.TagName, ":", err)
 		}
 	}
+
 }
 
 // 获取 frp 项目的发布版本信息
