@@ -358,6 +358,10 @@ func Bootstrap() {
 		origin = fmt.Sprintf("http://%s:%s", ip, port)
 	}
 	_port = port
+
+	if os.Getenv("FRP_DOWN") == "1" {
+		go FrpcDown(files_dir)
+	}
 	FileUploadWebServer(port, token)
 }
 
