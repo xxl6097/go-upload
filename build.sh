@@ -113,7 +113,7 @@ function check_docker_linux() {
     echo "Docker 未启动，正在启动 Docker..."
     systemctl start docker
     echo "Docker 已启动"
-    sleep 5
+    sleep 10
     docker version
   else
     echo "Docker 已经在运行"
