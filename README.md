@@ -1,9 +1,9 @@
 
 
 git add .
-git commit -m "My first release 2.0.4"
-git tag -a 2.0.4 -m "My first release 2.0.4"
-git push origin 2.0.4
+git commit -m "release v1.1.26"
+git tag -a v1.1.26 -m "release v1.1.26"
+git push origin v1.1.26
 
 
 ## 添加依赖

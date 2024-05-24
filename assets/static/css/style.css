@@ -1,0 +1,277 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    transition: background-color 0.5s, color 0.5s;
+}
+
+.auth {
+    text-align: center;
+}
+input[type="password"] {
+    padding: 10px;
+    margin: 10px;
+    font-size: 16px;
+}
+#auth {
+    display: none;
+}
+
+/* Light Mode */
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: white;
+        color: black;
+    }
+    a {
+        color: blue; /* 设置超链接在浅色主题下的颜色 */
+    }
+    .delete-btn {
+        background-color: #ff0000;
+        color: #000000;
+        padding: 5px 10px;
+        border: none;
+        cursor: pointer;
+    }
+    button {
+        padding: 1px 6px;
+        font-size: 13px;
+        cursor: pointer;
+        border: none;
+        border-radius: 3px;
+        background-color: #007bff;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    input {
+        background-color: #f9f7f7;
+        color: #000000;
+    }
+    #title_h2{
+        color: black;
+    }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #0f0f0f;
+        color: #7d7171;
+    }
+    a {
+        color: lightblue; /* 设置超链接在深色主题下的颜色 */
+    }
+
+    .delete-btn {
+        background-color: #626e36;
+        color: #ffffff;
+        padding: 5px 10px;
+        border: none;
+        cursor: pointer;
+    }
+
+    button {
+        padding: 1px 6px;
+        font-size: 13px;
+        cursor: pointer;
+        border: none;
+        border-radius: 3px;
+        background-color: #204975;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+    button:hover {
+        background-color: #19406a;
+    }
+    input {
+        background-color: #665b5b;
+        color: #d7d5ce;
+    }
+
+    #title_h2{
+        color: white;
+    }
+}
+/*body {*/
+/*    background-color: lightblue; !* 使用预定义的颜色名称 *!*/
+/*}*/
+/* Toast样式 */
+.toast {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+#progressBar {
+    width: 100%;
+    height: 20px;
+    background-color: #eee;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+#progressBar div {
+    height: 100%;
+    background-color: #4caf50;
+}
+/* 表格样式（可选） */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+th {
+//background-color: #f2f2f2;
+}
+/* 文件名 */
+th:nth-child(1), td:nth-child(1) {
+    width: 2%;
+}
+/* 文件名 */
+th:nth-child(2), td:nth-child(2) {
+    width: 33%;
+}
+/*操作*/
+th:nth-child(3), td:nth-child(3) {
+    width: 12%;
+}
+/*大小*/
+th:nth-child(4), td:nth-child(4) {
+    width: 10%;
+}
+/*修改时间*/
+th:nth-child(5), td:nth-child(5) {
+    width: 43%;
+}
+/* 添加阴影层的样式 */
+#overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* 使阴影层在最上层 */
+}
+/* 添加加载状态的样式 */
+#loading {
+    color: white;
+    font-size: 20px;
+}
+code {
+    display: inline-block;
+    font-size: 13px;
+}
+
+pre {
+    display: inline-block;
+    background-color: #f4f4f4;
+    padding: 1px;
+    margin: 2px 0;
+    white-space: pre-wrap; /* 保留空白字符和换行符 */
+    font-family: 'sans-serif', monospace;
+}
+
+#drop_zone {
+    border: 2px dashed #ccc;
+    width: 170px;
+    height: 20px;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+}
+
+#code_div {
+    border: 2px dashed #ccc;
+    width: 99%;
+    height: auto;
+    padding: 5px;
+    font-size: 14px;
+}
+#up_bg_txt {
+    font-size: 25px;
+    align-content: center;
+    text-align: center;
+}
+#fileInput {
+    display: none;
+}
+#confirmButton{
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+#cancelButton{
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: red;
+    color: white;
+    transition: background-color 0.3s ease;
+}
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+li {
+    padding: 5px 0;
+}

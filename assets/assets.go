@@ -21,7 +21,7 @@ import (
 	"net/http"
 )
 
-//go:embed *
+//go:embed * static/*
 var content embed.FS
 
 func init() {
