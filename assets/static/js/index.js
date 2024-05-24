@@ -17,6 +17,7 @@ confirmButton.onclick = function() {
     uploadFile()
 }
 
+var del_all_id = document.getElementById('del_all_id');
 
 var dropZone = document.getElementById('code_div');//code_div drop_zone
 var fileList = document.getElementById('file_list');
@@ -494,6 +495,13 @@ function insertRow(tbody,newRow,newItem) {
     input.type = 'checkbox'
     input.className = 'selectRow'
     input.alt = newItem.path
+    // 添加 'change' 事件的事件监听器
+    input.addEventListener('change', function() {
+        // 检查复选框是否被选中
+        if (this.checked) {
+            del_all_id.style.display = 'block';
+        }
+    });
 
 
     //cell1.innerHTML = "<a href="+newItem.path+">"+ newItem.name +"</a>";
@@ -578,6 +586,12 @@ function selectAllRows() {
         checkboxes[i].checked = selectAllCheckbox.checked;
     }
     showToast('您的总文件数量为：'+checkboxes.length)
+    // 检查复选框是否被选中
+    if (selectAllCheckbox.checked) {
+        del_all_id.style.display = 'block';
+    } else {
+        del_all_id.style.display = 'none';
+    }
 }
 
 
