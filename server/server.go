@@ -359,7 +359,7 @@ func Bootstrap() {
 	}
 	_port = port
 
-	if os.Getenv("FRP_DOWN") == "1" {
+	if os.Getenv("FRP_DOWN") == "true" {
 		go FrpcDown(files_dir)
 	}
 	FileUploadWebServer(port, token)
