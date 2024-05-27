@@ -176,11 +176,14 @@ function Toast(content,timeout) {
 function getFiles() {
     getPubIp()
 
+    authcode = localStorage.getItem('password');
     var xhr = new XMLHttpRequest();
     var url = '/upload';
     url += `?origin=${window.location.origin}`
     xhr.open('GET', url, true);
     xhr.setRequestHeader("Authorization",authcode)
+    console.log('url',url);
+    console.log('authcode',authcode);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 1) {
             // 在这里处理loading状态，例如显示loading动画
@@ -265,10 +268,10 @@ function auth(password) {
             if (xhr.status === 200){
                 document.getElementById('content').style.display = 'block';
                 document.getElementById('auth').style.display = 'none';
+                localStorage.setItem('password', password);
                 getFiles()
                 console.log('sucess',xhr.status,xhr.responseText)
                 showToast('认证成功')
-                localStorage.setItem('password', password);
                 createcode(password)
             }else{
                 console.log('failed',xhr.status)
