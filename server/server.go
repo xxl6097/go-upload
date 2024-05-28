@@ -84,15 +84,27 @@ func auth(w http.ResponseWriter, r *http.Request) {
 }
 
 func config(w http.ResponseWriter, r *http.Request) {
-	Respond(w, Ok(map[string]interface{}{
-		"AppName":      version.AppName,
-		"AppVersion":   version.AppVersion,
-		"BuildVersion": version.BuildVersion,
-		"BuildTime":    version.BuildTime,
-		"GitRevision":  version.GitRevision,
-		"GitBranch":    version.GitBranch,
-		"GoVersion":    version.GoVersion,
-	}))
+	if runtime.GOOS == "darwin" {
+		Respond(w, Ok(map[string]interface{}{
+			"AppName":      "goupload",
+			"AppVersion":   "appversion",
+			"BuildVersion": "BuildVersion",
+			"BuildTime":    "BuildTime",
+			"GitRevision":  "GitRevision",
+			"GitBranch":    "GitBranch",
+			"GoVersion":    "GoVersion",
+		}))
+	} else {
+		Respond(w, Ok(map[string]interface{}{
+			"AppName":      version.AppName,
+			"AppVersion":   version.AppVersion,
+			"BuildVersion": version.BuildVersion,
+			"BuildTime":    version.BuildTime,
+			"GitRevision":  version.GitRevision,
+			"GitBranch":    version.GitBranch,
+			"GoVersion":    version.GoVersion,
+		}))
+	}
 }
 
 func upload(w http.ResponseWriter, r *http.Request) {

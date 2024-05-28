@@ -80,9 +80,17 @@ function init() {
     });
 
     GetConfig((data) => {
-        document.title = "Go文件上传助手v" + data.AppVersion;
-        document.getElementById('title_h2').textContent = 'Go文件上传助手v' + data.AppVersion;
-        getBuildInfo(data)
+        if (data.AppVersion !== ''){
+            console.log('====>data.AppVersion ',data.AppVersion)
+            document.title = "Go文件上传助手v" + data.AppVersion;
+            title = document.getElementById('title_h2')
+            title.textContent = 'Go文件上传助手v' + data.AppVersion + ' ';
+            var aname = document.createElement("a");
+            aname.target = '_blank'
+            aname.id = 'pubip'
+            title.appendChild(aname)
+            getBuildInfo(data)
+        }
     })
 }
 
@@ -230,6 +238,7 @@ function getPubIp() {
             console.log('Loading...');
             showLoading('正在获取文件清单，请稍等～')
         }else if (xhr.readyState === 4 && xhr.status === 200) {
+            console.log('getPubIp...',xhr);
             // 获取<a>标签的引用
             var link = document.getElementById('pubip');
             // 设置超链接的目标URL
