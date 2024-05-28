@@ -7,11 +7,13 @@ body {
 .auth {
     text-align: center;
 }
+
 input[type="password"] {
     padding: 10px;
     margin: 10px;
     font-size: 16px;
 }
+
 #auth {
     display: none;
 }
@@ -22,9 +24,14 @@ input[type="password"] {
         background-color: white;
         color: black;
     }
+
+    th {
+        /*background-color: white;*/
+    }
     a {
         color: blue; /* 设置超链接在浅色主题下的颜色 */
     }
+
     .delete-btn {
         background-color: #ff0000;
         color: #000000;
@@ -32,6 +39,7 @@ input[type="password"] {
         border: none;
         cursor: pointer;
     }
+
     button {
         padding: 1px 6px;
         font-size: 13px;
@@ -42,14 +50,17 @@ input[type="password"] {
         color: white;
         transition: background-color 0.3s ease;
     }
+
     button:hover {
         background-color: #0056b3;
     }
+
     input {
         background-color: #f9f7f7;
         color: #000000;
     }
-    #title_h2{
+
+    #title_h2 {
         color: black;
     }
 }
@@ -59,6 +70,9 @@ input[type="password"] {
     body {
         background-color: #0f0f0f;
         color: #7d7171;
+    }
+    th {
+        /*background-color: #908d8d;*/
     }
     a {
         color: lightblue; /* 设置超链接在深色主题下的颜色 */
@@ -82,18 +96,21 @@ input[type="password"] {
         color: white;
         transition: background-color 0.3s ease;
     }
+
     button:hover {
         background-color: #19406a;
     }
+
     input {
         background-color: #665b5b;
         color: #d7d5ce;
     }
 
-    #title_h2{
+    #title_h2 {
         color: white;
     }
 }
+
 /*body {*/
 /*    background-color: lightblue; !* 使用预定义的颜色名称 *!*/
 /*}*/
@@ -123,6 +140,7 @@ input[type="password"] {
     height: 100%;
     background-color: #4caf50;
 }
+
 /* 表格样式（可选） */
 table {
     border-collapse: collapse;
@@ -135,29 +153,29 @@ th, td {
     padding: 8px;
 }
 
-th {
-//background-color: #f2f2f2;
-}
-/* 文件名 */
-th:nth-child(1), td:nth-child(1) {
-    width: 2%;
-}
-/* 文件名 */
-th:nth-child(2), td:nth-child(2) {
-    width: 33%;
-}
-/*操作*/
-th:nth-child(3), td:nth-child(3) {
-    width: 12%;
-}
-/*大小*/
-th:nth-child(4), td:nth-child(4) {
-    width: 10%;
-}
-/*修改时间*/
-th:nth-child(5), td:nth-child(5) {
-    width: 43%;
-}
+/*th {*/
+/*   !*background-color: #f2f2f2;*!*/
+/*}*/
+/*!* 文件名 *!*/
+/*th:nth-child(1), td:nth-child(1) {*/
+/*    width: 2%;*/
+/*}*/
+/*!* 文件名 *!*/
+/*th:nth-child(2), td:nth-child(2) {*/
+/*    width: 33%;*/
+/*}*/
+/*!*操作*!*/
+/*th:nth-child(3), td:nth-child(3) {*/
+/*    width: 12%;*/
+/*}*/
+/*!*大小*!*/
+/*th:nth-child(4), td:nth-child(4) {*/
+/*    width: 10%;*/
+/*}*/
+/*!*修改时间*!*/
+/*th:nth-child(5), td:nth-child(5) {*/
+/*    width: 43%;*/
+/*}*/
 /* 添加阴影层的样式 */
 #overlay {
     display: none;
@@ -171,11 +189,13 @@ th:nth-child(5), td:nth-child(5) {
     align-items: center;
     z-index: 1000; /* 使阴影层在最上层 */
 }
+
 /* 添加加载状态的样式 */
 #loading {
     color: white;
     font-size: 20px;
 }
+
 code {
     display: inline-block;
     font-size: 13px;
@@ -206,15 +226,18 @@ pre {
     padding: 5px;
     font-size: 14px;
 }
+
 #up_bg_txt {
     font-size: 25px;
     align-content: center;
     text-align: center;
 }
+
 #fileInput {
     display: none;
 }
-#confirmButton{
+
+#confirmButton {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
@@ -224,7 +247,8 @@ pre {
     color: white;
     transition: background-color 0.3s ease;
 }
-#cancelButton{
+
+#cancelButton {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
@@ -234,7 +258,8 @@ pre {
     color: white;
     transition: background-color 0.3s ease;
 }
-#del_all_id{
+
+#del_all_id {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
@@ -257,6 +282,7 @@ pre {
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.5);
 }
+
 .modal-content {
     background-color: white;
     margin: 15% auto;
@@ -267,22 +293,77 @@ pre {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
 .close {
     color: #aaa;
     float: right;
     font-size: 28px;
     font-weight: bold;
 }
+
 .close:hover,
 .close:focus {
     color: black;
     text-decoration: none;
     cursor: pointer;
 }
+
 ul {
     list-style-type: none;
     padding: 0;
 }
+
 li {
     padding: 5px 0;
+}
+
+
+@media screen and (max-width: 600px) {
+    #code_div {
+        border: 2px dashed #ccc;
+        width: 95%;
+        height: auto;
+        padding: 5px;
+        font-size: 14px;
+    }
+    table {
+        width: 100%;
+    }
+
+    /* Stack the table headers and data cells vertically */
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    /* Hide table header on smaller screens */
+    thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    /* Style table rows */
+    tr {
+        border: 1px solid #ddd;
+        margin-bottom: 12px;
+    }
+
+    /* Style table data cells */
+    td {
+        border: none;
+        border-bottom: 1px solid #ddd;
+        /*position: relative;*/
+        /*padding-left: 50%;*/
+    }
+
+    /* Style table data cells with content */
+    td:before {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+        content: attr(data-label);
+    }
 }

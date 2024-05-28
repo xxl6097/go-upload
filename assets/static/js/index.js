@@ -156,10 +156,10 @@ function createcode(token) {
     code3.textContent = `bash <(curl -s -S -L ${window.location.origin}/up) `
 
     const code2 = document.getElementById('up_2')
-    code2.textContent = `curl -H "Authorization: ${token}" -F "file=@/root/x001.log" -F "file=@/root/x002.log" ${window.location.origin}/upload`
+    code2.textContent = `curl -H "Authorization: ${token}" -F "file=@/root/a.log" -F "file=@/root/b.log" ${window.location.origin}/upload`
 
     const code1 = document.getElementById('up_1')
-    code1.textContent = `curl -H "Authorization: ${token}" -F "file=@/root/x001.log" ${window.location.origin}/upload`
+    code1.textContent = `curl -H "Authorization: ${token}" -F "file=@/root/a.log" ${window.location.origin}/upload`
 }
 
 function showToast(content) {

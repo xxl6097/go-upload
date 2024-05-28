@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="Shortcut Icon" href="favi.ico" type="image/x-icon" />
+    <link rel="Shortcut Icon" href="favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="/static/css/style.css">
     <title >GO文件上传助手</title>
 </head>
@@ -16,8 +16,12 @@
     </div>
     <div id="content">
         <!-- 显示loading状态的元素 -->
-        <div id="overlay">
+        <div id="overlay" style="display: flex; flex-direction: column;justify-content: center; align-items: center; height: 100vh;">
+            <div id="progressBar" style="display: none;width: 40%;">
+                <div id="progress" style="text-align: right; color: white; width: 100%;"></div>
+            </div>
             <div id="loading">Loading...</div>
+            <label id="speed" style="color: red"></label>
         </div>
 
         <h2 id="title_h2">Go文件上传助手</h2>
@@ -36,7 +40,7 @@
                     </div>
 
                     <div>脚本式：
-                        <label id="up_3"></label><label>/home/a.txt /home/b.txt</label>
+                        <label id="up_3"></label><label>/root/a.txt /root/b.txt</label>
                         <button onclick="copy3(event)">复制</button>
                     </div>
                 </div>
@@ -48,19 +52,12 @@
         <!--按钮模块-->
         <div style="margin-top: 8px;">
             <div style="align-content: center;">
-<!--                <button onclick="uploadFile()" style="height: 70%;" >开始上传</button>-->
-<!--                <button onclick="refresh()" style="height: 70%;">刷新列表</button>-->
                 <button id="del_all_id"  onclick="deleteSelectedRows()" style="height: 70%; display: none">删除选择行</button><!--class="delete-btn"-->
-<!--                <a id="pubip"></a>-->
-                <label id="speed" style="color: red"></label>
             </div>
         </div>
 
-        <div id="progressBar" style="display: none;width: 40%;">
-            <div id="progress" style="text-align: center; width: 0;"></div>
-        </div>
-<!--        <div id="file_list" style="padding-left: 10px;color: red;"></div>-->
 
+        <!-- 上传文件清单弹出对话框Modal -->
         <div id="myModal" class="modal">
             <div class="modal-content">
                 <span class="close">&times;</span>
@@ -72,6 +69,7 @@
             </div>
         </div>
 
+        <!-- 表格-->
         <div style="margin-top: 1px;">
             <table id="myTable">
                 <thead>
