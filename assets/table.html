@@ -1,108 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Table</title>
-    <link rel="stylesheet" href="/static/css/table.css">
+    <meta charset="utf-8">
+    <title>树组件</title>
+    <link rel="stylesheet" href="static/layui/css/layui.css">
 </head>
 <body>
-<div class="table-container">
-    <table>
-        <thead>
-        <tr>
-            <th><input type="checkbox" id="selectAll"></th>
-            <th>文件名</th>
-            <th>操作</th>
-            <th>大小</th>
-            <th>修改时间</th>
-            <!-- Add more headers if needed -->
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>Data 1</td>
-            <td>Data 2</td>
-            <td>档_20240528153348.zip</td>
-            <td>2024-05-28T15:34:08.113029769+08:00</td>
-            <!-- Add more data cells if needed -->
-        </tr>
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>Data 1</td>
-            <td>Data 2</td>
-            <td>Data 3</td>
-            <td>Data 4</td>
-            <!-- Add more data cells if needed -->
-        </tr>
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>Data 1</td>
-            <td>Data 2</td>
-            <td>Data 3</td>
-            <td>Data 4</td>
-            <!-- Add more data cells if needed -->
-        </tr>
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>Data 1</td>
-            <td>Data 2</td>
-            <td>Data 3</td>
-            <td>Data 4</td>
-            <!-- Add more data cells if needed -->
-        </tr>
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>Data 1</td>
-            <td>Data 2</td>
-            <td>Data 3</td>
-            <td>Data 4</td>
-            <!-- Add more data cells if needed -->
-        </tr>
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>Data 1</td>
-            <td>Data 2</td>
-            <td>Data 3</td>
-            <td>Data 4</td>
-            <!-- Add more data cells if needed -->
-        </tr>
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>Data 1</td>
-            <td>Data 2</td>
-            <td>Data 3</td>
-            <td>Data 4</td>
-            <!-- Add more data cells if needed -->
-        </tr>
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>Data 1</td>
-            <td>Data 2</td>
-            <td>Data 3</td>
-            <td>Data 4</td>
-            <!-- Add more data cells if needed -->
-        </tr>
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>Data 1</td>
-            <td>Data 2</td>
-            <td>Data 3</td>
-            <td>Data 4</td>
-            <!-- Add more data cells if needed -->
-        </tr>
-        <tr>
-            <td><input type="checkbox"></td>
-            <td>Data 1</td>
-            <td>Data 2</td>
-            <td>Data 3</td>
-            <td>Data 4</td>
-            <!-- Add more data cells if needed -->
-        </tr>
-        <!-- Add more rows if needed -->
-        </tbody>
-    </table>
-</div>
+<div id="test1"></div>
+<script src="static/layui//layui.js"></script>
+<script>
+    layui.use('tree', function(){
+        var tree = layui.tree;
+        //渲染
+        tree.render({
+            elem: '#test1'  //绑定元素
+            ,data: [{
+                title: '陕西', //一级菜单
+                path: '/root/xian'
+                ,children: [{
+                    title: '西安', //二级菜单
+                    path: 'aaaaa'
+                }]
+            }]
+            ,click: function(obj){
+                console.log('click',obj.data)
+            }
+        });
+    });
+</script>
 </body>
 </html>
