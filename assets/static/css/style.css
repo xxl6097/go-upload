@@ -228,6 +228,18 @@ pre {
     width: 20%;
     display: none;
 }
+#auth{
+    display: flex;
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+}
+#passwordInput{
+    width: 20%;
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* 将子元素的中心移动到父元素的中心 */
+}
 
 #confirmButton {
     padding: 10px 20px;
