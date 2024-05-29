@@ -607,7 +607,7 @@ function insertRow(tbody,newRow,newItem) {
     var filename = document.createElement("a");
     filename.textContent = newItem.name;
     if (newItem.isDir){
-        filename.style = 'color: #0000ff; font-size: 18px;font-weight: bold;'
+        filename.style = 'color: #0000ff; font-size: 18px;font-weight: bold; cursor: pointer;'
         filename.addEventListener('click', function () {
             showFiles(newItem.path)
             showToast(newItem.path)

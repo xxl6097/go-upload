@@ -4,7 +4,6 @@ import (
 	"flag"
 	"github.com/xxl6097/go-upload/server"
 	"github.com/xxl6097/go-upload/version"
-	"os"
 )
 
 func main() {
@@ -19,7 +18,7 @@ func main() {
 }
 
 func serve() {
-	path := "/Users/uuxia/Desktop/work/code/go/go-upload/files"
-	os.Setenv("ENV_FILES", path)
+	//path := "/Users/uuxia/Desktop/work/code/go/go-upload/files"
+	//os.Setenv("ENV_FILES", path)
 	server.Bootstrap()
 }
