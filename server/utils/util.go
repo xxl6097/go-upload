@@ -102,18 +102,45 @@ func GetLocalIPs() ([]string, error) {
 	return ips, nil
 }
 
-func FuzzySearch[T any](pattern string, data []T, f func(T) string) []T {
-	var matches []T
-	// 编译正则表达式
-	re, err := regexp.Compile("(?i)" + pattern)
-	if err != nil {
-		fmt.Println("Invalid pattern")
-		return matches
+// wildMatchHelper 是递归的帮助函数
+func wildMatchHelper(pattern, str string, p, s int) bool {
+	// 如果我们到达模式的结尾和字符串的结尾，两者都匹配
+	if p == len(pattern) {
+		return s == len(str)
 	}
 
+	// 处理通配符 '*'
+	if pattern[p] == '*' {
+		// '*' 匹配零个或多个字符
+		return (s < len(str) && wildMatchHelper(pattern, str, p, s+1)) || wildMatchHelper(pattern, str, p+1, s)
+	}
+
+	// 处理通配符 '?'
+	if pattern[p] == '?' || (s < len(str) && pattern[p] == str[s]) {
+		return wildMatchHelper(pattern, str, p+1, s+1)
+	}
+
+	// 其他情况，不匹配
+	return false
+}
+
+// {"*.go", "main.go", true},
+// {"*.go", "main.c", false},
+// {"file?.txt", "file1.txt", true},
+// {"file?.txt", "file10.txt", false},
+// {"*data*", "mydatafile.txt", true},
+// {"*data*", "myfile.txt", false},
+// wildMatch 是外部调用函数
+func wildMatch(pattern, str string) bool {
+	return wildMatchHelper(pattern, str, 0, 0)
+}
+
+func FuzzySearch[T any](pattern string, data []T, f func(T) string) []T {
+	var matches []T
 	// 遍历数组，寻找匹配项
 	for _, item := range data {
-		if re.MatchString(f(item)) {
+		matched := wildMatch(pattern, f(item))
+		if matched {
 			matches = append(matches, item)
 		}
 	}

@@ -170,14 +170,14 @@ func VisitDir(rootDir, prefix string) []FileStruct {
 	return filearr
 }
 
-func IsPath(path string) bool {
-	// Clean the path to handle any relative or redundant elements
-	cleanedPath := filepath.Clean(path)
-
-	// Check if the path exists
-	_, err := os.Stat(cleanedPath)
-	if os.IsNotExist(err) {
-		return false
+func IsPath(s string) bool {
+	// 检查路径是否以路径分隔符开始
+	if s[0] == filepath.Separator {
+		return true
 	}
-	return err == nil || os.IsExist(err)
+	// 检查路径中是否含有路径分隔符
+	if strings.ContainsRune(s, filepath.Separator) {
+		return true
+	}
+	return false
 }
