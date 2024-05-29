@@ -167,7 +167,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			path := queryParams.Get("path")
 			glog.Println("path", path)
 			if path == "today" {
-				filearr := utils.VisitDir(DefaultDir, static_prefix)
+				filearr := utils.VisitDir(DefaultDir+"/"+utils.GetDirAtDay(), static_prefix)
 				sort.Slice(filearr, func(i, j int) bool {
 					return filearr[i].ModTime.Before(filearr[j].ModTime)
 				})

@@ -356,7 +356,7 @@ function auth(password) {
             document.getElementById('content').style.display = 'block';
             document.getElementById('auth').style.display = 'none';
             localStorage.setItem('password', password);
-            showFiles(null)
+            showFiles('today')
             getPubIp()
             console.log('sucess',xhr.status,xhr.responseText)
             showToast('认证成功')
