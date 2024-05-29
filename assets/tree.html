@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<HTML>
+<HEAD>
+    <TITLE> ZTREE DEMO </TITLE>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" href="zTreeStyle/zTreeStyle.css" type="text/css">
+    <script type="text/javascript" src="jquery-1.4.2.js"></script>
+    <script type="text/javascript" src="jquery.ztree.core-3.x.js"></script>
+    <SCRIPT LANGUAGE="JavaScript">
+        var zTreeObj;
+        var setting = {};        // zTree 的参数配置，后面详解
+        var zNodes = [           // zTree 的数据属性，此处使用标准json格式
+            {
+                name: "test1", open: true, children: [
+                    { name: "test1_1" }, { name: "test1_2" }]
+            },
+            {
+                name: "test2", open: true, children: [
+                    { name: "test2_1" }, { name: "test2_2" }]
+            }
+        ];
+        $(document).ready(function () {
+            zTreeObj = $.fn.zTree.init($("#treeDemo"), setting, zNodes); //初始化zTree，三个参数一次分别是容器(zTree 的容器 className 别忘了设置为 "ztree")、参数配置、数据源
+        });
+    </SCRIPT>
+</HEAD>
+<BODY>
+<div>
+    <ul id="treeDemo" class="ztree"></ul>
+</div>
+</BODY>
+</HTML>

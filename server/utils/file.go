@@ -65,6 +65,62 @@ func visit(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
+func GetTree(path, prefix, defaultDir string) []FileStruct {
+	root := Node{Title: filepath.Base(path)}
+	finfo, err := os.Stat(path)
+	if err != nil {
+		return nil
+	}
+	root.Path = path
+	root.Spread = true
+
+	if !finfo.IsDir() {
+		return nil
+	}
+
+	entries, err := os.ReadDir(path)
+	if err != nil {
+		return nil
+	}
+	var files []FileStruct
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		var _path string
+		info, _ := entry.Info()
+		if strings.HasPrefix(path, defaultDir) {
+			// 去掉字符串的前缀
+			_path = strings.TrimPrefix(path, defaultDir)
+			//path = strings.TrimPrefix(path, rootDir)
+			if strings.HasPrefix(_path, "/") {
+				index := strings.Index(_path, "/")
+				if index != -1 {
+					_path = _path[index+1:]
+				}
+				if !strings.HasSuffix(_path, "/") {
+					_path += "/"
+				}
+			}
+		} else {
+			if !strings.HasPrefix(path, "/") {
+				index := strings.Index(path, "/")
+				// 如果找到了 '/'，则截取字符串
+				if index != -1 {
+					_path = path[index+1:]
+				}
+				if !strings.HasSuffix(_path, "/") {
+					_path += "/"
+				}
+			}
+		}
+		item := FileStruct{Name: info.Name(), Size: info.Size(), Path: prefix + _path + entry.Name(), ModTime: info.ModTime()}
+		files = append(files, item)
+	}
+
+	return files
+}
+
 func VisitDir(rootDir, prefix string) []FileStruct {
 	var filearr []FileStruct
 	err := filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
@@ -77,7 +133,7 @@ func VisitDir(rootDir, prefix string) []FileStruct {
 			//fmt.Println("Directory:", path)
 		} else {
 			// 对路径进行编码
-			fmt.Println("File:", path, info.ModTime().String())
+			//fmt.Println("File:", path, info.ModTime().String())
 			if path != "" {
 				// 判断字符串是否以指定的前缀开头
 				if strings.HasPrefix(path, rootDir) {

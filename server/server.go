@@ -21,11 +21,11 @@ import (
 
 // curl -H "Authorization: 44" -F "file=@/Users/uuxia/Desktop/work/code/go/go-upload/main.go" http://localhost:4444/upload
 var (
-	fsys      http.FileSystem
-	token     string
-	origin    string
-	files_dir string = "./files"
-	//files_dir            = "/Users/uuxia/Desktop/work/code/go/go-upload"
+	fsys       http.FileSystem
+	token      string
+	origin     string
+	DefaultDir string = "./files"
+	//DefaultDir            = "/Users/uuxia/Desktop/work/code/go/go-upload"
 	static_prefix string = "/files/"
 	my                   = "/my"
 	_port                = "8087"
@@ -75,6 +75,12 @@ func getip(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func tree(w http.ResponseWriter, r *http.Request) {
+	//origin = r.URL.Query().Get("origin")
+	trees := utils.GetDirJsonTree(DefaultDir)
+	Respond(w, Ok(trees))
+}
+
 func auth(w http.ResponseWriter, r *http.Request) {
 	_token := r.Header.Get("Authorization")
 	if strings.ToLower(token) == strings.ToLower(_token) {
@@ -120,12 +126,31 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	case "GET": //获取目录或者子目录下的所有文件
 		queryParams := r.URL.Query()
 		origin = queryParams.Get("origin")
-		glog.Println("origin", origin)
-		filearr := utils.VisitDir(files_dir, static_prefix)
-		sort.Slice(filearr, func(i, j int) bool {
-			return filearr[i].ModTime.Before(filearr[j].ModTime)
-		})
-		Respond(w, Ok(filearr))
+		if queryParams.Has("path") {
+			path := queryParams.Get("path")
+			glog.Println("path", path)
+			filearr := utils.GetTree(path, static_prefix, DefaultDir)
+			sort.Slice(filearr, func(i, j int) bool {
+				return filearr[i].ModTime.Before(filearr[j].ModTime)
+			})
+			glog.Error("path", path)
+			for _, f := range filearr {
+				glog.Println(f)
+			}
+			Respond(w, Ok(filearr))
+		} else {
+			glog.Println("path", queryParams.Get("path"))
+			filearr := utils.GetTree(DefaultDir, static_prefix, DefaultDir)
+			sort.Slice(filearr, func(i, j int) bool {
+				return filearr[i].ModTime.Before(filearr[j].ModTime)
+			})
+			glog.Info("path", DefaultDir)
+			for _, f := range filearr {
+				glog.Println(f)
+			}
+			Respond(w, Ok(filearr))
+		}
+
 	case "DELETE":
 		req := GetReqData[map[string]interface{}](w, r)
 		files := (*req)["files"]
@@ -135,7 +160,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		}
 		var res = make([]interface{}, 0)
 		for _, path := range files.([]interface{}) {
-			realpath := files_dir + path.(string)[len(static_prefix)-1:]
+			realpath := DefaultDir + path.(string)[len(static_prefix)-1:]
 			err := os.Remove(realpath)
 			if err != nil {
 				msg := glog.Sprintf("[%s] 删除失败:%s", realpath, err.Error())
@@ -190,7 +215,7 @@ func copyfile(source string, w http.ResponseWriter, files []*multipart.FileHeade
 			http.Error(w, err2.Error(), http.StatusInternalServerError)
 			return
 		}
-		dir := files_dir + "/" + utils.GetDirAtDay()
+		dir := DefaultDir + "/" + utils.GetDirAtDay()
 		//判断文件夹是否存在，不存在则创建文件夹
 		if !utils.IsDirExists(dir) {
 			err1 := utils.CreateMutiDir(dir)
@@ -236,7 +261,7 @@ func copyfile(source string, w http.ResponseWriter, files []*multipart.FileHeade
 			http.Error(w, err5.Error(), http.StatusInternalServerError)
 			return
 		}
-		_path := static_prefix + filePath[len(files_dir)+1:]
+		_path := static_prefix + filePath[len(DefaultDir)+1:]
 		//item := utils.FileStruct{Name: fileInfo.Name(), Size: fileInfo.Size(), Path: _path, ModTime: fileInfo.ModTime().String()}
 		item := utils.FileStruct{Name: fileInfo.Name(), Size: fileInfo.Size(), Path: _path, ModTime: fileInfo.ModTime()}
 		//glog.Println(item, _path)
@@ -275,7 +300,7 @@ func fileserver(w http.ResponseWriter, r *http.Request) {
 
 func initRouter(router *mux.Router) {
 	//http server
-	router.PathPrefix(static_prefix).Handler(http.StripPrefix(static_prefix, http.FileServer(http.Dir(files_dir))))
+	router.PathPrefix(static_prefix).Handler(http.StripPrefix(static_prefix, http.FileServer(http.Dir(DefaultDir))))
 	//router.PathPrefix("/a/").Handler(http.StripPrefix("/a/", http.FileServer(http.Dir(dir))))
 	if utils.IsDirExists(my) {
 		sub := router.NewRoute().Subrouter()
@@ -289,6 +314,7 @@ func initRouter(router *mux.Router) {
 	router.HandleFunc("/upload", upload).Methods(http.MethodPost, http.MethodOptions) // view
 	router.HandleFunc("/upload", upload).Methods(http.MethodGet, http.MethodOptions)  // view
 	router.HandleFunc("/getip", getip).Methods(http.MethodGet, http.MethodOptions)    // view
+	router.HandleFunc("/tree", tree).Methods(http.MethodGet, http.MethodOptions)      // view
 	router.HandleFunc("/up", up).Methods(http.MethodGet, http.MethodOptions)          // view
 	//router.HandleFunc("/up", upload).Methods(http.MethodGet, http.MethodOptions)             // view
 	router.HandleFunc("/upload", upload).Methods(http.MethodDelete, http.MethodOptions)      // view
@@ -338,8 +364,9 @@ func Bootstrap() {
 	var token = os.Getenv("ENV_TOKEN")
 	_dir := os.Getenv("ENV_FILES")
 	if _dir != "" {
-		files_dir = _dir
+		DefaultDir = _dir
 	}
+	glog.Info("DefaultDir", DefaultDir)
 	if port == "" && token == "" {
 		switch len(os.Args) {
 		case 3:
@@ -381,14 +408,14 @@ func Bootstrap() {
 	_port = port
 
 	if os.Getenv("FRP_DOWN") == "true" {
-		go FrpcDown(files_dir)
+		go FrpcDown(DefaultDir)
 	}
 	FileUploadWebServer(port, token)
 }
 
 func welcom(port, token string) {
 	glog.Println("欢迎使用文件上传助手")
-	glog.Printf("文件路径：%s\n", files_dir)
+	glog.Printf("文件路径：%s\n", DefaultDir)
 	glog.Printf("网页上传：http://localhost:%s\n", port)
 	glog.Printf("网页上传：http://localhost:%s%s\n", port, static_prefix)
 	glog.Printf("指令上传示例：curl -H \"Authorization: %s\" -F \"file=@/root/a.log\" -F \"file=@/root/b.log\" http://localhost:%s/upload\n", token, port)

@@ -14,5 +14,11 @@ func main() {
 		version.Version()
 		return
 	}
+	serve()
+}
+
+func serve() {
+	//path := "/Users/uuxia/Desktop/work/code/go/go-upload/files"
+	//os.Setenv("ENV_FILES", path)
 	server.Bootstrap()
 }

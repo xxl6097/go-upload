@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="Shortcut Icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="Shortcut Icon" href="favicon.ico" type="image/x-icon"/>
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
     <link rel="stylesheet" href="/static/css/style.css">
-    <title >GO文件上传助手</title>
+    <title>GO文件上传助手</title>
 </head>
 <!--<body onload="getFiles()">-->
 <body>
@@ -16,7 +17,8 @@
     </div>
     <div id="content">
         <!-- 显示loading状态的元素 -->
-        <div id="overlay" style="display: flex; flex-direction: column;justify-content: center; align-items: center; height: 100vh;">
+        <div id="overlay"
+             style="display: flex; flex-direction: column;justify-content: center; align-items: center; height: 100vh;">
             <div id="progressBar" style="display: none;width: 40%;">
                 <div id="progress" style="text-align: right; color: white; width: 100%;"></div>
             </div>
@@ -26,7 +28,7 @@
 
         <h2 id="title_h2">Go文件上传助手</h2>
 
-        <div id="code_div"  onclick="fileInput.click()">
+        <div id="code_div" onclick="fileInput.click()">
             <div style="display: flex;">
                 <div id="sample" style="width: 100%;">
                     <div>单文件：
@@ -47,12 +49,13 @@
                 <div id="up_bg_txt" style="width: 100%;">点击虚线区或拖拽文件至此上传</div>
             </div>
         </div>
-        <input type="file" id="fileInput" name="files[]"  onchange="handleFiles(this.files)" multiple>
+        <input type="file" id="fileInput" name="files[]" onchange="handleFiles(this.files)" multiple>
 
         <!--按钮模块-->
         <div style="margin-top: 8px;">
             <div style="align-content: center;">
-                <button id="del_all_id"  onclick="deleteSelectedRows()" style="height: 70%; display: none">删除选择行</button><!--class="delete-btn"-->
+                <button id="del_all_id" onclick="deleteSelectedRows()" style="height: 70%; display: none">删除选择行
+                </button><!--class="delete-btn"-->
             </div>
         </div>
 
@@ -69,22 +72,30 @@
             </div>
         </div>
 
-        <!-- 表格-->
-        <div style="margin-top: 1px;">
-            <table id="myTable">
-                <thead>
-                <tr>
-                    <th><input type="checkbox" id="selectAll" onchange="selectAllRows()"></th>
-                    <th>文件名</th>
-                    <th>操作</th>
-                    <th>大小</th>
-                    <th>修改时间</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+
+        <div class="main">
+            <div class="box left">
+<!--                <i id="demo1" class="layui-icon layui-icon-spread-left"></i>-->
+                <div id="tree"></div>
+            </div>
+            <!-- 表格-->
+            <div class="box right">
+                <table id="myTable">
+                    <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll" onchange="selectAllRows()"></th>
+                        <th>文件名</th>
+                        <th>操作</th>
+                        <th>大小</th>
+                        <th>修改时间</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
         </div>
+
         <!-- Toast容器 -->
         <div id="toast" class="toast"></div>
 
@@ -92,6 +103,82 @@
 </div>
 </body>
 
+<script type="text/javascript" src="/static/layui/layui.js"></script>
 <script type="text/javascript" src="/static/js/index.js"></script>
+<script>
+    layui.use(['tree','table','dropdown'], function () {
+        var tree = layui.tree;
+        //渲染
+        // tree.render({
+        //     elem: '#tree'  //绑定元素
+        //     , data: getFiles()
+        //     , click: function (obj) {
+        //         console.log('click', obj.data)
+        //         showToast('click'+ obj.data)
+        //     }
+        // });
+        ///
+        // [{
+        //     title: '陕西', //一级菜单
+        //     path: '/root/xian'
+        //     , children: [{
+        //         title: '西安', //二级菜单
+        //         path: 'aaaaa',
+        //         children: [{
+        //             title: '临潼',
+        //             path: '/home/root/',
+        //         },
+        //             {
+        //                 title: '雁塔',
+        //                 path: '/home/root/',
+        //             }
+        //         ]
+        //     }]
+        // }]
+        ///
+
+        var treeRender=function(){
+            var xhr = new XMLHttpRequest();
+            var url = '/tree';
+            xhr.open('GET', url, true);
+            console.log('----url',url);
+            xhr.onreadystatechange = function (){
+                console.log('----xhr.status',xhr.status);
+                if (isHttpOk(xhr)) {
+                    // 文件上传成功
+                    //console.log('response',xhr.readyState,xhr.status,xhr.response)
+                    res = JSON.parse(xhr.response)
+                    if (res.code === 0){
+                        console.log('成功了哦')
+                        if (res.data){
+                            tree.render({
+                                elem: '#tree'
+                                ,data: [res.data]
+                                ,accordion: true
+                                ,isJump: true
+                                ,click: function(obj){
+                                    if (obj.events == 'right'){
+                                        showToast('right');
+                                    }
+                                    //showToast(obj.data.path);
+                                    showFiles(obj.data.path)
+                                }
+                            });
+                        }
+                    }else{
+                        console.log('失败了',res.msg)
+                    }
+                } else {
+                    console.log('get files err ',xhr.response);
+                }
+            }
+            xhr.send();
+        }
+        //
+        treeRender()
+    });
+
+</script>
+
 
 </html>

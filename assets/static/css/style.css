@@ -317,8 +317,36 @@ li {
     padding: 5px 0;
 }
 
+.main {
+    display: flex;
+    justify-content: space-between; /* Space items out on large screens */
+}
+
+
+.box {
+    /*flex: 1;*/
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.left {
+    width: 20%;
+}
+
+.right {
+    margin-top: 1px;
+    width: 100%;
+}
 
 @media screen and (max-width: 600px) {
+    .main {
+        flex-direction: column; /* Stack boxes vertically on smaller screens */
+    }
+
+    .box {
+        min-width: 100%; /* Full width on smaller screens */
+        margin: 5px 0; /* Adjust margin for vertical layout */
+    }
+
     #code_div {
         border: 2px dashed #ccc;
         width: 95%;

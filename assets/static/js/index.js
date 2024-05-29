@@ -181,13 +181,14 @@ function Toast(content,timeout) {
     }, 1000*timeout);
 }
 
-function getFiles() {
-    getPubIp()
-
+function showFiles(path) {
     authcode = localStorage.getItem('password');
     var xhr = new XMLHttpRequest();
     var url = '/upload';
     url += `?origin=${window.location.origin}`
+    if (path){
+        url += `?origin=${window.location.origin}&path=${path}`
+    }
     xhr.open('GET', url, true);
     xhr.setRequestHeader("Authorization",authcode)
     console.log('url',url);
@@ -197,20 +198,16 @@ function getFiles() {
             // 在这里处理loading状态，例如显示loading动画
             console.log('Loading...');
             showLoading('正在获取文件清单，请稍等～')
-        }else if (xhr.readyState === 4 && xhr.status === 200) {
-            // 请求成功
-            //var responseData = JSON.parse(xhr.responseText);
-            //console.log('text',responseData);
-
-            // 文件上传成功
-            console.log(xhr)
+        }else if (isHttpOk(xhr)) {//xhr.readyState === 4 &&
             filejson = JSON.parse(xhr.response)
             if (filejson.code === 0){
-                console.log('成功了哦')
+                console.log('showFiles',xhr.response)
+                var table = document.getElementById("myTable");
+                var tbody = table.getElementsByTagName("tbody")[0];
+                tbody.innerHTML = '';
                 if (filejson.data){
                     // 使用 for...of 循环倒序遍历数组
                     for (var element of filejson.data.reverse()) {
-                        console.log(element);
                         addItemByGet(element)
                     }
                 }
@@ -221,7 +218,7 @@ function getFiles() {
         } else {
             // 请求失败或还未完成
             //console.error('get files err ',xhr.response);
-            console.log('get files err ',xhr.response);
+            console.log('get files err ',xhr.readyState,xhr.status,xhr.response);
         }
     };
 
@@ -237,8 +234,8 @@ function getPubIp() {
             // 在这里处理loading状态，例如显示loading动画
             console.log('Loading...');
             showLoading('正在获取文件清单，请稍等～')
-        }else if (xhr.readyState === 4 && xhr.status === 200) {
-            console.log('getPubIp...',xhr);
+        }else if (isHttpOk(xhr)) {//xhr.readyState === 4 &&
+            //console.log('getPubIp...',xhr);
             // 获取<a>标签的引用
             var link = document.getElementById('pubip');
             // 设置超链接的目标URL
@@ -248,14 +245,14 @@ function getPubIp() {
             hideLoading()
         } else {
             // 请求失败或还未完成
-            console.log('getPubIp err ',xhr);
+            console.log('getPubIp err ',xhr.readyState,xhr.status);
         }
     };
 
     xhr.send();
 }
 
-function refresh() {
+function clearTable() {
     // 获取表格对象
     var table = document.getElementById("myTable");
     // 获取表格主体
@@ -264,7 +261,7 @@ function refresh() {
     while (tbody.firstChild) {
         tbody.removeChild(tbody.firstChild);
     }
-    getFiles()
+    //getFiles()
 }
 
 function auth(password) {
@@ -273,21 +270,20 @@ function auth(password) {
     xhr.setRequestHeader("Authorization",password)
     xhr.onreadystatechange = function() {
         console.log('====',xhr.readyState,xhr.status)
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200){
-                document.getElementById('content').style.display = 'block';
-                document.getElementById('auth').style.display = 'none';
-                localStorage.setItem('password', password);
-                getFiles()
-                console.log('sucess',xhr.status,xhr.responseText)
-                showToast('认证成功')
-                createcode(password)
-            }else{
-                console.log('failed',xhr.status)
-                showToast('认证失败')
-                document.getElementById('content').style.display = 'none';
-                document.getElementById('auth').style.display = 'block';
-            }
+        if (xhr.status === 200){
+            document.getElementById('content').style.display = 'block';
+            document.getElementById('auth').style.display = 'none';
+            localStorage.setItem('password', password);
+            showFiles(null)
+            getPubIp()
+            console.log('sucess',xhr.status,xhr.responseText)
+            showToast('认证成功')
+            createcode(password)
+        }else{
+            console.log('failed',xhr.status)
+            showToast('认证失败')
+            document.getElementById('content').style.display = 'none';
+            document.getElementById('auth').style.display = 'block';
         }
     };
     xhr.send();
@@ -299,13 +295,11 @@ function GetConfig(callback) {
     //xhr.setRequestHeader("Authorization",password)
     xhr.onreadystatechange = function() {
         console.log('====',xhr.readyState,xhr.status)
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200){
-                console.log('sucess',xhr.status,xhr.responseText)
-                filejson = JSON.parse(xhr.response)
-                if (filejson.code === 0){
-                    callback(filejson.data)
-                }
+        if (isHttpOk(xhr)){
+            console.log('sucess',xhr.status,xhr.responseText)
+            filejson = JSON.parse(xhr.response)
+            if (filejson.code === 0){
+                callback(filejson.data)
             }
         }
     };
@@ -360,7 +354,7 @@ function uploadFiles(formData,total_size){
             console.log('Loading...');
             showLoading('正在上传文件～')
         }else if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
+            if (isHttpOk(xhr)) {
                 // 文件上传成功
                 console.log('File uploaded successfully!');
                 console.log(xhr)
@@ -439,7 +433,7 @@ function deletefile(files,callback) {
             console.log('Loading...');
             showLoading('正在删除文件～')
         } else if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
+            if (isHttpOk(xhr)) {
                 console.log('Post deleted successfully', xhr.responseText);
                 filejson = JSON.parse(xhr.response)
                 if (filejson.code === 0){
@@ -508,7 +502,7 @@ function insertRow(tbody,newRow,newItem) {
     input.className = 'selectRow'
     input.alt = newItem.path
     // 添加 'change' 事件的事件监听器
-    input.addEventListener('change', function() {
+    input.addEventListener('change', function () {
         // 检查复选框是否被选中
         if (this.checked) {
             del_all_id.style.display = 'block';
@@ -524,15 +518,17 @@ function insertRow(tbody,newRow,newItem) {
 
     var copylinkbtn = document.createElement('button');
     copylinkbtn.textContent = '复制';
-    copylinkbtn.addEventListener('click', function() {
+    copylinkbtn.style = 'margin-right: 5px;'
+    copylinkbtn.addEventListener('click', function () {
         let text = window.origin + newItem.path
         copyToClipboard(text)
         showToast('已复制：' + text)
     });
 
     var downloadbtn = document.createElement('button');
+    downloadbtn.style = 'margin-right: 5px; margin-left: 5px;'
     downloadbtn.textContent = '下载';
-    downloadbtn.addEventListener('click', function() {
+    downloadbtn.addEventListener('click', function () {
         //aname.click()
         var url = encodeURIComponent(newItem.path);
         //window.open(url, '_blank');
@@ -548,22 +544,25 @@ function insertRow(tbody,newRow,newItem) {
     // 创建按钮并设置事件处理程序
     var delbtn = document.createElement('button');
     delbtn.textContent = '删除';
+    delbtn.style = 'margin-right: 5px;'
     //delbtn.className = 'delete-btn'
-    delbtn.addEventListener('click', function() {
+    delbtn.addEventListener('click', function () {
         // 当按钮点击时触发的事件
         var result = window.confirm(newItem.name + " 确定要删除这个文件吗？");
         if (result) {
-            deletefile([newItem.path],function (ok,msg) {
-                if (ok){
+            deletefile([newItem.path], function (ok, msg) {
+                if (ok) {
                     showToast('删除成功' + newItem.path)
                     tbody.removeChild(newRow);
-                }else{
+                } else {
                     showToast('删除失败 ' + msg)
                 }
             })
         } else {
         }
     });
+
+
 
 
     cell0.appendChild(input);
@@ -573,7 +572,8 @@ function insertRow(tbody,newRow,newItem) {
     cell2.appendChild(copylinkbtn);
     cell3.innerHTML = formatFileSize(newItem.size)
     cell4.innerHTML = newItem.modTime;
-    console.log('==>',newItem)
+    // cell4.appendChild(operate);
+    //console.log('==>', newItem)
 }
 
 function addItemByUpload(newItem) {
@@ -639,6 +639,13 @@ function hideLoading() {
     // 隐藏loading状态
     document.getElementById('overlay').style.display = 'none';
     document.getElementById('loading').innerText = '加载中...'
+}
+
+function isHttpOk(xhr) {
+    if (xhr.status === 200 && xhr.response && xhr.response.length > 0){
+        return true;
+    }
+    return false
 }
 
 init()
