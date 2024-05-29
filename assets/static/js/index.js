@@ -94,6 +94,44 @@ function init() {
     })
 }
 
+let firstShiftTime = 0;
+const doubleShiftDelay = 500; // 双击Shift键的时间间隔（毫秒）
+
+function handleKeyDown(event) {
+    // 检查是否按下了Shift键
+    if (event.key === "Shift") {
+        const currentTime = new Date().getTime();
+
+        // 检查两次按下Shift键的时间间隔是否在规定的范围内
+        if (currentTime - firstShiftTime < doubleShiftDelay) {
+            //alert("Shift键按了两次!");
+            firstShiftTime = 0; // 重置时间
+            var inputField = document.getElementById('search_input');
+            inputField.style.display = "block";
+            inputField.focus();
+        } else {
+            firstShiftTime = currentTime; // 记录第一次按下Shift键的时间
+        }
+    }
+}
+
+// 监听keydown事件
+window.addEventListener('keydown', handleKeyDown);
+
+function handleKeyPress(event) {
+    // 检查是否按下了Enter键
+    if (event.key === "Enter") {
+        // 获取输入框的值
+        const inputValue = event.target.value;
+        // 执行你想要的操作，例如显示输入的值
+        //alert("输入完成: " + inputValue);
+        document.getElementById('search_input').style.display = "none";
+        // 可以在这里调用其他函数或进行其他操作
+        showToast("输入完成: " + inputValue);
+        searchFiles(inputValue);
+    }
+}
+
 function getBuildInfo(jsonData) {
     const DOUBLE_CLICK_TIME = 300;
     let lastClickTime = 0;
@@ -179,6 +217,48 @@ function Toast(content,timeout) {
         document.getElementById('progress').textContent = '';
         document.getElementById('progressBar').style.display = "none";
     }, 1000*timeout);
+}
+
+
+
+function searchFiles(pattern) {
+    var xhr = new XMLHttpRequest();
+    var url = '/search';
+    if (pattern){
+        url += `?pattern=${pattern}`
+    }
+    xhr.open('GET', url, true);
+    console.log('url',url);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 1) {
+            // 在这里处理loading状态，例如显示loading动画
+            console.log('Loading...');
+            showLoading('正在获取文件清单，请稍等～')
+        }else if (isHttpOk(xhr)) {//xhr.readyState === 4 &&
+            filejson = JSON.parse(xhr.response)
+            if (filejson.code === 0){
+                console.log('searchFiles',xhr.response)
+                var table = document.getElementById("myTable");
+                var tbody = table.getElementsByTagName("tbody")[0];
+                tbody.innerHTML = '';
+                if (filejson.data){
+                    // 使用 for...of 循环倒序遍历数组
+                    for (var element of filejson.data.reverse()) {
+                        addItemByGet(element)
+                    }
+                }
+            }else{
+                console.log('失败了',filejson.msg)
+            }
+            hideLoading()
+        } else {
+            // 请求失败或还未完成
+            //console.error('get files err ',xhr.response);
+            console.log('searchFiles files err ',xhr.readyState,xhr.status,xhr.response);
+        }
+    };
+
+    xhr.send();
 }
 
 function showFiles(path) {

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -99,4 +100,41 @@ func GetLocalIPs() ([]string, error) {
 	}
 
 	return ips, nil
+}
+
+func FuzzySearch[T any](pattern string, data []T, f func(T) string) []T {
+	var matches []T
+	// 编译正则表达式
+	re, err := regexp.Compile("(?i)" + pattern)
+	if err != nil {
+		fmt.Println("Invalid pattern")
+		return matches
+	}
+
+	// 遍历数组，寻找匹配项
+	for _, item := range data {
+		if re.MatchString(f(item)) {
+			matches = append(matches, item)
+		}
+	}
+	return matches
+}
+
+// 模糊匹配搜索函数
+func FuzzySearch1(pattern string, data []interface{}, f func(interface{}) string) []interface{} {
+	var matches []interface{}
+	// 编译正则表达式
+	re, err := regexp.Compile("(?i)" + pattern)
+	if err != nil {
+		fmt.Println("Invalid pattern")
+		return matches
+	}
+
+	// 遍历数组，寻找匹配项
+	for _, item := range data {
+		if re.MatchString(f(item)) {
+			matches = append(matches, item)
+		}
+	}
+	return matches
 }

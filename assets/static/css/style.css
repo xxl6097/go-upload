@@ -8,11 +8,6 @@ body {
     text-align: center;
 }
 
-input[type="password"] {
-    padding: 10px;
-    margin: 10px;
-    font-size: 16px;
-}
 
 #auth {
     display: none;
@@ -55,10 +50,6 @@ input[type="password"] {
         background-color: #0056b3;
     }
 
-    input {
-        background-color: #f9f7f7;
-        color: #000000;
-    }
 
     #title_h2 {
         color: black;
@@ -101,10 +92,6 @@ input[type="password"] {
         background-color: #19406a;
     }
 
-    input {
-        background-color: #665b5b;
-        color: #d7d5ce;
-    }
 
     #title_h2 {
         color: white;
@@ -235,6 +222,10 @@ pre {
 
 #fileInput {
     display: none;
+}
+
+#search_input{
+    width: 20%;
 }
 
 #confirmButton {
@@ -393,5 +384,8 @@ li {
         padding-right: 10px;
         white-space: nowrap;
         content: attr(data-label);
+    }
+    #search_input{
+        width: 100%;
     }
 }

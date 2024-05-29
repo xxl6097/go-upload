@@ -81,6 +81,29 @@ func tree(w http.ResponseWriter, r *http.Request) {
 	Respond(w, Ok(trees))
 }
 
+func search(w http.ResponseWriter, r *http.Request) {
+	text := r.URL.Query().Get("pattern")
+	glog.Println("search", text)
+	if text != "" {
+		glog.Println("pattern", text)
+		files := utils.VisitDir(DefaultDir, static_prefix)
+		sort.Slice(files, func(i, j int) bool {
+			return files[i].ModTime.Before(files[j].ModTime)
+		})
+
+		arr := utils.FuzzySearch[utils.FileStruct](text, files, func(fileStruct utils.FileStruct) string {
+			return fileStruct.Name
+		})
+
+		for _, f := range arr {
+			glog.Println(f)
+		}
+		Respond(w, Ok(arr))
+	} else {
+		Respond(w, Ok(nil))
+	}
+}
+
 func auth(w http.ResponseWriter, r *http.Request) {
 	_token := r.Header.Get("Authorization")
 	if strings.ToLower(token) == strings.ToLower(_token) {
@@ -315,6 +338,7 @@ func initRouter(router *mux.Router) {
 	router.HandleFunc("/upload", upload).Methods(http.MethodGet, http.MethodOptions)  // view
 	router.HandleFunc("/getip", getip).Methods(http.MethodGet, http.MethodOptions)    // view
 	router.HandleFunc("/tree", tree).Methods(http.MethodGet, http.MethodOptions)      // view
+	router.HandleFunc("/search", search).Methods(http.MethodGet, http.MethodOptions)  // view
 	router.HandleFunc("/up", up).Methods(http.MethodGet, http.MethodOptions)          // view
 	//router.HandleFunc("/up", upload).Methods(http.MethodGet, http.MethodOptions)             // view
 	router.HandleFunc("/upload", upload).Methods(http.MethodDelete, http.MethodOptions)      // view
