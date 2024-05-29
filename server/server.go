@@ -85,20 +85,33 @@ func search(w http.ResponseWriter, r *http.Request) {
 	text := r.URL.Query().Get("pattern")
 	glog.Println("search", text)
 	if text != "" {
-		glog.Println("pattern", text)
-		files := utils.VisitDir(DefaultDir, static_prefix)
-		sort.Slice(files, func(i, j int) bool {
-			return files[i].ModTime.Before(files[j].ModTime)
-		})
+		if utils.IsPath(text) {
+			filearr := utils.VisitDir(text, static_prefix)
+			sort.Slice(filearr, func(i, j int) bool {
+				return filearr[i].ModTime.Before(filearr[j].ModTime)
+			})
+			glog.Error("path", text)
+			for _, f := range filearr {
+				glog.Println(f)
+			}
+			Respond(w, Ok(filearr))
+		} else {
+			glog.Println("pattern", text)
+			files := utils.VisitDir(DefaultDir, static_prefix)
+			sort.Slice(files, func(i, j int) bool {
+				return files[i].ModTime.Before(files[j].ModTime)
+			})
 
-		arr := utils.FuzzySearch[utils.FileStruct](text, files, func(fileStruct utils.FileStruct) string {
-			return fileStruct.Name
-		})
+			arr := utils.FuzzySearch[utils.FileStruct](text, files, func(fileStruct utils.FileStruct) string {
+				return fileStruct.Name
+			})
 
-		for _, f := range arr {
-			glog.Println(f)
+			for _, f := range arr {
+				glog.Println(f)
+			}
+			Respond(w, Ok(arr))
 		}
-		Respond(w, Ok(arr))
+
 	} else {
 		Respond(w, Ok(nil))
 	}
@@ -148,19 +161,30 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET": //获取目录或者子目录下的所有文件
 		queryParams := r.URL.Query()
-		origin = queryParams.Get("origin")
+		//origin = queryParams.Get("origin")
+		glog.Println("path", queryParams.Get("path"))
 		if queryParams.Has("path") {
 			path := queryParams.Get("path")
 			glog.Println("path", path)
-			filearr := utils.GetTree(path, static_prefix, DefaultDir)
-			sort.Slice(filearr, func(i, j int) bool {
-				return filearr[i].ModTime.Before(filearr[j].ModTime)
-			})
-			glog.Error("path", path)
-			for _, f := range filearr {
-				glog.Println(f)
+			if path == "today" {
+				filearr := utils.VisitDir(DefaultDir, static_prefix)
+				sort.Slice(filearr, func(i, j int) bool {
+					return filearr[i].ModTime.Before(filearr[j].ModTime)
+				})
+				for _, f := range filearr {
+					glog.Println(f)
+				}
+				Respond(w, Ok(filearr))
+			} else {
+				filearr := utils.GetTree(path, static_prefix, DefaultDir)
+				sort.Slice(filearr, func(i, j int) bool {
+					return filearr[i].ModTime.Before(filearr[j].ModTime)
+				})
+				for _, f := range filearr {
+					glog.Println(f)
+				}
+				Respond(w, Ok(filearr))
 			}
-			Respond(w, Ok(filearr))
 		} else {
 			glog.Println("path", queryParams.Get("path"))
 			filearr := utils.GetTree(DefaultDir, static_prefix, DefaultDir)

@@ -246,6 +246,8 @@ function searchFiles(pattern) {
                     for (var element of filejson.data.reverse()) {
                         addItemByGet(element)
                     }
+                }else{
+                    showToast('未搜索到结果~')
                 }
             }else{
                 console.log('失败了',filejson.msg)

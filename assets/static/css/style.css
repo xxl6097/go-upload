@@ -226,6 +226,7 @@ pre {
 
 #search_input{
     width: 20%;
+    display: none;
 }
 
 #confirmButton {
@@ -387,5 +388,6 @@ li {
     }
     #search_input{
         width: 100%;
+        display: block;
     }
 }

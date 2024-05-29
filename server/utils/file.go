@@ -169,3 +169,15 @@ func VisitDir(rootDir, prefix string) []FileStruct {
 	}
 	return filearr
 }
+
+func IsPath(path string) bool {
+	// Clean the path to handle any relative or redundant elements
+	cleanedPath := filepath.Clean(path)
+
+	// Check if the path exists
+	_, err := os.Stat(cleanedPath)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return err == nil || os.IsExist(err)
+}
