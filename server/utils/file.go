@@ -166,7 +166,7 @@ func VisitDir(rootDir, prefix string) []FileStruct {
 	var filearr []FileStruct
 	err := filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
-			fmt.Println(err) // 可以根据需要处理错误
+			glog.Error(err)
 			return nil
 		}
 		if info.IsDir() {

@@ -89,6 +89,11 @@ func search(w http.ResponseWriter, r *http.Request) {
 			if text == "/" {
 				text = DefaultDir
 			}
+			if strings.HasPrefix(text, static_prefix) {
+				tmp := text[len(static_prefix):]
+				text = DefaultDir + "/" + tmp
+				glog.Info(text)
+			}
 			filearr := utils.VisitDir(text, static_prefix)
 			sort.Slice(filearr, func(i, j int) bool {
 				return filearr[i].ModTime.Before(filearr[j].ModTime)
