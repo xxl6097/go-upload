@@ -230,6 +230,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		Respond(w, Result(0, "", res))
 	case "POST":
 		source := r.Header.Get("source")
+		dir := r.Header.Get("dir")
 		//ParseMultipartForm将请求的主体作为multipart/form-data解析。请求的整个主体都会被解析，得到的文件记录最多 maxMemery字节保存在内存，其余部分保存在硬盘的temp文件里。如果必要，ParseMultipartForm会自行调用 ParseForm。重复调用本方法是无意义的
 		//设置内存大小
 		err := r.ParseMultipartForm(32 << 20)
@@ -246,13 +247,13 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		}
 		glog.Println(source)
 		//go Respond(w, Ok("ok"))
-		copyfile(source, w, files)
+		copyfile(dir, source, w, files)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
-func copyfile(source string, w http.ResponseWriter, files []*multipart.FileHeader) {
+func copyfile(filedir, source string, w http.ResponseWriter, files []*multipart.FileHeader) {
 	var filearrs []string
 	var filearr []interface{}
 	for i, _ := range files {
@@ -263,6 +264,14 @@ func copyfile(source string, w http.ResponseWriter, files []*multipart.FileHeade
 			return
 		}
 		dir := DefaultDir + "/" + utils.GetDirAtDay()
+		//dir := DefaultDir + os.PathSeparator + utils.GetDirAtDay()
+		if filedir != "" {
+			dir = DefaultDir + "/" + filedir
+		}
+		if !strings.HasSuffix(dir, "/") {
+			dir += "/"
+		}
+
 		//判断文件夹是否存在，不存在则创建文件夹
 		if !utils.IsDirExists(dir) {
 			err1 := utils.CreateMutiDir(dir)
