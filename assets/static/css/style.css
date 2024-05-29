@@ -236,7 +236,7 @@ pre {
 #passwordInput{
     width: 20%;
     position: absolute;
-    top: 20%;
+    top: 13%;
     left: 50%;
     transform: translate(-50%, -50%); /* 将子元素的中心移动到父元素的中心 */
 }
@@ -406,5 +406,13 @@ li {
     #search_input{
         width: 100%;
         display: block;
+    }
+
+    #passwordInput{
+        width: 80%;
+        position: absolute;
+        top: 13%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* 将子元素的中心移动到父元素的中心 */
     }
 }
