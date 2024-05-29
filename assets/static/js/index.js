@@ -238,9 +238,10 @@ function searchFiles(pattern) {
             filejson = JSON.parse(xhr.response)
             if (filejson.code === 0){
                 console.log('searchFiles',xhr.response)
-                var table = document.getElementById("myTable");
-                var tbody = table.getElementsByTagName("tbody")[0];
-                tbody.innerHTML = '';
+                // var table = document.getElementById("myTable");
+                // var tbody = table.getElementsByTagName("tbody")[0];
+                // tbody.innerHTML = '';
+                clearTable()
                 if (filejson.data){
                     // 使用 for...of 循环倒序遍历数组
                     for (var element of filejson.data.reverse()) {
@@ -285,9 +286,11 @@ function showFiles(path) {
             filejson = JSON.parse(xhr.response)
             if (filejson.code === 0){
                 console.log('showFiles',xhr.response)
-                var table = document.getElementById("myTable");
-                var tbody = table.getElementsByTagName("tbody")[0];
-                tbody.innerHTML = '';
+                // var table = document.getElementById("myTable");
+                // var tbody = table.getElementsByTagName("tbody")[0];
+                // tbody.innerHTML = '';
+
+                clearTable()
                 if (filejson.data){
                     // 使用 for...of 循环倒序遍历数组
                     for (var element of filejson.data.reverse()) {
@@ -479,6 +482,12 @@ function uploadFiles(formData,total_size){
     progressBar.style.display = "block"
     // 将 '/upload' 替换为服务器端处理文件上传的路径
     xhr.open('POST', '/upload', true);
+    var inputElement = document.getElementById("up_file_path_id");
+    // 获取输入框的值
+    var inputValue = inputElement.value;
+    if (inputValue){
+        xhr.setRequestHeader("dir",inputValue)
+    }
     xhr.setRequestHeader("Authorization",authcode)
     xhr.setRequestHeader("source","web")
     xhr.send(formData);
@@ -504,6 +513,7 @@ function uploadFile(){
 
 
 function deletefile(files,callback) {
+
     const jsonData = {
         files: files,
     };
@@ -594,19 +604,19 @@ function insertRow(tbody,newRow,newItem) {
 
 
     //cell1.innerHTML = "<a href="+newItem.path+">"+ newItem.name +"</a>";
-    var aname = document.createElement("a");
-    aname.textContent = newItem.name;
-    aname.href = newItem.path;
-    aname.target = '_blank'
+    var filename = document.createElement("a");
+    filename.textContent = newItem.name;
+    if (newItem.isDir){
+        filename.style = 'color: #0000ff; font-size: 18px;font-weight: bold;'
+        filename.addEventListener('click', function () {
+            showFiles(newItem.path)
+            showToast(newItem.path)
+        });
+    }else {
+        filename.href = newItem.path;
+        filename.target = '_blank'
+    }
 
-    var copylinkbtn = document.createElement('button');
-    copylinkbtn.textContent = '复制';
-    copylinkbtn.style = 'margin-right: 5px;'
-    copylinkbtn.addEventListener('click', function () {
-        let text = window.origin + newItem.path
-        copyToClipboard(text)
-        showToast('已复制：' + text)
-    });
 
     var downloadbtn = document.createElement('button');
     downloadbtn.style = 'margin-right: 5px; margin-left: 5px;'
@@ -624,10 +634,11 @@ function insertRow(tbody,newRow,newItem) {
     // var encodedPath = encodeURIComponent(newItem.path);
     // cell2.innerHTML = "<a href="+encodedPath+">下载</a>";
 
+
     // 创建按钮并设置事件处理程序
     var delbtn = document.createElement('button');
     delbtn.textContent = '删除';
-    delbtn.style = 'margin-right: 5px;'
+    delbtn.style = 'margin-right: 5px; margin-left: 5px;'
     //delbtn.className = 'delete-btn'
     delbtn.addEventListener('click', function () {
         // 当按钮点击时触发的事件
@@ -645,12 +656,21 @@ function insertRow(tbody,newRow,newItem) {
         }
     });
 
-
+    var copylinkbtn = document.createElement('button');
+    copylinkbtn.textContent = '复制';
+    copylinkbtn.style = 'margin-right: 5px; margin-left: 5px;'
+    copylinkbtn.addEventListener('click', function () {
+        let text = window.origin + newItem.path
+        copyToClipboard(text)
+        showToast('已复制：' + text)
+    });
 
 
     cell0.appendChild(input);
-    cell1.appendChild(aname);
-    cell2.appendChild(downloadbtn);
+    cell1.appendChild(filename);
+    if (!newItem.isDir){
+        cell2.appendChild(downloadbtn);
+    }
     cell2.appendChild(delbtn);
     cell2.appendChild(copylinkbtn);
     cell3.innerHTML = formatFileSize(newItem.size)

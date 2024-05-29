@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"github.com/xxl6097/go-glog/glog"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -13,6 +14,7 @@ type FileStruct struct {
 	Name    string    `json:"name"`
 	Path    string    `json:"path"`
 	Size    int64     `json:"size"`
+	IsDir   bool      `json:"isDir"`
 	ModTime time.Time `json:"modTime"`
 }
 
@@ -65,7 +67,44 @@ func visit(path string, info os.FileInfo, err error) error {
 	return nil
 }
 
+func SwitchToReactivePath(path, defaultDir string) string {
+	var _path string
+	if strings.HasPrefix(path, defaultDir) {
+		// 去掉字符串的前缀
+		_path = strings.TrimPrefix(path, defaultDir)
+		//path = strings.TrimPrefix(path, rootDir)
+		if strings.HasPrefix(_path, "/") {
+			index := strings.Index(_path, "/")
+			if index != -1 {
+				_path = _path[index+1:]
+			}
+			if !strings.HasSuffix(_path, "/") {
+				_path += "/"
+			}
+		}
+	} else {
+		if !strings.HasPrefix(path, "/") {
+			index := strings.Index(path, "/")
+			// 如果找到了 '/'，则截取字符串
+			if index != -1 {
+				_path = path[index+1:]
+			}
+			if !strings.HasSuffix(_path, "/") {
+				_path += "/"
+			}
+		}
+	}
+	return _path
+}
+
 func GetTree(path, prefix, defaultDir string) []FileStruct {
+
+	if strings.HasPrefix(path, prefix) {
+		tmp := path[len(prefix):]
+		path = defaultDir + "/" + tmp
+		glog.Info(path)
+	}
+
 	root := Node{Title: filepath.Base(path)}
 	finfo, err := os.Stat(path)
 	if err != nil {
@@ -85,36 +124,38 @@ func GetTree(path, prefix, defaultDir string) []FileStruct {
 	var files []FileStruct
 	for _, entry := range entries {
 		if entry.IsDir() {
-			continue
+			//continue
 		}
-		var _path string
 		info, _ := entry.Info()
-		if strings.HasPrefix(path, defaultDir) {
-			// 去掉字符串的前缀
-			_path = strings.TrimPrefix(path, defaultDir)
-			//path = strings.TrimPrefix(path, rootDir)
-			if strings.HasPrefix(_path, "/") {
-				index := strings.Index(_path, "/")
-				if index != -1 {
-					_path = _path[index+1:]
-				}
-				if !strings.HasSuffix(_path, "/") {
-					_path += "/"
-				}
-			}
-		} else {
-			if !strings.HasPrefix(path, "/") {
-				index := strings.Index(path, "/")
-				// 如果找到了 '/'，则截取字符串
-				if index != -1 {
-					_path = path[index+1:]
-				}
-				if !strings.HasSuffix(_path, "/") {
-					_path += "/"
-				}
-			}
-		}
-		item := FileStruct{Name: info.Name(), Size: info.Size(), Path: prefix + _path + entry.Name(), ModTime: info.ModTime()}
+		//var _path string
+		//if strings.HasPrefix(path, defaultDir) {
+		//	// 去掉字符串的前缀
+		//	_path = strings.TrimPrefix(path, defaultDir)
+		//	//path = strings.TrimPrefix(path, rootDir)
+		//	if strings.HasPrefix(_path, "/") {
+		//		index := strings.Index(_path, "/")
+		//		if index != -1 {
+		//			_path = _path[index+1:]
+		//		}
+		//		if !strings.HasSuffix(_path, "/") {
+		//			_path += "/"
+		//		}
+		//	}
+		//} else {
+		//	if !strings.HasPrefix(path, "/") {
+		//		index := strings.Index(path, "/")
+		//		// 如果找到了 '/'，则截取字符串
+		//		if index != -1 {
+		//			_path = path[index+1:]
+		//		}
+		//		if !strings.HasSuffix(_path, "/") {
+		//			_path += "/"
+		//		}
+		//	}
+		//}
+
+		_path := SwitchToReactivePath(path, defaultDir)
+		item := FileStruct{Name: info.Name(), Size: info.Size(), Path: prefix + _path + entry.Name(), ModTime: info.ModTime(), IsDir: entry.IsDir()}
 		files = append(files, item)
 	}
 

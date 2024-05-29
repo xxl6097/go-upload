@@ -86,6 +86,9 @@ func search(w http.ResponseWriter, r *http.Request) {
 	glog.Println("search", text)
 	if text != "" {
 		if utils.IsPath(text) {
+			if text == "/" {
+				text = DefaultDir
+			}
 			filearr := utils.VisitDir(text, static_prefix)
 			sort.Slice(filearr, func(i, j int) bool {
 				return filearr[i].ModTime.Before(filearr[j].ModTime)
@@ -167,7 +170,8 @@ func upload(w http.ResponseWriter, r *http.Request) {
 			path := queryParams.Get("path")
 			glog.Println("path", path)
 			if path == "today" {
-				filearr := utils.VisitDir(DefaultDir+"/"+utils.GetDirAtDay(), static_prefix)
+				//filearr := utils.VisitDir(DefaultDir+"/"+utils.GetDirAtDay(), static_prefix)
+				filearr := utils.GetTree(DefaultDir+"/"+utils.GetDirAtDay(), static_prefix, DefaultDir)
 				sort.Slice(filearr, func(i, j int) bool {
 					return filearr[i].ModTime.Before(filearr[j].ModTime)
 				})
@@ -208,7 +212,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 		var res = make([]interface{}, 0)
 		for _, path := range files.([]interface{}) {
 			realpath := DefaultDir + path.(string)[len(static_prefix)-1:]
-			err := os.Remove(realpath)
+			err := os.RemoveAll(realpath)
 			if err != nil {
 				msg := glog.Sprintf("[%s] 删除失败:%s", realpath, err.Error())
 				var respone = struct {

@@ -318,15 +318,20 @@ li {
 .box {
     /*flex: 1;*/
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /*display: inline-block; !* 使 div 根据内容自动扩展宽度 *!*/
+    /*white-space: nowrap; !* 防止内容换行 *!*/
 }
 
 .left {
     width: 20%;
+    margin-top: 1px;
+    margin-right: 5px;
+    border: 1px solid white;
 }
 
 .right {
     margin-top: 1px;
-    width: 100%;
+    width: 80%;
 }
 
 @media screen and (max-width: 600px) {

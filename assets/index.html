@@ -68,6 +68,7 @@
                 <h2 style="color: #000000">文件上传</h2>
                 <ul id="file_list" style="padding-left: 10px;color: red;">
                 </ul>
+                <input type="text" id="up_file_path_id" autofocus class="layui-input" style="margin-bottom: 5px; margin-top: 5px" placeholder="请输入路径">
                 <button id="confirmButton">上传</button>
                 <button id="cancelButton">取消</button>
             </div>
@@ -158,8 +159,14 @@
                                 ,accordion: true
                                 ,isJump: true
                                 ,click: function(obj){
-                                    //showToast(obj.data.path);
+                                    showToast(obj.data.path);
                                     showFiles(obj.data.path)
+
+                                    // layer.prompt({formType:0,title:"今年端午节是什么时候？",value:'2023-06-20'},
+                                    //     function(value, index){
+                                    //         layer.alert(value);
+                                    //         layer.close(index);
+                                    //     });
                                 }
                             });
                         }
