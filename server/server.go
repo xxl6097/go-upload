@@ -13,6 +13,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
 	"sort"
@@ -137,14 +138,22 @@ func auth(w http.ResponseWriter, r *http.Request) {
 
 func config(w http.ResponseWriter, r *http.Request) {
 	if runtime.GOOS == "darwin" {
+		cmd := exec.Command("git", "describe", "--tags", "--abbrev=0")
+		buildTime, _ := cmd.CombinedOutput()
+		cmd = exec.Command("git", "rev-parse", "--short", "HEAD")
+		gitRevision, _ := cmd.CombinedOutput()
+		cmd = exec.Command("git", "name-rev", "--name-only", "HEAD")
+		gitBranch, _ := cmd.CombinedOutput()
+		cmd = exec.Command("go", "version")
+		goVersion, _ := cmd.CombinedOutput()
 		Respond(w, Ok(map[string]interface{}{
 			"AppName":      "goupload",
-			"AppVersion":   "appversion",
-			"BuildVersion": "BuildVersion",
-			"BuildTime":    "BuildTime",
-			"GitRevision":  "GitRevision",
-			"GitBranch":    "GitBranch",
-			"GoVersion":    "GoVersion",
+			"AppVersion":   "0.0.0",
+			"BuildVersion": string(buildTime),
+			"BuildTime":    utils.GetNowStr(),
+			"GitRevision":  string(gitRevision),
+			"GitBranch":    string(gitBranch),
+			"GoVersion":    string(goVersion),
 		}))
 	} else {
 		Respond(w, Ok(map[string]interface{}{

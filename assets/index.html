@@ -20,10 +20,8 @@
         <!-- 显示loading状态的元素 -->
         <div id="overlay"
              style="display: flex; flex-direction: column;justify-content: center; align-items: center; height: 100vh;">
-<!--            <div id="progressBar" style="display: none;width: 40%;">-->
-<!--                <div id="progress" style="text-align: right; color: white; width: 100%;"></div>-->
-<!--            </div>-->
-            <div id="progressBar" style="display: none;width: 40%;" class="layui-progress layui-progress-big" lay-showPercent="true">
+            <div id="progressBar" style="display: none;width: 40%;" class="layui-progress layui-progress-big"
+                 lay-showPercent="true">
                 <div id="progress" class="layui-progress-bar layui-bg-blue"></div>
             </div>
             <div id="loading">
@@ -34,27 +32,25 @@
 
         <h2 id="title_h2">Go文件上传助手</h2>
 
+        <!-- 文件教程与区域 -->
         <div id="code_div" onclick="fileInput.click()">
-            <div style="display: flex;">
+            <div class="top_view" style="display: flex;">
                 <div id="sample" style="width: 100%;">
-                    <div>单文件：
-                        <label id="up_1"></label>
-                        <button class="layui-btn layui-btn-xs" onclick="copy1(event)">复制</button>
+                    <div class="usage">单文件：
+                        <label id="up_1" onclick="copy(event)"></label>
                     </div>
 
-                    <div>多文件：
-                        <label id="up_2"></label>
-                        <button class="layui-btn layui-btn-xs" onclick="copy2(event)">复制</button>
+                    <div class="usage">多文件：
+                        <label id="up_2" onclick="copy(event)"></label>
                     </div>
 
-                    <div>脚本式：
-                        <label id="up_3"></label><label>/root/a.txt /root/b.txt</label>
-                        <button class="layui-btn layui-btn-xs" onclick="copy3(event)">复制</button>
+                    <div class="usage">脚本式：
+                        <label id="up_3" onclick="copy(event)"></label><label>/root/a.txt /root/b.txt</label>
                     </div>
                 </div>
                 <div id="up_bg_txt" style="width: 100%;">
                     <i class="layui-icon" style="font-size: 30px; color: #1E9FFF;">&#xe67c;</i>
-                    <div>点击上传或将文件拖拽到此处</div>
+                    <div class="upload_text">点击上传或将文件拖拽到此处</div>
                 </div>
             </div>
         </div>
@@ -63,8 +59,10 @@
         <!--按钮模块-->
         <div style="margin-top: 8px;">
             <div style="align-content: center;">
-                <input type="search" autofocus class="layui-input" id="search_input" placeholder="请输入搜索内容后回车↩︎" onkeypress="handleKeyPress(event)" >
-                <button id="del_all_id" onclick="deleteSelectedRows()" style="height: 70%; display: none" class="layui-btn layui-btn-sm layui-btn-danger">删除选择行
+                <input type="search" autofocus class="layui-input" id="search_input"
+                       placeholder="请输入搜索内容后回车↩︎" onkeypress="handleKeyPress(event)">
+                <button id="del_all_id" onclick="deleteSelectedRows()" style="height: 70%; display: none"
+                        class="layui-btn layui-btn-sm layui-btn-danger">删除选择行
                 </button><!--class="delete-btn"-->
             </div>
         </div>
@@ -77,7 +75,8 @@
                 <h2 style="color: #000000">文件上传</h2>
                 <ul id="file_list" style="padding-left: 10px;color: red;">
                 </ul>
-                <input type="text" id="up_file_path_id" autofocus class="layui-input" style="margin-bottom: 5px; margin-top: 5px" placeholder="请输入路径">
+                <input type="text" id="up_file_path_id" autofocus class="layui-input"
+                       style="margin-bottom: 5px; margin-top: 5px" placeholder="请输入路径">
                 <button id="confirmButton">上传</button>
                 <button id="cancelButton">取消</button>
             </div>
@@ -86,7 +85,7 @@
 
         <div class="main">
             <div class="box left">
-<!--                <i id="demo1" class="layui-icon layui-icon-spread-left"></i>-->
+                <!--                <i id="demo1" class="layui-icon layui-icon-spread-left"></i>-->
                 <ul id="tree"></ul>
             </div>
             <!-- 表格-->
@@ -117,7 +116,7 @@
 <script type="text/javascript" src="/static/layui/layui.js"></script>
 <script type="text/javascript" src="/static/js/index.js"></script>
 <script>
-    layui.use(['tree','table','dropdown'], function () {
+    layui.use(['tree', 'table', 'dropdown'], function () {
         var tree = layui.tree;
         //渲染
         // tree.render({
@@ -148,26 +147,26 @@
         // }]
         ///
 
-        var treeRender=function(){
+        var treeRender = function () {
             var xhr = new XMLHttpRequest();
             var url = '/tree';
             xhr.open('GET', url, true);
-            console.log('----url',url);
-            xhr.onreadystatechange = function (){
-                console.log('----xhr.status',xhr.status);
+            console.log('----url', url);
+            xhr.onreadystatechange = function () {
+                //console.log('----xhr.status',xhr.status);
                 if (isHttpOk(xhr)) {
                     // 文件上传成功
                     //console.log('response',xhr.readyState,xhr.status,xhr.response)
                     res = JSON.parse(xhr.response)
-                    if (res.code === 0){
-                        console.log('成功了哦')
-                        if (res.data){
+                    if (res.code === 0) {
+                        //console.log('成功了哦')
+                        if (res.data) {
                             tree.render({
                                 elem: '#tree'
-                                ,data: [res.data]
+                                , data: [res.data]
                                 // ,accordion: true
                                 // ,isJump: true
-                                ,click: function(obj){
+                                , click: function (obj) {
                                     showToast(obj.data.path);
                                     showFiles(obj.data.path)
 
@@ -179,11 +178,11 @@
                                 }
                             });
                         }
-                    }else{
-                        console.log('失败了',res.msg)
+                    } else {
+                        console.log('失败了', res.msg)
                     }
                 } else {
-                    console.log('get files err ',xhr.response);
+                    console.log('get files err ', xhr.response);
                 }
             }
             xhr.send();

@@ -81,14 +81,9 @@ function init() {
 
     GetConfig((data) => {
         if (data.AppVersion !== ''){
-            console.log('====>data.AppVersion ',data.AppVersion)
+            //console.log('====>data.AppVersion ',data.AppVersion)
             document.title = "Go文件上传助手v" + data.AppVersion;
-            title = document.getElementById('title_h2')
-            title.textContent = 'Go文件上传助手v' + data.AppVersion + ' ';
-            var aname = document.createElement("a");
-            aname.target = '_blank'
-            aname.id = 'pubip'
-            title.appendChild(aname)
+            document.getElementById('title_h2').textContent = 'Go文件上传助手v' + data.AppVersion
             getBuildInfo(data)
         }
     })
@@ -142,6 +137,13 @@ function getBuildInfo(jsonData) {
         if (now - lastClickTime < DOUBLE_CLICK_TIME) {
             // 如果两次点击的时间差小于阈值，则触发双击事件
             //handleDoubleClick(event);
+            pubip = localStorage.getItem('pubip');
+            if (pubip){
+                open(pubip)
+            }
+        } else {
+            // 否则，更新上次点击的时间
+            lastClickTime = now;
             build_info = '应用名称：' + jsonData.AppName
             build_info += '\r\n应用版本：' + jsonData.AppVersion
             build_info += '\r\n编译版本：' + jsonData.BuildVersion
@@ -150,9 +152,6 @@ function getBuildInfo(jsonData) {
             build_info += '\r\nGitBranch：' + jsonData.GitBranch
             build_info += '\r\nGoVersion：' + jsonData.GoVersion
             Toast(build_info,10)
-        } else {
-            // 否则，更新上次点击的时间
-            lastClickTime = now;
         }
     });
 }
@@ -175,9 +174,10 @@ function copyToClipboard(text) {
     document.body.removeChild(textarea);
     showToast('已复制：' + text)
 }
-function copy1(event) {
+function copy(event) {
     event.stopPropagation();
-    copyToClipboard(document.getElementById("up_1").textContent)
+    //copyToClipboard(document.getElementById(event.target.id).textContent)
+    copyToClipboard(event.target.innerText)
 }
 function copy2(event) {
     event.stopPropagation();
@@ -322,12 +322,10 @@ function getPubIp() {
             showLoading('正在获取文件清单，请稍等～')
         }else if (isHttpOk(xhr)) {//xhr.readyState === 4 &&
             //console.log('getPubIp...',xhr);
-            // 获取<a>标签的引用
-            var link = document.getElementById('pubip');
-            // 设置超链接的目标URL
-            link.href = xhr.responseText;
-            // 设置链接文本
-            link.textContent = '公网';
+            // var link = document.getElementById('pubip');
+            // link.href = xhr.responseText;
+            // link.textContent = '公网';
+            localStorage.setItem('pubip',xhr.responseText)
             hideLoading()
         } else {
             // 请求失败或还未完成
@@ -363,8 +361,8 @@ function auth(password) {
             showFiles('today')
             getPubIp()
             console.log('sucess',xhr.status,xhr.responseText)
-            showToast('认证成功')
             createcode(password)
+            showToast('认证成功')
             //layer.msg('aaaaa')
             //layer.alert('酷毙了', {icon: 1});
             //layer.tips('只想提示地精准些', '#id');
@@ -625,6 +623,7 @@ function insertRow(tbody,newRow,newItem) {
 
 
     var downloadbtn = document.createElement('button');
+    downloadbtn.className = 'layui-btn layui-btn-xs'
     downloadbtn.style = 'margin-right: 5px; margin-left: 5px;'
     downloadbtn.textContent = '下载';
     downloadbtn.addEventListener('click', function () {
@@ -643,6 +642,7 @@ function insertRow(tbody,newRow,newItem) {
 
     // 创建按钮并设置事件处理程序
     var delbtn = document.createElement('button');
+    delbtn.className = 'layui-btn layui-btn-xs'
     delbtn.textContent = '删除';
     delbtn.style = 'margin-right: 5px; margin-left: 5px;'
     //delbtn.className = 'delete-btn'
@@ -663,6 +663,7 @@ function insertRow(tbody,newRow,newItem) {
     });
 
     var copylinkbtn = document.createElement('button');
+    copylinkbtn.className = 'layui-btn layui-btn-xs'
     copylinkbtn.textContent = '复制';
     copylinkbtn.style = 'margin-right: 5px; margin-left: 5px;'
     copylinkbtn.addEventListener('click', function () {

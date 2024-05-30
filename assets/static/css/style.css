@@ -237,14 +237,6 @@ pre {
     font-size: 14px;
 }
 
-#code_div {
-    border: 2px dashed #ccc;
-    width: 99%;
-    height: auto;
-    padding: 5px;
-    font-size: 14px;
-}
-
 
 #fileInput {
     display: none;
@@ -352,6 +344,11 @@ li {
     justify-content: space-between; /* Space items out on large screens */
 }
 
+.top_view {
+    display: flex;
+    justify-content: space-between; /* Space items out on large screens */
+}
+
 
 .box {
     /*flex: 1;*/
@@ -372,17 +369,45 @@ li {
     width: 80%;
 }
 
+
+#code_div {
+    border: 2px dashed #ccc;
+    width: 99%;
+    height: auto;
+    padding: 5px;
+    font-size: 14px;
+}
+
+.usage{
+    font-size: 13px;
+}
+
+.upload_text {
+    font-size: 25px;
+}
 @media screen and (max-width: 600px) {
     .main {
         flex-direction: column; /* Stack boxes vertically on smaller screens */
     }
-
+    .top_view {
+        flex-direction: column;
+    }
+    .upload_text {
+        font-size: 18px;
+    }
+    .usage{
+        font-size: 11px;
+    }
+    #sample {
+        display: none;
+    }
     .box {
-        min-width: 100%; /* Full width on smaller screens */
+        min-width: 99%; /* Full width on smaller screens */
         margin: 5px 0; /* Adjust margin for vertical layout */
     }
 
     #code_div {
+        flex-direction: column; /* Stack boxes vertically on smaller screens */
         border: 2px dashed #ccc;
         width: 95%;
         height: auto;
