@@ -105,7 +105,8 @@
                 </table>
             </div>
         </div>
-
+<!--        <iframe src="http://uuxia.cn:5055/home/" width="800" height="600" title="描述性标题"></iframe>-->
+<!--        <iframe src="http://uuxia.cn:5055/home/login" id="myIframe"></iframe>-->
         <!-- Toast容器 -->
         <div id="toast" class="toast"></div>
 
@@ -116,6 +117,26 @@
 <script type="text/javascript" src="/static/layui/layui.js"></script>
 <script type="text/javascript" src="/static/js/index.js"></script>
 <script>
+
+//     document.getElementById('myIframe').addEventListener('load', function() {
+//         // 这里可以添加自动填充表单的代码
+//         // 获取iframe的DOM内容
+//         var iframeDoc = document.getElementById('myIframe').contentDocument || document.getElementById('myIframe').contentWindow.document;
+//
+// // 假设登录表单的用户名输入框的ID是'username'
+//         var usernameInput = iframeDoc.getElementById('username');
+//
+// // 填充用户名
+//         usernameInput.value = 'your-username';
+//
+// // 假设密码输入框的ID是'password'
+//         var passwordInput = iframeDoc.getElementById('password');
+//
+// // 填充密码
+//         passwordInput.value = 'your-password';
+//     });
+
+
     layui.use(['tree', 'table', 'dropdown'], function () {
         var tree = layui.tree;
         //渲染

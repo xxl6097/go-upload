@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>树组件</title>
+</head>
+<body>
+<iframe id="myIframe" src="http://10.6.14.80:8848/nacos/#/login" width="1000px" height="700px"></iframe>
+<script>
+
+    var iframeDoc = document.getElementById('myIframe')
+
+    // 假设登录表单的用户名输入框的ID是'username'
+    var usernameInput = iframeDoc.getElementById('username');
+
+    // 填充用户名
+    usernameInput.value = 'your-username';
+
+    // 假设密码输入框的ID是'password'
+    var passwordInput = iframeDoc.getElementById('password');
+
+    // 填充密码
+    passwordInput.value = 'your-password';
+
+    document.getElementById('myIframe').addEventListener('load', function() {
+        // 获取iframe的DOM内容
+
+        var iframeDoc = document.getElementById('myIframe')
+
+        // 假设登录表单的用户名输入框的ID是'username'
+        var usernameInput = iframeDoc.getElementById('username');
+
+        // 填充用户名
+        usernameInput.value = 'your-username';
+// 假设登录按钮的ID是'login-button'
+        var loginButton = iframeDoc.getElementById('login-button');
+
+    });
+</script>
+</body>
+</html>
