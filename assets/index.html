@@ -8,10 +8,11 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <title>GO文件上传助手</title>
 </head>
+<!--http://layui.xhcen.com/doc/dataTable.html-->
 <!--<body onload="getFiles()">-->
 <body>
 <div class="container">
-    <div class="auth" id="auth">
+    <div class="auth" id="auth" style="display: none;">
         <h1>Authorization Required</h1>
         <input type="password" id="passwordInput" autofocus class="layui-input" placeholder="Enter your password">
     </div>
@@ -19,10 +20,15 @@
         <!-- 显示loading状态的元素 -->
         <div id="overlay"
              style="display: flex; flex-direction: column;justify-content: center; align-items: center; height: 100vh;">
-            <div id="progressBar" style="display: none;width: 40%;">
-                <div id="progress" style="text-align: right; color: white; width: 100%;"></div>
+<!--            <div id="progressBar" style="display: none;width: 40%;">-->
+<!--                <div id="progress" style="text-align: right; color: white; width: 100%;"></div>-->
+<!--            </div>-->
+            <div id="progressBar" style="display: none;width: 40%;" class="layui-progress layui-progress-big" lay-showPercent="true">
+                <div id="progress" class="layui-progress-bar layui-bg-blue"></div>
             </div>
-            <div id="loading">Loading...</div>
+            <div id="loading">
+                <i class="layui-icon" style="font-size: 50px; color: #1E9FFF;">&#xe63d;</i>
+            </div>
             <label id="speed" style="color: red"></label>
         </div>
 
@@ -33,20 +39,23 @@
                 <div id="sample" style="width: 100%;">
                     <div>单文件：
                         <label id="up_1"></label>
-                        <button onclick="copy1(event)">复制</button>
+                        <button class="layui-btn layui-btn-xs" onclick="copy1(event)">复制</button>
                     </div>
 
                     <div>多文件：
                         <label id="up_2"></label>
-                        <button onclick="copy2(event)">复制</button>
+                        <button class="layui-btn layui-btn-xs" onclick="copy2(event)">复制</button>
                     </div>
 
                     <div>脚本式：
                         <label id="up_3"></label><label>/root/a.txt /root/b.txt</label>
-                        <button onclick="copy3(event)">复制</button>
+                        <button class="layui-btn layui-btn-xs" onclick="copy3(event)">复制</button>
                     </div>
                 </div>
-                <div id="up_bg_txt" style="width: 100%;">点击虚线区或拖拽文件至此上传</div>
+                <div id="up_bg_txt" style="width: 100%;">
+                    <i class="layui-icon" style="font-size: 30px; color: #1E9FFF;">&#xe67c;</i>
+                    <div>点击上传或将文件拖拽到此处</div>
+                </div>
             </div>
         </div>
         <input type="file" id="fileInput" name="files[]" onchange="handleFiles(this.files)" multiple>
@@ -55,7 +64,7 @@
         <div style="margin-top: 8px;">
             <div style="align-content: center;">
                 <input type="search" autofocus class="layui-input" id="search_input" placeholder="请输入搜索内容后回车↩︎" onkeypress="handleKeyPress(event)" >
-                <button id="del_all_id" onclick="deleteSelectedRows()" style="height: 70%; display: none">删除选择行
+                <button id="del_all_id" onclick="deleteSelectedRows()" style="height: 70%; display: none" class="layui-btn layui-btn-sm layui-btn-danger">删除选择行
                 </button><!--class="delete-btn"-->
             </div>
         </div>
@@ -78,7 +87,7 @@
         <div class="main">
             <div class="box left">
 <!--                <i id="demo1" class="layui-icon layui-icon-spread-left"></i>-->
-                <div id="tree"></div>
+                <ul id="tree"></ul>
             </div>
             <!-- 表格-->
             <div class="box right">
@@ -156,8 +165,8 @@
                             tree.render({
                                 elem: '#tree'
                                 ,data: [res.data]
-                                ,accordion: true
-                                ,isJump: true
+                                // ,accordion: true
+                                // ,isJump: true
                                 ,click: function(obj){
                                     showToast(obj.data.path);
                                     showFiles(obj.data.path)

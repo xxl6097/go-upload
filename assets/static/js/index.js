@@ -365,6 +365,11 @@ function auth(password) {
             console.log('sucess',xhr.status,xhr.responseText)
             showToast('认证成功')
             createcode(password)
+            //layer.msg('aaaaa')
+            //layer.alert('酷毙了', {icon: 1});
+            //layer.tips('只想提示地精准些', '#id');
+            //layer.msg('有表情地提示', {icon: 6});
+
         }else{
             console.log('failed',xhr.status)
             showToast('认证失败')
