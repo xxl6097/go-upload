@@ -607,12 +607,13 @@ function insertRow(tbody,newRow,newItem) {
     var filename = document.createElement("a");
     filename.textContent = newItem.name;
     if (newItem.isDir){
-        filename.style = 'color: #0000ff; font-size: 18px;font-weight: bold; cursor: pointer;'
+        filename.className = 'list-item-dir'
         filename.addEventListener('click', function () {
             showFiles(newItem.path)
             showToast(newItem.path)
         });
     }else {
+        filename.className = 'list-item-file'
         filename.href = newItem.path;
         filename.target = '_blank'
     }

@@ -20,6 +20,24 @@ body {
         color: black;
     }
 
+    #up_bg_txt {
+        font-size: 25px;
+        align-content: center;
+        text-align: center;
+        color: black;
+    }
+
+    .list-item-file{
+        color: black;
+    }
+
+    .list-item-dir{
+        font-size: 18px;
+        color: blue;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
     th {
         /*background-color: white;*/
     }
@@ -60,13 +78,30 @@ body {
 @media (prefers-color-scheme: dark) {
     body {
         background-color: #0f0f0f;
-        color: #7d7171;
+        color: white;
     }
     th {
         /*background-color: #908d8d;*/
     }
     a {
         color: lightblue; /* 设置超链接在深色主题下的颜色 */
+    }
+
+    #up_bg_txt {
+        font-size: 25px;
+        align-content: center;
+        text-align: center;
+        color: white;
+    }
+    .list-item-file{
+        color: white;
+    }
+
+    .list-item-dir{
+        font-size: 18px;
+        color: yellow;
+        font-weight: bold;
+        cursor: pointer;
     }
 
     .delete-btn {
@@ -125,7 +160,7 @@ body {
 
 #progressBar div {
     height: 100%;
-    background-color: #4caf50;
+    background-color: green;
 }
 
 /* 表格样式（可选） */
@@ -135,7 +170,7 @@ table {
 }
 
 th, td {
-    border: 1px solid #dddddd;
+    border: 1px solid white;
     text-align: left;
     padding: 8px;
 }
@@ -214,11 +249,6 @@ pre {
     font-size: 14px;
 }
 
-#up_bg_txt {
-    font-size: 25px;
-    align-content: center;
-    text-align: center;
-}
 
 #fileInput {
     display: none;
