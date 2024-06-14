@@ -269,7 +269,7 @@ function showFiles(path) {
     authcode = localStorage.getItem('password');
     var xhr = new XMLHttpRequest();
     var url = '/upload';
-    url += `?origin=${window.location.origin}`
+    //url += `?origin=${window.location.origin}`
     if (path){
         url += `?origin=${window.location.origin}&path=${path}`
     }
