@@ -13,7 +13,7 @@ git push origin v1.1.26
 go get -u github.com/mdp/qrterminal/v3 v3.0.0
 
 go get -u github.com/wechaty/go-wechaty
-
+go get -u github.com/xxl6097/go-glog@v0.0.6
 go get -u github.com/xxl6097/go-http@v0.0.7
 
 go get -u github.com/gorilla/mux

@@ -171,6 +171,7 @@
         var treeRender = function () {
             var xhr = new XMLHttpRequest();
             var url = '/tree';
+            url += `?origin=${window.location.origin}`
             xhr.open('GET', url, true);
             console.log('----url', url);
             xhr.onreadystatechange = function () {

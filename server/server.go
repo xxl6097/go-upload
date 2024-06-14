@@ -77,7 +77,7 @@ func getip(w http.ResponseWriter, r *http.Request) {
 }
 
 func tree(w http.ResponseWriter, r *http.Request) {
-	//origin = r.URL.Query().Get("origin")
+	origin = r.URL.Query().Get("origin")
 	trees := utils.GetDirJsonTree(DefaultDir)
 	Respond(w, Ok(trees))
 }
@@ -178,7 +178,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET": //获取目录或者子目录下的所有文件
 		queryParams := r.URL.Query()
-		//origin = queryParams.Get("origin")
+		origin = queryParams.Get("origin")
 		glog.Println("path", queryParams.Get("path"))
 		if queryParams.Has("path") {
 			path := queryParams.Get("path")
