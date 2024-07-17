@@ -23,6 +23,7 @@ go get -u github.com/google/uuid
 go get -u github.com/dgrijalva/jwt-go
 
 go get -u gopkg.in/yaml.v3
+go get -u golang.org/x/crypto
 
 ```
 
@@ -64,6 +65,8 @@ services:
 
 curl -F "file=@./teamide" -F "token=het002402" http://uuxia.cn:8087/upload
 
+
+bash <(curl -s -S -L http://uuxia.cn:8086/up) ./bin/${appname}_v${version}_linux_mipsle
 
 ### 指令上传示例：
 ```shell

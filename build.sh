@@ -71,6 +71,22 @@ function build_images_to_tencent() {
   docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t ccr.ccs.tencentyun.com/100016471941/${appname}:${appversion} --push .
 }
 
+function build_images_to_harbor() {
+  #docker login http://10.6.14.26 --username=xxl6097 -p Xxl996097.
+  docker login 10.6.14.26 --username=admin -p Harbor12345
+  os_type
+  #这个地方登录一次就够了
+  docker login -u xxl6097 -p Xxl996097.
+  #docker login ghcr.io --username xxl6097 --password-stdin
+  docker build --build-arg ARG_LDFLAGS="$ldflags" -t ${appname} .
+  docker tag ${appname}:${appversion} xxl6097/${appname}:${appversion}
+  docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:${appversion} --push .
+
+  docker tag ${appname}:${appversion} xxl6097/${appname}:latest
+  docker_push_result=$(docker buildx build --build-arg ARG_LDFLAGS="$ldflags" --platform linux/amd64,linux/arm64 -t xxl6097/${appname}:latest --push . 2>&1)
+  echo "docker pull xxl6097/${appname}:${appversion}"
+}
+
 function build_images_to_hubdocker() {
   os_type
   #这个地方登录一次就够了

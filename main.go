@@ -22,7 +22,8 @@ func main() {
 func serve() {
 	//path := "/Users/uuxia/Desktop/work/code/go/go-upload/files"
 	//os.Setenv("ENV_FILES", path)
-	SetPassword("het002402")
+	//SetPassword("het002402")
+	CheckPassword("het002402")
 	server.Bootstrap()
 }
 
@@ -36,4 +37,10 @@ func SetPassword(password string) error {
 	fmt.Println(c)
 	//bcrypt.CompareHashAndPassword()
 	return nil
+}
+
+func CheckPassword(password string) error {
+	err := bcrypt.CompareHashAndPassword([]byte("$2a$10$3OzuBHMUG22tQHQVubcV1.uchgt420yVF5LS4QuZgGtHd3ZFjBaH6"), []byte(password))
+	fmt.Println(err)
+	return err
 }
