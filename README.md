@@ -6,6 +6,9 @@ git tag -a v1.1.26 -m "release v1.1.26"
 git push origin v1.1.26
 
 
+## 注意
+如果要定义 static server文件服务器，那么 static router必须放在assets前面初始化，不然报错404
+
 ## 添加依赖
 
 

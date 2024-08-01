@@ -274,7 +274,7 @@ func upload(w http.ResponseWriter, r *http.Request) {
 func copyfile(filedir, source string, w http.ResponseWriter, files []*multipart.FileHeader) {
 	var filearrs []string
 	var filearr []interface{}
-	for i, _ := range files {
+	for i, _file := range files {
 		file, err2 := files[i].Open()
 		defer file.Close()
 		if err2 != nil {
@@ -312,7 +312,7 @@ func copyfile(filedir, source string, w http.ResponseWriter, files []*multipart.
 				//文件存在，删除文件
 				err := os.Remove(filePath)
 				if err != nil {
-					glog.Println("删除文件时发生错误:", err)
+					glog.Println("删除文件时发生错误:", err, _file)
 				} else {
 					glog.Println("文件存在，已删除:", filePath)
 				}

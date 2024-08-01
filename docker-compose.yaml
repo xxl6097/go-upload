@@ -8,6 +8,7 @@ services:
     ports:
       - '8087:8087'
     environment:
+      - FRP_DOWN=true
       - ENV_PORT=8087
       - ENV_TOKEN=het002402
       - ENV_FILES=/data/files
